@@ -318,22 +318,80 @@ app.post('/api/register/verify', async (req, res) => {
  */
 async function sendReceiptEmail(data) {
     const receiptHtml = `
-    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; color: #003366;">
-        <div style="background: #003366; padding: 30px; text-align: center;">
-            <h1 style="color: #FFB800; margin: 0; font-size: 20px; text-transform: uppercase;">Payment Receipt</h1>
-        </div>
-        <div style="padding: 30px;">
-            <p>Hi <b>${data.leadName}</b>, your payment for <b>${data.eventName}</b> is successful.</p>
-            <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Registration ID</td><td style="text-align: right; font-weight: bold;">${data.registrationId}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Transaction ID</td><td style="text-align: right; font-weight: bold;">${data.paymentId}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Amount Paid</td><td style="text-align: right; font-weight: bold; color: #10b981;">₹${data.amount}</td></tr>
-                </table>
-            </div>
-            <p style="font-size: 12px; color: #64748b;">Note: Individual ID cards have been sent to your team members separately.</p>
-        </div>
-    </div>`;
+    <div style="margin: 0; padding: 40px 10px; background-color: #f4f7f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <!-- Main Email Card -->
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; margin: auto; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-collapse: collapse;">
+        
+        <!-- Header/Logo Area -->
+        <tr>
+            <td align="center" style="padding: 40px 40px 20px 40px;">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" 
+                     alt="LBRCE Logo" 
+                     width="90" 
+                     style="display: block; outline: none; border: none; text-decoration: none;"
+                     onerror="this.src='https://via.placeholder.com/90?text=LBRCE'">
+            </td>
+        </tr>
+
+        <!-- Body Content -->
+        <tr>
+            <td align="center" style="padding: 0 40px;">
+                <h2 style="color: #003366; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                    Payment Successful
+                </h2>
+                <p style="color: #556677; font-size: 16px; line-height: 24px; margin: 20px 0 25px 0;">
+                    Hi <strong>${data.leadName}</strong>, your payment for <strong>${data.eventName}</strong> has been received and confirmed.
+                </p>
+                
+                <!-- Receipt Details Box -->
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 10px 0; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #edf2f7;">Registration ID</td>
+                            <td align="right" style="padding: 10px 0; color: #003366; font-size: 14px; font-weight: 700; border-bottom: 1px solid #edf2f7;">${data.registrationId}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #edf2f7;">Transaction ID</td>
+                            <td align="right" style="padding: 10px 0; color: #003366; font-size: 14px; font-weight: 700; border-bottom: 1px solid #edf2f7;">${data.paymentId}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 15px 0 5px 0; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Amount Paid</td>
+                            <td align="right" style="padding: 15px 0 5px 0; color: #10b981; font-size: 20px; font-weight: 800;">₹${data.amount}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <p style="color: #94a3b8; font-size: 12px; margin: 0 0 40px 0; line-height: 1.5; font-style: italic;">
+                    <strong>Note:</strong> Individual ID cards have been sent to your team members separately.
+                </p>
+            </td>
+        </tr>
+
+        <!-- Footer Area -->
+        <tr>
+            <td align="center" style="padding: 30px 40px; background-color: #f8fafc; border-top: 1px solid #edf2f7;">
+                <p style="color: #64748b; font-size: 12px; line-height: 18px; margin: 0;">
+                    Please keep this receipt for your records. If you have any questions regarding this transaction, contact our support team.
+                </p>
+                <p style="color: #003366; font-size: 11px; font-weight: 600; margin-top: 15px; letter-spacing: 0.5px; line-height: 1.5;">
+                    This System was Designed & developed by <br>
+                    <a href="https://xetasolutions.in" target="_blank" style="color: #FFB800; text-decoration: none; border-bottom: 1px solid #FFB800;">Xeta Tech Solutions</a>
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Bottom Spacing -->
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; margin: auto;">
+        <tr>
+            <td align="center" style="padding-top: 20px;">
+                <p style="color: #cbd5e1; font-size: 11px; margin: 0;">
+                    &copy; 2024 LBRCE Events Portal. All rights reserved.
+                </p>
+            </td>
+        </tr>
+    </table>
+</div>`;
 
     try {
         await ses.sendEmail({
@@ -352,24 +410,77 @@ async function sendReceiptEmail(data) {
  */
 async function sendIDCardEmail(recipient, data, qrImage) {
     const idHtml = `
-    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; color: #003366; text-align: center;">
-        <div style="background: #003366; padding: 30px;">
-            <h1 style="color: #FFB800; margin: 0; font-size: 20px; text-transform: uppercase;">Official Entry Pass</h1>
-            <p style="color: white; margin-top: 5px; opacity: 0.8;">${data.eventName}</p>
-        </div>
-        <div style="padding: 30px;">
-            <p>Hi <b>${recipient.name}</b>, here is your digital pass for the event.</p>
-            <div style="margin: 30px 0;">
-                <img src="${qrImage}" width="180" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            </div>
-            <p style="font-weight: 800; font-size: 14px; margin-bottom: 25px;">REG ID: ${data.registrationId}</p>
-            <a href="http://https://events-lbrce.onrender.com/id-card.html?id=${data.registrationId}&email=${recipient.email}" 
-               style="background: #FFB800; color: #003366; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 13px;">
-               DOWNLOAD FULL ID CARD
-            </a>
-            <p style="margin-top: 20px; font-size: 11px; color: #94a3b8;">Please present the QR code at the entrance for verification.</p>
-        </div>
-    </div>`;
+   <div style="margin: 0; padding: 40px 10px; background-color: #f4f7f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <!-- Main Email Card -->
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; margin: auto; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-collapse: collapse;">
+        
+        <!-- Header/Logo Area -->
+        <tr>
+            <td align="center" style="padding: 40px 40px 20px 40px;">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" 
+                     alt="LBRCE Logo" 
+                     width="90" 
+                     style="display: block; outline: none; border: none; text-decoration: none;"
+                     onerror="this.src='https://via.placeholder.com/90?text=LBRCE'">
+            </td>
+        </tr>
+
+        <!-- Body Content -->
+        <tr>
+            <td align="center" style="padding: 0 40px;">
+                <h2 style="color: #003366; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                    Official Entry Pass
+                </h2>
+                <p style="color: #556677; font-size: 16px; line-height: 24px; margin: 10px 0 25px 0;">
+                    Hi <strong>${recipient.name}</strong>, here is your digital pass for <strong>${data.eventName}</strong>.
+                </p>
+                
+                <!-- Registration ID Section -->
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; margin-bottom: 25px;">
+                    <p style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin: 0 0 10px 0;">Your Registration ID</p>
+                    <p style="font-weight: 800; color: #003366; margin: 0; font-size: 28px; letter-spacing: 2px;">
+                        ${data.registrationId}
+                    </p>
+                </div>
+
+                <!-- Action Button -->
+                <div style="margin-bottom: 30px;">
+                    <a href="http://https://events-lbrce.onrender.com/id-card.html?id=${data.registrationId}&email=${recipient.email}" target="_blank" style="background-color: #FFB800; color: #003366; padding: 18px 30px; border-radius: 12px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 13px; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(255, 184, 0, 0.2);">
+                        DOWNLOAD FULL ID CARD
+                    </a>
+                </div>
+
+                <p style="color: #94a3b8; font-size: 12px; margin: 0 0 40px 0; line-height: 1.5;">
+                    Please present this Registration ID at the entrance for verification.
+                </p>
+            </td>
+        </tr>
+
+        <!-- Footer Area -->
+        <tr>
+            <td align="center" style="padding: 30px 40px; background-color: #f8fafc; border-top: 1px solid #edf2f7;">
+                <p style="color: #64748b; font-size: 12px; line-height: 18px; margin: 0;">
+                    This digital pass is required for entry. Do not share your Registration ID with others as it is unique to your profile.
+                </p>
+                <p style="color: #003366; font-size: 11px; font-weight: 600; margin-top: 15px; letter-spacing: 0.5px; line-height: 1.5;">
+                    This System was Designed & developed by <br>
+                    <a href="https://xetasolutions.in" target="_blank" style="color: #FFB800; text-decoration: none; border-bottom: 1px solid #FFB800;">Xeta Tech Solutions</a>
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Bottom Spacing -->
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; margin: auto;">
+        <tr>
+            <td align="center" style="padding-top: 20px;">
+                <p style="color: #cbd5e1; font-size: 11px; margin: 0;">
+                    &copy; 2024 LBRCE Events Portal. All rights reserved.
+                </p>
+            </td>
+        </tr>
+    </table>
+</div>`;
 
     try {
         await ses.sendEmail({
