@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Event ID Card | LBRCE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { lbrce: { blue: '#003366', accent: '#FFB800' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            .no-print { display: none; }
+            body { background: white; padding: 0; }
+            .id-card { shadow: none; border: 1px solid #eee; }
+        }
+        .id-card {
+            width: 350px;
+            height: 550px;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .curve {
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 150%;
+            height: 200px;
+            background: #003366;
+            transform: rotate(-5deg);
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-6">
+
+    <!-- Action Buttons (Hidden on Print) -->
+    <div class="no-print mb-8 flex gap-4">
+        <button onclick="window.print()" class="bg-lbrce-blue text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg">
+            <i class="ph ph-printer text-lg"></i> Print ID Card
+        </button>
+        <a href="status.html" class="bg-white text-gray-400 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 border border-gray-200">
+            <i class="ph ph-arrow-left text-lg"></i> Back
+        </a>
+    </div>
+
+    <!-- ID CARD CONTAINER -->
+    <div class="id-card rounded-[2.5rem] shadow-2xl shadow-blue-900/20 flex flex-col items-center animate-in fade-in zoom-in duration-500">
+        <!-- Top Branding Header -->
+        <div class="curve"></div>
+        
+        <div class="relative z-10 pt-8 pb-4 flex flex-col items-center">
+            <!-- Fixed Logo: Removed brightness-0 to prevent solid white block -->
+            <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" 
+                 alt="LBRCE Logo"
+                 class="h-14 w-auto object-contain mb-2 invert brightness-200 contrast-150">
+            <h2 class="text-white text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Official Event Entry</h2>
+        </div>
+
+        <!-- Participant Photo Placeholder -->
+        <div class="relative z-10 mt-6 mb-4">
+            <div class="w-32 h-32 rounded-3xl bg-gray-100 border-4 border-white shadow-xl flex items-center justify-center overflow-hidden">
+                <i class="ph ph-user text-6xl text-gray-300"></i>
+            </div>
+            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-lbrce-accent rounded-xl flex items-center justify-center shadow-lg">
+                <i class="ph ph-check-circle-fill text-lbrce-blue text-xl"></i>
+            </div>
+        </div>
+
+        <!-- Participant Details -->
+        <div class="text-center px-8 flex-1 w-full mt-4">
+            <h1 class="text-2xl font-black text-lbrce-blue tracking-tight leading-tight">Rahul Sharma</h1>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">22L31A0501 | CSE Dept</p>
+            
+            <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 mb-6">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Event Name</p>
+                <p class="font-bold text-gray-800 text-sm uppercase">CODE CROW AI HACKATHON</p>
+                <div class="h-px bg-gray-200 my-2 mx-4"></div>
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Team Name</p>
+                <p class="font-bold text-lbrce-blue text-xs uppercase">Cyber Warriors</p>
+            </div>
+        </div>
+
+        <!-- QR Code Footer -->
+        <div class="w-full bg-lbrce-blue p-8 flex flex-col items-center rounded-t-[3rem]">
+            <div class="bg-white p-3 rounded-2xl shadow-inner mb-4">
+                <div class="w-24 h-24 bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-xl">
+                    <i class="ph ph-qr-code text-5xl text-lbrce-blue opacity-20"></i>
+                </div>
+            </div>
+            <p class="text-white text-[8px] font-bold uppercase tracking-[0.4em] opacity-60">Scan to mark attendance</p>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="mt-12 max-w-sm text-center">
+        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Instructions</p>
+        <p class="text-xs text-gray-500 leading-relaxed font-medium">
+            Please carry a physical print or digital copy of this ID card to the venue. Present the QR code at the registration desk for verification.
+        </p>
+    </div>
+
+</body>
+</html>

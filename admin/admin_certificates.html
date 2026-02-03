@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certification Engine | LBRCE Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: { lbrce: { blue: '#003366', accent: '#FFB800' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sidebar-item-active { background: #FFB800 !important; color: #003366 !important; box-shadow: 0 10px 15px -3px rgba(255, 184, 0, 0.3); }
+        #sidebar-toggle:checked ~ aside { transform: translateX(0); }
+        @media (max-width: 1024px) {
+            aside { transform: translateX(-100%); transition: transform 0.3s ease; }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        canvas { max-width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] flex h-screen overflow-hidden text-slate-700">
+
+    <input type="checkbox" id="sidebar-toggle" class="hidden">
+
+    <aside class="fixed lg:static inset-y-0 left-0 w-72 bg-lbrce-blue text-white flex flex-col shrink-0 shadow-2xl z-50">
+        <div class="p-8 flex flex-col items-center">
+            <div class="w-20 h-20 bg-white rounded-2xl p-3 mb-4 shadow-xl border border-white/10 flex items-center justify-center">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" alt="LBRCE Logo" class="max-w-full max-h-full object-contain">
+            </div>
+            <h1 class="text-lg font-black tracking-tight uppercase">Admin Console</h1>
+        </div>
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+            <a href="admin_dashboard.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"><i class="ph-bold ph-squares-four text-xl"></i> Analytics</a>
+            <a href="admin_manage_events.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"><i class="ph-bold ph-calendar-plus text-xl"></i> Manage Events</a>
+            <a href="admin_registrations.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"><i class="ph-bold ph-users-three text-xl"></i> Registrations</a>
+            <a href="admin_attendance.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"><i class="ph-bold ph-qr-code text-xl"></i> Attendance</a>
+            <a href="admin_certificates.html" class="sidebar-item-active flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm transition-all"><i class="ph-bold ph-certificate text-xl"></i> Certificates</a>
+        </nav>
+    </aside>
+
+    <label for="sidebar-toggle" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" id="mobile-overlay"></label>
+
+    <main class="flex-1 flex flex-col overflow-hidden w-full">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 shrink-0">
+            <div class="flex items-center gap-4">
+                <label for="sidebar-toggle" class="lg:hidden p-2 bg-slate-100 rounded-lg cursor-pointer"><i class="ph-bold ph-list text-xl text-lbrce-blue"></i></label>
+                <div>
+                    <h2 class="text-xl lg:text-2xl font-black text-lbrce-blue uppercase">Certificate Engine</h2>
+                    <p class="hidden sm:block text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Cost-Optimized Dynamic Dispatch</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 lg:p-10 custom-scrollbar bg-[#F8FAFC]">
+            <div class="max-w-6xl mx-auto space-y-10">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-6">
+                            <div class="flex items-center gap-3 border-b border-slate-50 pb-4">
+                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-lbrce-blue"><i class="ph-bold ph-image"></i></div>
+                                <h3 class="text-sm font-black text-lbrce-blue uppercase tracking-tight">Template Setup</h3>
+                            </div>
+                            <div class="space-y-4">
+                                <button onclick="document.getElementById('templateInput').click()" class="w-full py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-lbrce-accent transition-all group">
+                                    <input type="file" id="templateInput" class="hidden" accept="image/png, image/jpeg" onchange="loadTemplate(event)">
+                                    <i class="ph-bold ph-upload-simple text-2xl text-slate-300 group-hover:text-lbrce-blue"></i>
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-lbrce-blue">Upload Blank PNG</span>
+                                </button>
+                                <div class="space-y-4 pt-4 border-t border-slate-50 text-[10px]">
+                                    <label class="block"><span>Y-Position</span><input type="range" id="posY" min="0" max="1000" value="500" oninput="updatePreview()" class="w-full h-1.5 bg-slate-100 accent-lbrce-blue"></label>
+                                    <label class="block"><span>X-Position</span><input type="range" id="posX" min="0" max="1000" value="500" oninput="updatePreview()" class="w-full h-1.5 bg-slate-100 accent-lbrce-blue"></label>
+                                    <label class="block"><span>Font Size</span><input type="range" id="fontSize" min="10" max="150" value="60" oninput="updatePreview()" class="w-full h-1.5 bg-slate-100 accent-lbrce-blue"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 flex items-center justify-center bg-slate-200/30 rounded-[3rem] p-4 lg:p-10 border border-slate-100 shadow-inner min-h-[400px]">
+                        <div id="previewContainer" class="w-full flex flex-col items-center">
+                            <canvas id="certCanvas"></canvas>
+                            <p id="canvasMsg" class="mt-6 text-xs font-bold text-slate-400 uppercase tracking-widest">Upload template to begin preview</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 lg:p-10 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-8">
+                    <div class="flex items-center justify-between border-b border-slate-50 pb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500"><i class="ph-bold ph-database text-xl"></i></div>
+                            <h3 class="text-lg font-black text-lbrce-blue uppercase tracking-tight">Recipient Master List</h3>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div class="lg:col-span-4 space-y-4">
+                            <textarea id="dataInput" rows="12" oninput="parseData()" placeholder="Name, Email, College, Dept, Event" class="w-full p-6 bg-slate-50 rounded-[2rem] border-none outline-none font-medium text-xs focus:ring-2 focus:ring-lbrce-accent transition-all"></textarea>
+                        </div>
+                        <div class="lg:col-span-8 overflow-hidden rounded-[2rem] border border-slate-100 h-[300px] overflow-y-auto bg-white custom-scrollbar">
+                            <table class="w-full text-left border-collapse">
+                                <tbody id="parsedTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 pb-20">
+                    <button id="dispatchBtn" onclick="issueCertificates()" class="w-full bg-lbrce-blue text-white py-6 rounded-3xl font-black text-lg uppercase tracking-[0.2em] shadow-2xl hover:bg-lbrce-accent hover:text-lbrce-blue transition-all disabled:opacity-50">
+                        Execute Dispatch Protocol
+                    </button>
+                    <p id="dispatchStatus" class="text-center mt-4 text-[10px] font-black uppercase text-slate-400 tracking-widest hidden">Initializing SES Mail Workers...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('certCanvas');
+        const ctx = canvas.getContext('2d');
+        let templateImg = null;
+        let recipients = [];
+        let templateFile = null;
+
+        function loadTemplate(e) {
+            templateFile = e.target.files[0];
+            if(!templateFile) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                templateImg = new Image();
+                templateImg.onload = function() {
+                    canvas.width = templateImg.width;
+                    canvas.height = templateImg.height;
+                    document.getElementById('canvasMsg').classList.add('hidden');
+                    updatePreview();
+                }
+                templateImg.src = event.target.result;
+            }
+            reader.readAsDataURL(templateFile);
+        }
+
+        function updatePreview() {
+            if(!templateImg) return;
+            ctx.drawImage(templateImg, 0, 0);
+            const x = (document.getElementById('posX').value / 1000) * canvas.width;
+            const y = (document.getElementById('posY').value / 1000) * canvas.height;
+            const fontSize = document.getElementById('fontSize').value;
+            ctx.font = `bold ${fontSize}px "Plus Jakarta Sans"`;
+            ctx.fillStyle = "#003366";
+            ctx.textAlign = "center";
+            const name = recipients.length > 0 ? recipients[0].name : "PARTICIPANT NAME";
+            ctx.fillText(name.toUpperCase(), x, y);
+        }
+
+        function parseData() {
+            const input = document.getElementById('dataInput').value.trim();
+            if(!input) { recipients = []; renderTable(); return; }
+            const lines = input.split('\n');
+            recipients = lines.map(line => {
+                const parts = line.split(',').map(p => p.trim());
+                return { name: parts[0] || '', email: parts[1] || '', college: parts[2] || '', dept: parts[3] || '', event: parts[4] || '' };
+            }).filter(r => r.name && r.email);
+            renderTable();
+            updatePreview();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('parsedTable');
+            if(recipients.length === 0) {
+                tbody.innerHTML = `<tr><td class="p-10 text-center text-slate-300 text-[10px] font-black uppercase">No valid data parsed</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = recipients.map((r, i) => `<tr class="border-b border-slate-50"><td class="p-4 px-6 text-[10px] font-black uppercase text-lbrce-blue">${r.name}<br><span class="text-[8px] font-bold text-slate-400">${r.email}</span></td><td class="p-4 text-[8px] font-bold text-slate-500">${r.college} | ${r.event}</td></tr>`).join('');
+        }
+
+        async function issueCertificates() {
+            if(recipients.length === 0 || !templateFile) return alert("Upload template and provide data.");
+            const btn = document.getElementById('dispatchBtn');
+            btn.disabled = true;
+            btn.innerText = "UPLOADING TEMPLATE...";
+            document.getElementById('dispatchStatus').classList.remove('hidden');
+
+            try {
+                // Upload template ONCE to get a URL
+                const formData = new FormData();
+                formData.append('photo', templateFile);
+                const uploadRes = await fetch('/api/upload-photo', { method: 'POST', body: formData });
+                const uploadJson = await uploadRes.json();
+                
+                // Dispatch logic: Send link to the dynamic viewer page
+                const res = await fetch('/api/admin/certificates/issue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        recipients: recipients,
+                        templateUrl: uploadJson.url,
+                        config: {
+                            x: document.getElementById('posX').value,
+                            y: document.getElementById('posY').value,
+                            fs: document.getElementById('fontSize').value
+                        },
+                        eventName: recipients[0].event
+                    })
+                });
+                
+                if(res.ok) { alert("Dispatch Protocol executed. Participants will receive short dynamic links."); location.reload(); }
+            } catch (err) { alert("Execution failed."); }
+            finally { btn.disabled = false; btn.innerText = "Execute Dispatch Protocol"; }
+        }
+
+        window.onload = async () => {
+            const res = await fetch('/api/admin/check-session');
+            const data = await res.json();
+            if(!data.loggedIn) window.location.href = 'admin_login.html';
+        };
+    </script>
+</body>
+</html>

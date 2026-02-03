@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO CONFIGURATION -->
+    <title>LBRCE Events & Registrations Portal | Lakireddy Bali Reddy College of Engineering</title>
+    <meta name="description" content="The official centralized events platform for Lakireddy Bali Reddy College of Engineering (LBRCE). Find and register for upcoming technical events, hackathons, cultural fests, and workshops.">
+    <meta name="keywords" content="LBRCE events, college events LBRCE, LBRCE event registrations, LBRCE hackathons, LBRCE workshops">
+    <meta name="author" content="Xeta Tech Solutions (xetasolutions.in)">
+
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png">
+
+    <!-- Tailwind CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: { lbrce: { blue: '#003366', accent: '#FFB800', light: '#F3F4F6' } },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'scroll': 'scroll 40s linear infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        scroll: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #ffffff; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: all 1s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        #preloader.loaded { transform: translateY(-100%); opacity: 0; visibility: hidden; }
+        .loader-progress-bg { width: 200px; height: 2px; background: #f1f5f9; border-radius: 4px; margin: 30px auto 0 auto; overflow: hidden; position: relative; }
+        .loader-progress-bar { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: linear-gradient(90deg, #FFB800, #003366); transition: width 0.4s ease-out; }
+        
+        body.loading { overflow: hidden; }
+        .details-modal { display: none; background: rgba(0, 51, 102, 0.4); backdrop-filter: blur(8px); }
+        .details-modal.active { display: flex; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased flex flex-col min-h-screen loading">
+
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="text-center">
+            <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" 
+                 alt="LBRCE Logo" class="w-32 md:w-40 h-auto mb-6 animate-bounce drop-shadow-2xl mx-auto">
+            <div class="loader-progress-bg">
+                <div class="loader-progress-bar" id="load-bar"></div>
+            </div>
+            <p class="mt-4 text-[10px] uppercase tracking-[0.3em] font-bold text-gray-400">Lakireddy Bali Reddy College</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300 h-20" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-full">
+            <div class="flex items-center gap-3">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" alt="Logo" class="h-12 w-auto">
+                <div class="hidden sm:flex flex-col text-left">
+                    <span class="font-black text-lg leading-tight text-gray-900 tracking-tighter">LBRCE Events</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Official Portal</span>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#about" class="text-xs font-black text-gray-400 hover:text-lbrce-blue uppercase tracking-widest transition-colors">About</a>
+                <a href="#events" class="text-xs font-black text-gray-400 hover:text-lbrce-blue uppercase tracking-widest transition-colors">Events</a>
+                <a href="status.html" class="text-xs font-black text-gray-400 hover:text-lbrce-blue uppercase tracking-widest transition-colors">Verify Status</a>
+                <a href="#events" class="bg-lbrce-blue text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-900/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">
+                    Register Now
+                </a>
+            </div>
+
+            <div class="md:hidden flex items-center text-left">
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-lbrce-blue p-2">
+                    <i class="ph ph-list text-3xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-2xl p-6 space-y-4">
+            <a href="#about" class="block text-sm font-black text-gray-400 uppercase tracking-widest">About</a>
+            <a href="#events" class="block text-sm font-black text-gray-400 uppercase tracking-widest">Registry</a>
+            <a href="status.html" class="block text-sm font-black text-gray-400 uppercase tracking-widest">Check Status</a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="relative pt-48 pb-32 bg-lbrce-blue overflow-hidden text-center min-h-[85vh] flex items-center justify-center">
+        <div class="absolute inset-0 z-0 text-left">
+            <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769924817/admin-block_kgxvrc.jpg" class="w-full h-full object-cover opacity-30">
+            <div class="absolute inset-0 bg-gradient-to-b from-lbrce-blue/40 to-lbrce-blue"></div>
+        </div>
+        <div class="relative z-10 max-w-6xl px-6 mx-auto flex flex-col items-center">
+            <span class="inline-block bg-white/10 backdrop-blur-md text-white text-[10px] font-black uppercase px-6 py-2 rounded-full mb-8 border border-white/10 tracking-[0.3em] animate-fade-in-up">Annual Fest Series 2026</span>
+            <h1 class="text-5xl md:text-8xl font-black tracking-tighter text-white mb-8 leading-[0.9] animate-fade-in-up">Innovation Meets <br><span class="text-lbrce-accent">Inspiration</span></h1>
+            <p class="text-lg md:text-2xl text-blue-100/80 mb-12 max-w-3xl font-medium leading-relaxed animate-fade-in-up" style="animation-delay: 0.1s;">
+                Official platform for all technical events, cultural fests, and workshops conducted at 
+                <span class="font-bold text-white">Lakireddy Bali Reddy College of Engineering</span>.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-5 animate-fade-in-up w-full max-w-xl" style="animation-delay: 0.2s;">
+                <a href="#events" class="flex-1 px-10 py-5 bg-white text-lbrce-blue text-xs font-black uppercase tracking-widest rounded-[2rem] shadow-2xl hover:scale-105 transition-all text-center">Explore Events</a>
+                <div class="flex-1 px-10 py-5 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-md text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Registrations Live
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- DEVELOPMENT NOTICE -->
+    <div class="bg-lbrce-accent/10 border-b border-lbrce-accent/20">
+        <div class="max-w-7xl mx-auto py-4 px-6 flex items-center justify-center gap-3">
+            <div class="p-1.5 bg-lbrce-accent rounded-lg text-white text-left"><i class="ph ph-info font-bold"></i></div>
+            <p class="font-bold text-yellow-900 text-xs uppercase tracking-widest text-center">
+                Portal Synchronized: More events and real-time dashboards are arriving daily.
+            </p>
+        </div>
+    </div>
+
+    <main class="flex-grow">
+        <!-- ABOUT SECTION -->
+        <section id="about" class="py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="lg:text-center mb-20">
+                    <h2 class="text-[10px] text-lbrce-blue font-black tracking-[0.4em] uppercase mb-4">Unified Ecosystem</h2>
+                    <p class="text-4xl font-black tracking-tighter text-gray-900 md:text-5xl uppercase text-left sm:text-center">About the Portal</p>
+                    <p class="mt-6 max-w-3xl text-lg text-gray-500 lg:mx-auto font-medium leading-relaxed text-left sm:text-center">
+                        This website serves as the centralized hub for LBRCE's campus life, bridging technical excellence and creative expression into one high-performance platform.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <!-- Technical -->
+                    <div class="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all group">
+                        <div class="w-14 h-14 bg-lbrce-blue rounded-2xl flex items-center justify-center text-white text-3xl shadow-xl group-hover:bg-lbrce-accent group-hover:text-lbrce-blue transition-colors">
+                            <i class="ph-bold ph-code"></i>
+                        </div>
+                        <h3 class="mt-8 text-xl font-black text-gray-900 uppercase tracking-tight text-left">Technical Events</h3>
+                        <p class="mt-4 text-sm text-gray-500 font-medium leading-relaxed text-left">Hackathons, coding contests, and paper presentations designed to push the boundaries of engineering.</p>
+                    </div>
+                    <!-- Cultural -->
+                    <div class="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all group">
+                        <div class="w-14 h-14 bg-lbrce-blue rounded-2xl flex items-center justify-center text-white text-3xl shadow-xl group-hover:bg-lbrce-accent group-hover:text-lbrce-blue transition-colors">
+                            <i class="ph-bold ph-confetti"></i>
+                        </div>
+                        <h3 class="mt-8 text-xl font-black text-gray-900 uppercase tracking-tight text-left">Cultural Fests</h3>
+                        <p class="mt-4 text-sm text-gray-500 font-medium leading-relaxed text-left">Celebrating the creative spirit of LBRCE through flash mobs, art exhibitions, and musical nights.</p>
+                    </div>
+                    <!-- Workshops -->
+                    <div class="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all group">
+                        <div class="w-14 h-14 bg-lbrce-blue rounded-2xl flex items-center justify-center text-white text-3xl shadow-xl group-hover:bg-lbrce-accent group-hover:text-lbrce-blue transition-colors">
+                            <i class="ph-bold ph-chalkboard-teacher"></i>
+                        </div>
+                        <h3 class="mt-8 text-xl font-black text-gray-900 uppercase tracking-tight text-left">Workshops</h3>
+                        <p class="mt-4 text-sm text-gray-500 font-medium leading-relaxed text-left">Hands-on experience through industry-led training sessions and distinguished alumni lectures.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROCESS SECTION -->
+        <section class="py-24 bg-lbrce-blue text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-white opacity-5 text-left"></div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10 text-center">
+                <h2 class="text-3xl font-black uppercase tracking-tight mb-16">The Journey</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+                    <div>
+                        <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-8 text-lbrce-accent text-4xl shadow-inner border border-white/10">
+                            <i class="ph-bold ph-magnifying-glass"></i>
+                        </div>
+                        <h3 class="text-xl font-black uppercase tracking-tight mb-4">1. Discover</h3>
+                        <p class="text-blue-100/70 text-sm font-medium">Browse upcoming technical and cultural events listed across departments.</p>
+                    </div>
+                    <div>
+                        <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-8 text-lbrce-accent text-4xl shadow-inner border border-white/10">
+                            <i class="ph-bold ph-user-plus"></i>
+                        </div>
+                        <h3 class="text-xl font-black uppercase tracking-tight mb-4">2. Register</h3>
+                        <p class="text-blue-100/70 text-sm font-medium">Sign up instantly using your details and secure your participation slot.</p>
+                    </div>
+                    <div>
+                        <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-8 text-lbrce-accent text-4xl shadow-inner border border-white/10">
+                            <i class="ph-bold ph-certificate"></i>
+                        </div>
+                        <h3 class="text-xl font-black uppercase tracking-tight mb-4">3. Achieve</h3>
+                        <p class="text-blue-100/70 text-sm font-medium">Gain valuable skills and receive verified digital certificates for your profile.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EVENT REGISTRY (DYNAMIC GRID) -->
+        <section id="events" class="py-24 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-6 text-left">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+                    <div>
+                        <h2 class="text-4xl font-black text-lbrce-blue uppercase tracking-tight">Active Registry</h2>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse text-left"></div>
+                            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest text-left">Real-time Synchronization</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 text-left">
+                        <button onclick="filterEvents('All')" class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-slate-200 hover:border-lbrce-blue transition-all">All</button>
+                        <button onclick="filterEvents('Technical')" class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-slate-200 hover:border-lbrce-blue transition-all">Technical</button>
+                        <button onclick="filterEvents('Cultural')" class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-slate-200 hover:border-lbrce-blue transition-all">Cultural</button>
+                        <button onclick="filterEvents('Workshop')" class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-slate-200 hover:border-lbrce-blue transition-all">Workshops</button>
+                    </div>
+                </div>
+
+                <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 text-left">
+                    <!-- Shimmer Placeholders -->
+                    <div class="animate-pulse bg-white h-[30rem] rounded-[3rem] shadow-sm"></div>
+                    <div class="animate-pulse bg-white h-[30rem] rounded-[3rem] shadow-sm"></div>
+                    <div class="animate-pulse bg-white h-[30rem] rounded-[3rem] shadow-sm"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COMMUNITIES SECTION -->
+        <section class="py-20 bg-white border-t border-slate-100 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6 text-center mb-12">
+                <p class="text-gray-400 font-black uppercase tracking-[0.4em] text-[9px]">LBRCE Student Communities</p>
+            </div>
+            <div class="relative flex overflow-hidden">
+                <div class="flex animate-scroll whitespace-nowrap gap-24 py-4 items-center text-left">
+                    <img src="https://lbrce.ac.in/clubs/saheli_club/images/saheli_logo.jpg" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/clubs/prakruthi_club/images/prakruthi_logo.png" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/clubs/spoorthi_club/images/spoorthi_logo.jpg" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/clubs/kruthi_club/images/kruthi_logo.jpg" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/central/nss/images/nsslogo.jpg" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/images/stud_resources/IEEE-LBRCE-CIS-LOGO%20FINAL.png" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/clubs/saheli_club/images/saheli_logo.jpg" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/clubs/prakruthi_club/images/prakruthi_logo.png" class="h-16 w-auto hover:scale-110 transition-all">
+                    <img src="https://lbrce.ac.in/clubs/spoorthi_club/images/spoorthi_logo.jpg" class="h-16 w-auto hover:scale-110 transition-all">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-white pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-white/10 pb-16 text-left">
+            <div class="col-span-1 md:col-span-2">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" class="h-14 mb-8 object-contain">
+                <p class="text-slate-400 text-sm max-w-sm leading-relaxed font-medium">Official centralized gateway for students to register, manage, and verify event participation at Lakireddy Bali Reddy College of Engineering.</p>
+            </div>
+            <div class="text-left">
+                <h4 class="font-black uppercase text-xs tracking-widest mb-6 text-lbrce-accent">Quick Access</h4>
+                <ul class="space-y-4 text-xs font-bold text-slate-400">
+                    <li><a href="#about" class="hover:text-white transition-colors uppercase">College Info</a></li>
+                    <li><a href="#events" class="hover:text-white transition-colors uppercase">Registry</a></li>
+                    <li><a href="status.html" class="hover:text-white transition-colors uppercase">Ticket Verification</a></li>
+                    <li><a href="admin/admin_login.html" class="hover:text-white transition-colors uppercase">Organiser Portal</a></li>
+                </ul>
+            </div>
+            <div class="text-left">
+                <h4 class="font-black uppercase text-xs tracking-widest mb-6 text-lbrce-accent">Development</h4>
+                <a href="https://xetasolutions.in" target="_blank" class="block p-5 bg-white/5 rounded-3xl border border-white/10 group hover:bg-white/10 transition-all">
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Architected By</p>
+                    <p class="text-xs font-black text-white group-hover:text-lbrce-accent transition-all uppercase tracking-tight">Xeta Tech Solutions</p>
+                </a>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex flex-col items-center md:items-start text-center md:text-left gap-1">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">&copy; 2026 Xeta Tech Solutions. All rights reserved.</p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">Designed, Developed & Maintained by <span class="text-lbrce-accent">Xeta Tech Solutions</span></p>
+            </div>
+            <div class="flex gap-6 text-slate-500 text-left">
+                <a href="#"><i class="ph-bold ph-facebook-logo text-xl hover:text-white transition-all"></i></a>
+                <a href="#"><i class="ph-bold ph-instagram-logo text-xl hover:text-white transition-all"></i></a>
+                <a href="#"><i class="ph-bold ph-linkedin-logo text-xl hover:text-white transition-all"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- DETAILS MODAL -->
+    <div id="detailsModal" class="details-modal fixed inset-0 z-[100] items-center justify-center p-4 text-left" onclick="if(event.target == this) closeModal()">
+        <div class="bg-white rounded-[4rem] w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
+            <div class="bg-lbrce-blue p-10 md:p-14 text-white relative shrink-0">
+                <button onclick="closeModal()" class="absolute top-10 right-10 text-3xl opacity-30 hover:opacity-100 transition-all"><i class="ph ph-x-circle"></i></button>
+                <span id="modal-category" class="bg-lbrce-accent text-lbrce-blue text-[9px] font-black uppercase px-4 py-1.5 rounded-full shadow-lg">CATEGORY</span>
+                <h3 id="modal-title" class="text-4xl font-black mt-4 leading-[0.9] uppercase tracking-tighter">EVENT TITLE</h3>
+            </div>
+            <div id="modal-body" class="p-10 md:p-14 overflow-y-auto custom-scrollbar space-y-10 flex-1 bg-white text-left">
+                <!-- Content -->
+            </div>
+            <div class="p-10 md:p-14 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
+                <div class="text-left">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Admission Fee</p>
+                    <p id="modal-price" class="text-4xl font-black text-lbrce-blue leading-none">₹0</p>
+                </div>
+                <a id="modal-reg-link" href="#" class="bg-lbrce-blue text-white px-12 py-5 rounded-[2.5rem] font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">Register Event</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allEvents = [];
+
+        // ENFORCED NAME FORMATTING HELPER
+        function formatToTitleCase(str) {
+            if (!str) return "";
+            return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
+        }
+
+        async function init() {
+            const bar = document.getElementById('load-bar');
+            let w = 0;
+            const int = setInterval(() => {
+                w += Math.random() * 30;
+                if(w > 100) w = 100;
+                bar.style.width = w + '%';
+                if(w === 100) clearInterval(int);
+            }, 150);
+
+            try {
+                const res = await fetch('/api/events');
+                allEvents = await res.json();
+                renderEvents(allEvents);
+                
+                setTimeout(() => {
+                    document.getElementById('preloader').classList.add('loaded');
+                    document.body.classList.remove('loading');
+                }, 1000);
+            } catch (err) { console.error("Registry connection failure"); }
+        }
+
+        function renderEvents(events) {
+            const grid = document.getElementById('events-grid');
+            if (events.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-black uppercase tracking-widest">Registry synchronized: No active events found.</div>`;
+                return;
+            }
+
+            grid.innerHTML = events.map(ev => `
+                <div class="bg-white rounded-[3.5rem] border border-slate-100 shadow-2xl shadow-slate-900/5 overflow-hidden flex flex-col hover:-translate-y-2 transition-all group">
+                    <div class="h-64 relative overflow-hidden bg-slate-100 text-left">
+                        <img src="${ev.logo || 'https://res.cloudinary.com/djdwpjm7x/image/upload/v1769924817/admin-block_kgxvrc.jpg'}" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" 
+                             onerror="this.src='https://res.cloudinary.com/djdwpjm7x/image/upload/v1769924817/admin-block_kgxvrc.jpg'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-lbrce-blue/90 to-transparent"></div>
+                        <div class="absolute bottom-6 left-8 right-8">
+                            <span class="bg-lbrce-accent text-lbrce-blue text-[9px] font-black uppercase px-4 py-1 rounded-full shadow-lg border border-white/20">${ev.type}</span>
+                            <h3 class="text-2xl font-black text-white mt-3 uppercase tracking-tighter leading-tight drop-shadow-md">${ev.name}</h3>
+                        </div>
+                    </div>
+                    <div class="p-10 flex flex-col flex-1 text-left">
+                        <p class="text-slate-400 text-sm font-medium mb-10 line-clamp-2 leading-relaxed">${ev.description}</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-10 pt-8 border-t border-slate-50">
+                            <div class="text-left">
+                                <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Participation</p>
+                                <p class="text-xs font-black text-lbrce-blue uppercase">${ev.teamSize > 1 ? ev.teamSize + ' Per Team' : 'Solo Entry'}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Entry Pass</p>
+                                <p class="text-xs font-black text-lbrce-blue">₹${ev.price}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mt-auto">
+                            <button onclick="openModal('${ev.eventId}')" class="py-5 bg-slate-50 text-slate-500 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all shadow-sm">Blueprint</button>
+                            <a href="register.html?event=${ev.eventId}" class="py-5 bg-lbrce-blue text-white rounded-3xl font-black text-xs uppercase tracking-widest text-center shadow-2xl shadow-blue-900/10 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">Register</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterEvents(type) {
+            if (type === 'All') renderEvents(allEvents);
+            else renderEvents(allEvents.filter(e => e.type === type));
+        }
+
+        function openModal(id) {
+            const ev = allEvents.find(e => e.eventId === id);
+            if (!ev) return;
+
+            document.getElementById('modal-title').innerText = ev.name;
+            document.getElementById('modal-category').innerText = ev.type;
+            document.getElementById('modal-price').innerText = `₹${ev.price}`;
+            document.getElementById('modal-reg-link').href = `register.html?event=${ev.eventId}`;
+
+            const body = document.getElementById('modal-body');
+            body.innerHTML = `
+                <div class="space-y-4 bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 text-left">
+                    <h4 class="text-[10px] font-black text-lbrce-blue uppercase tracking-[0.3em] text-left">Brief Summary</h4>
+                    <p class="text-slate-500 text-base font-medium leading-relaxed text-left">${ev.description}</p>
+                </div>
+            `;
+
+            if (ev.sections && ev.sections.length > 0) {
+                ev.sections.forEach(sec => {
+                    body.innerHTML += `
+                        <div class="space-y-4 pt-4 px-2 text-left">
+                            <h4 class="text-[10px] font-black text-lbrce-blue uppercase tracking-[0.3em] flex items-center gap-3 text-left">
+                                <i class="ph ph-info-fill text-lbrce-accent text-lg text-left"></i> ${sec.heading}
+                            </h4>
+                            <p class="text-slate-500 text-sm leading-relaxed font-medium whitespace-pre-line text-left">${sec.content}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('detailsModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-2xl', 'h-16');
+                nav.classList.remove('h-20');
+            } else {
+                nav.classList.remove('shadow-2xl', 'h-16');
+                nav.classList.add('h-20');
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

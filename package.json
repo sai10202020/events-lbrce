@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "aws-sdk": "^2.1693.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6"
+  }
+}

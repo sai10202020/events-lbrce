@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Management | LBRCE Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: { lbrce: { blue: '#003366', accent: '#FFB800' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sidebar-item-active { background: #FFB800 !important; color: #003366 !important; box-shadow: 0 10px 15px -3px rgba(255, 184, 0, 0.3); }
+        #sidebar-toggle:checked ~ aside { transform: translateX(0); }
+        @media (max-width: 1024px) {
+            aside { transform: translateX(-100%); transition: transform 0.3s ease; }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        /* Modal Animation */
+        .modal-overlay { opacity: 0; pointer-events: none; transition: all 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] flex h-screen overflow-hidden text-slate-700">
+
+    <!-- Mobile Toggle Input (Hidden) -->
+    <input type="checkbox" id="sidebar-toggle" class="hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="fixed lg:static inset-y-0 left-0 w-72 bg-lbrce-blue text-white flex flex-col shrink-0 shadow-2xl z-50">
+        <div class="p-8 flex flex-col items-center">
+            <div class="w-20 h-20 bg-white rounded-2xl p-3 mb-4 shadow-xl flex items-center justify-center">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" alt="Logo" class="max-w-full max-h-full object-contain">
+            </div>
+            <h1 class="text-lg font-black tracking-tight uppercase">Admin Console</h1>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+            <a href="admin_dashboard.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                <i class="ph-bold ph-squares-four text-xl"></i> Analytics
+            </a>
+            <a href="admin_manage_events.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                <i class="ph-bold ph-calendar-plus text-xl"></i> Manage Events
+            </a>
+            <a href="admin_registrations.html" class="sidebar-item-active flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm transition-all">
+                <i class="ph-bold ph-users-three text-xl"></i> Registrations
+            </a>
+            <a href="admin_scanner.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                <i class="ph-bold ph-qr-code text-xl"></i> Attendance
+            </a>
+            <a href="admin_certificates.html" class="flex items-center gap-4 px-5 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                <i class="ph-bold ph-certificate text-xl"></i> Certificates
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-white/5">
+            <button onclick="window.location.href='admin_login.html'" class="w-full flex items-center justify-center gap-2 py-3.5 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 transition-all">
+                <i class="ph ph-power text-lg"></i> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Overlay for mobile -->
+    <label for="sidebar-toggle" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" id="mobile-overlay"></label>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col overflow-hidden w-full">
+        <!-- HEADER -->
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 shrink-0">
+            <div class="flex items-center gap-4">
+                <label for="sidebar-toggle" class="lg:hidden p-2 bg-slate-100 rounded-lg cursor-pointer">
+                    <i class="ph-bold ph-list text-xl text-lbrce-blue"></i>
+                </label>
+                <h2 class="text-xl lg:text-2xl font-black text-lbrce-blue uppercase tracking-tight">Registration Logs</h2>
+            </div>
+            
+            <div class="flex items-center gap-2 lg:gap-4">
+                <button onclick="exportToExcel()" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl text-[10px] font-black uppercase border border-green-100 hover:bg-green-100 transition-all">
+                    <i class="ph-bold ph-file-xls text-base"></i> Excel
+                </button>
+                <button onclick="exportToPDF()" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-xl text-[10px] font-black uppercase border border-red-100 hover:bg-red-100 transition-all">
+                    <i class="ph-bold ph-file-pdf text-base"></i> PDF
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD BODY -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-10 space-y-6">
+            
+            <!-- FILTERS BAR -->
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Search -->
+                    <div class="relative">
+                        <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="searchFilter" oninput="applyFilters()" placeholder="Search Lead or Team..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
+                    </div>
+                    <!-- College Filter -->
+                    <select id="collegeFilter" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
+                        <option value="">All Colleges</option>
+                        <option>LBRCE (Autonomous)</option>
+                        <option>GEC, Gudlavalleru</option>
+                        <option>VRSCE, Vijayawada</option>
+                        <option>Other Organization</option>
+                    </select>
+                    <!-- Event Filter -->
+                    <select id="eventFilter" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
+                        <option value="">All Events</option>
+                    </select>
+                    <!-- Status Filter -->
+                    <select id="statusFilter" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
+                        <option value="">All Status</option>
+                        <option value="true">Present</option>
+                        <option value="false">Absent</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- TABLE CONTAINER -->
+            <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                <div class="custom-scrollbar overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[1000px]">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead Participant</th>
+                                <th class="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Event & College</th>
+                                <th class="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Team Size</th>
+                                <th class="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaction</th>
+                                <th class="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regTableBody" class="divide-y divide-slate-50">
+                            <!-- Data populated via script -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Empty State -->
+                <div id="noData" class="hidden flex flex-col items-center justify-center py-20">
+                    <i class="ph ph-files text-5xl text-slate-200 mb-4"></i>
+                    <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No matching records found</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- DETAILS MODAL -->
+    <div id="detailsModal" class="modal-overlay fixed inset-0 bg-lbrce-blue/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 lg:p-10">
+        <div class="modal-content bg-white w-full max-w-4xl max-h-full rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative">
+            <!-- Modal Header -->
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-lbrce-blue/5 rounded-2xl flex items-center justify-center text-lbrce-blue text-2xl">
+                        <i class="ph-bold ph-identification-card"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-lbrce-blue uppercase tracking-tight">Registration Blueprint</h3>
+                        <p id="modalRegId" class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]"></p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
+                    <i class="ph-bold ph-x text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Lead Summary -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="p-4 bg-slate-50 rounded-[2.5rem] border border-slate-100 text-center">
+                            <div class="w-32 h-32 mx-auto rounded-[2rem] bg-white p-1 border-4 border-white shadow-xl overflow-hidden mb-4">
+                                <img id="modalLeadPhoto" src="" class="w-full h-full object-cover rounded-[1.8rem]">
+                            </div>
+                            <h4 id="modalLeadName" class="text-lg font-black text-lbrce-blue uppercase"></h4>
+                            <p id="modalLeadRoll" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-50 shadow-sm">
+                                <i class="ph-bold ph-envelope text-lbrce-blue text-xl"></i>
+                                <div class="min-w-0"><p class="text-[8px] font-black text-slate-300 uppercase">Email Address</p><p id="modalLeadEmail" class="text-xs font-bold truncate"></p></div>
+                            </div>
+                            <div class="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-50 shadow-sm">
+                                <i class="ph-bold ph-phone text-lbrce-blue text-xl"></i>
+                                <div class="min-w-0"><p class="text-[8px] font-black text-slate-300 uppercase">Mobile Number</p><p id="modalLeadPhone" class="text-xs font-bold"></p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Event & Team Details -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <!-- Transaction & Event -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-6 bg-lbrce-blue rounded-[2.5rem] text-white">
+                                <p class="text-[8px] font-black opacity-40 uppercase tracking-widest mb-1">Event Name</p>
+                                <p id="modalEvent" class="text-sm font-black uppercase leading-tight"></p>
+                            </div>
+                            <div class="p-6 bg-slate-900 rounded-[2.5rem] text-white">
+                                <p class="text-[8px] font-black opacity-40 uppercase tracking-widest mb-1">Payment Status</p>
+                                <div class="flex items-center gap-2">
+                                    <span id="modalAmount" class="text-sm font-black"></span>
+                                    <span id="modalPayBadge" class="text-[8px] font-black px-2 py-0.5 rounded-full border border-white/20"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Team Members -->
+                        <div>
+                            <div class="flex items-center justify-between mb-4 px-2">
+                                <h5 class="text-[10px] font-black text-lbrce-blue uppercase tracking-widest">Co-Members Info</h5>
+                                <span id="modalTeamSize" class="text-[9px] font-black px-2 py-1 bg-lbrce-accent/10 text-lbrce-accent rounded-lg"></span>
+                            </div>
+                            <div id="modalMembersList" class="space-y-3">
+                                <!-- Members populated here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Metadata -->
+                        <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 grid grid-cols-2 gap-4">
+                            <div><p class="text-[8px] font-black text-slate-300 uppercase">College</p><p id="modalCollege" class="text-xs font-bold text-slate-600"></p></div>
+                            <div><p class="text-[8px] font-black text-slate-300 uppercase">Timestamp</p><p id="modalTime" class="text-xs font-bold text-slate-600"></p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allRegistrations = [];
+        let filteredData = [];
+
+        async function init() {
+            try {
+                const [regRes, eventRes] = await Promise.all([
+                    fetch('/api/admin/registrations'),
+                    fetch('/api/events')
+                ]);
+                
+                allRegistrations = await regRes.json();
+
+                const eventSelect = document.getElementById('eventFilter');
+                const uniqueEvents = [...new Set(allRegistrations.map(r => r.eventName))];
+                uniqueEvents.forEach(evt => {
+                    const opt = document.createElement('option');
+                    opt.value = evt;
+                    opt.textContent = evt;
+                    eventSelect.appendChild(opt);
+                });
+
+                applyFilters();
+            } catch (err) { console.error("Sync Failed:", err); }
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchFilter').value.toLowerCase();
+            const college = document.getElementById('collegeFilter').value;
+            const event = document.getElementById('eventFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            filteredData = allRegistrations.filter(r => {
+                const matchesSearch = !search || 
+                    r.leadName.toLowerCase().includes(search) || 
+                    r.teamName.toLowerCase().includes(search) || 
+                    r.registrationId.toLowerCase().includes(search);
+                const matchesCollege = !college || r.college === college;
+                const matchesEvent = !event || r.eventName === event;
+                const matchesStatus = !status || String(r.attendance) === status;
+                return matchesSearch && matchesCollege && matchesEvent && matchesStatus;
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('regTableBody');
+            const noData = document.getElementById('noData');
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '';
+                noData.classList.remove('hidden');
+                return;
+            }
+
+            noData.classList.add('hidden');
+            tbody.innerHTML = filteredData.map(r => `
+                <tr onclick="showDetails('${r.registrationId}')" class="hover:bg-slate-100/80 cursor-pointer transition-all group">
+                    <td class="p-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-slate-100 border-2 border-white shadow-md flex items-center justify-center overflow-hidden shrink-0 relative">
+                                ${r.photoUrl ? `<img src="${r.photoUrl}" class="w-full h-full object-cover">` : `<i class="ph ph-user text-slate-300 text-xl"></i>`}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-black text-lbrce-blue truncate uppercase">${r.leadName}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${r.registrationId}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-6">
+                        <p class="text-xs font-bold text-slate-700">${r.eventName}</p>
+                        <p class="text-[10px] font-black text-lbrce-accent uppercase truncate">${r.college}</p>
+                    </td>
+                    <td class="p-6 text-center">
+                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-slate-50 text-lbrce-blue text-xs font-black border">
+                            ${(r.members ? r.members.length : 0) + 1} Members
+                        </span>
+                    </td>
+                    <td class="p-6">
+                        <p class="text-xs font-black text-slate-700">₹${r.amount}</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">${r.paymentId === 'FREE_ENTRY' ? 'Complementary' : 'Online Payment'}</p>
+                    </td>
+                    <td class="p-6">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${r.attendance ? 'bg-green-50 text-green-700 border-green-100' : 'bg-slate-50 text-slate-400 border-slate-100'}">
+                            <span class="w-1.5 h-1.5 rounded-full ${r.attendance ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}"></span>
+                            ${r.attendance ? 'Verified' : 'Pending'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showDetails(id) {
+            const reg = allRegistrations.find(r => r.registrationId === id);
+            if (!reg) return;
+
+            document.getElementById('modalRegId').innerText = reg.registrationId;
+            document.getElementById('modalLeadName').innerText = reg.leadName;
+            document.getElementById('modalLeadRoll').innerText = reg.leadRoll;
+            document.getElementById('modalLeadEmail').innerText = reg.leadEmail;
+            document.getElementById('modalLeadPhone').innerText = reg.leadPhone;
+            document.getElementById('modalLeadPhoto').src = reg.photoUrl || 'https://via.placeholder.com/150';
+            
+            document.getElementById('modalEvent').innerText = reg.eventName;
+            document.getElementById('modalAmount').innerText = `₹${reg.amount}`;
+            document.getElementById('modalPayBadge').innerText = reg.paymentId === 'FREE_ENTRY' ? 'FREE' : 'PAID';
+            document.getElementById('modalCollege').innerText = reg.college;
+            document.getElementById('modalTime').innerText = new Date(reg.timestamp).toLocaleString();
+            document.getElementById('modalTeamSize').innerText = `${(reg.members ? reg.members.length : 0) + 1} PERSONS`;
+
+            const mList = document.getElementById('modalMembersList');
+            if (reg.members && reg.members.length > 0) {
+                mList.innerHTML = reg.members.map((m, i) => `
+                    <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200">
+                            <img src="${m.photoUrl || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] font-black text-lbrce-blue uppercase truncate">${m.name}</p>
+                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${m.roll}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[8px] font-bold text-slate-500">${m.phone}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                mList.innerHTML = `<p class="text-center py-6 text-slate-400 text-[10px] font-black uppercase">No Co-Members (Individual)</p>`;
+            }
+
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        function exportToExcel() {
+            if (filteredData.length === 0) return;
+            const wsData = filteredData.map(r => ({
+                'Reg ID': r.registrationId,
+                'Event': r.eventName,
+                'Team': r.teamName,
+                'College': r.college,
+                'Lead': r.leadName,
+                'Amount': r.amount,
+                'Attendance': r.attendance ? 'Present' : 'Absent'
+            }));
+            const ws = XLSX.utils.json_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Registrations");
+            XLSX.writeFile(wb, `LBRCE_Regs_${Date.now()}.xlsx`);
+        }
+
+        function exportToPDF() {
+            if (filteredData.length === 0) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            doc.text("LBRCE Event Registration Report", 14, 20);
+            const tableRows = filteredData.map(r => [r.registrationId, r.eventName, r.leadName, r.college, r.amount, r.attendance ? 'Present' : 'Absent']);
+            doc.autoTable({ startY: 30, head: [['ID', 'Event', 'Lead', 'College', 'Amount', 'Status']], body: tableRows });
+            doc.save(`LBRCE_Report_${Date.now()}.pdf`);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
