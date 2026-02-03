@@ -274,7 +274,7 @@ app.post('/api/register/verify', async (req, res) => {
 
     const regId = `REG-${Date.now()}`;
     try {
-        const qrImage = await QRCode.toDataURL(`http://localhost:3000/verify-attendance/${regId}`);
+        const qrImage = await QRCode.toDataURL(`http://https://events-lbrce.onrender.com/verify-attendance/${regId}`);
         
         const registrationEntry = {
             registrationId: regId,
@@ -363,7 +363,7 @@ async function sendIDCardEmail(recipient, data, qrImage) {
                 <img src="${qrImage}" width="180" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             </div>
             <p style="font-weight: 800; font-size: 14px; margin-bottom: 25px;">REG ID: ${data.registrationId}</p>
-            <a href="http://localhost:3000/id-card.html?id=${data.registrationId}&email=${recipient.email}" 
+            <a href="http://https://events-lbrce.onrender.com/id-card.html?id=${data.registrationId}&email=${recipient.email}" 
                style="background: #FFB800; color: #003366; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 13px;">
                DOWNLOAD FULL ID CARD
             </a>
@@ -395,7 +395,7 @@ async function finalizeRegistration(data, payId, res) {
     const regId = `REG-${Date.now()}`;
     try {
         // The QR now points to the verification API endpoint
-        const qrContent = `http://localhost:3000/api/verify-attendance/${regId}`;
+        const qrContent = `http://https://events-lbrce.onrender.com/api/verify-attendance/${regId}`;
         const qrImage = await QRCode.toDataURL(qrContent);
         
         await dynamo.put({
@@ -422,7 +422,7 @@ async function sendConfirmationMails(data, qrImage, regId) {
         ...data.members.map(m => ({ name: m.name, email: m.email }))
     ];
 
-    const baseUrl = `http://localhost:3000`; 
+    const baseUrl = `http://https://events-lbrce.onrender.com`; 
 
     for (const person of participants) {
         try {
@@ -549,7 +549,7 @@ app.post('/api/admin/certificates/issue', isAdmin, async (req, res) => {
     const { recipients, templateUrl, config, eventName } = req.body;
     
     // Use your actual production domain here once deployed
-    const baseUrl = `http://localhost:3000`; 
+    const baseUrl = `http://https://events-lbrce.onrender.com`; 
     
     for (const student of recipients) {
         try {
