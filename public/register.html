@@ -24,7 +24,8 @@
         .progress-line { transition: width 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
         .custom-loader { border-top-color: #FFB800; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { to { transform: rotate(360deg); } }
-        input:focus, select:focus { border-color: #FFB800; background: white; box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.1); }
+        /* Adjusted focus ring for better visibility */
+        input:focus, select:focus { border-color: #FFB800 !important; background: white; box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.1); }
         .form-card { backdrop-filter: blur(10px); }
         
         /* Modal Styles */
@@ -109,12 +110,12 @@
                     <div class="space-y-6 sm:space-y-8 max-w-md mx-auto">
                         <div class="space-y-2">
                             <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 sm:ml-6 tracking-widest">Team / Group Name</label>
-                            <input type="text" name="teamName" required onblur="this.value = formatToTitleCase(this.value)" placeholder="e.g. Cyber Ninjas" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent outline-none font-bold text-lbrce-blue transition-all">
+                            <input type="text" name="teamName" required onblur="this.value = formatToTitleCase(this.value)" placeholder="e.g. Cyber Ninjas" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-[1.5rem] bg-slate-50 border-2 border-slate-200 outline-none font-bold text-lbrce-blue transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 sm:ml-6 tracking-widest">Organization / College</label>
                             <div class="relative">
-                                <select id="collegeSelect" name="college" required onchange="handleCollegeChange(this)" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent outline-none font-bold text-lbrce-blue transition-all appearance-none cursor-pointer">
+                                <select id="collegeSelect" name="college" required onchange="handleCollegeChange(this)" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-[1.5rem] bg-slate-50 border-2 border-slate-200 outline-none font-bold text-lbrce-blue transition-all appearance-none cursor-pointer">
                                     <option value="">Syncing Organizations...</option>
                                     <option value="OTHER">Other Organization (Manual Entry)</option>
                                 </select>
@@ -134,12 +135,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 text-left">
                         <div class="space-y-1.5">
                             <label class="text-[9px] font-black text-slate-400 uppercase ml-4">Full Legal Name</label>
-                            <input type="text" name="leadName" placeholder="Participant Name" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-none font-bold outline-none text-lbrce-blue">
+                            <input type="text" name="leadName" placeholder="Participant Name" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-200 font-bold outline-none text-lbrce-blue">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[9px] font-black text-slate-400 uppercase ml-4">Branch / Department</label>
                             <div class="relative">
-                                <select id="deptSelect" name="leadDept" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-none font-bold outline-none text-lbrce-blue appearance-none cursor-pointer">
+                                <select id="deptSelect" name="leadDept" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-200 font-bold outline-none text-lbrce-blue appearance-none cursor-pointer">
                                     <option value="">Select Department</option>
                                 </select>
                                 <i class="ph-bold ph-caret-down absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
@@ -147,15 +148,15 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[9px] font-black text-slate-400 uppercase ml-4">Personal Email</label>
-                            <input type="email" name="leadEmail" placeholder="email@gmail.com" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-none font-bold outline-none text-lbrce-blue">
+                            <input type="email" name="leadEmail" placeholder="email@gmail.com" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-200 font-bold outline-none text-lbrce-blue">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[9px] font-black text-slate-400 uppercase ml-4">WhatsApp Number</label>
-                            <input type="tel" name="leadPhone" placeholder="10 Digit Mobile" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-none font-bold outline-none text-lbrce-blue">
+                            <input type="tel" name="leadPhone" placeholder="10 Digit Mobile" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-200 font-bold outline-none text-lbrce-blue">
                         </div>
                         <div class="space-y-1.5 md:col-span-2">
                             <label class="text-[9px] font-black text-slate-400 uppercase ml-4">College ID / Roll Number</label>
-                            <input type="text" name="leadRoll" placeholder="e.g. 21761A0501" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-none font-bold outline-none text-lbrce-blue">
+                            <input type="text" name="leadRoll" placeholder="e.g. 21761A0501" required class="w-full px-6 py-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-200 font-bold outline-none text-lbrce-blue">
                         </div>
                         <div class="col-span-1 md:col-span-2 pt-4">
                             <div class="bg-slate-50 p-6 rounded-[2rem] border-2 border-dashed border-slate-200 text-center cursor-pointer relative hover:bg-slate-100 transition-all group" onclick="this.querySelector('input').click()">
@@ -346,25 +347,25 @@
                 <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-3 w-10 h-10 bg-red-500 text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-110 transition-all"><i class="ph-bold ph-trash"></i></button>
                 <div class="space-y-1.5 text-left">
                     <label class="text-[9px] font-black text-slate-400 uppercase ml-4">Full Name</label>
-                    <input type="text" name="m${id}_name" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-5 py-3.5 rounded-xl bg-white border-none font-bold text-sm text-lbrce-blue">
+                    <input type="text" name="m${id}_name" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-5 py-3.5 rounded-xl bg-white border-2 border-slate-200 font-bold text-sm text-lbrce-blue">
                 </div>
                 <div class="space-y-1.5 text-left">
                     <label class="text-[9px] font-black text-slate-400 uppercase ml-4">Department</label>
-                    <select name="m${id}_dept" required class="w-full px-5 py-3.5 rounded-xl bg-white border-none font-bold text-sm text-lbrce-blue cursor-pointer">
+                    <select name="m${id}_dept" required class="w-full px-5 py-3.5 rounded-xl bg-white border-2 border-slate-200 font-bold text-sm text-lbrce-blue cursor-pointer">
                         <option value="">Select Dept</option>${deptOptions}
                     </select>
                 </div>
                 <div class="space-y-1.5 text-left">
                     <label class="text-[9px] font-black text-slate-400 uppercase ml-4">Roll Number</label>
-                    <input type="text" name="m${id}_roll" required class="w-full px-5 py-3.5 rounded-xl bg-white border-none font-bold text-sm text-lbrce-blue">
+                    <input type="text" name="m${id}_roll" required class="w-full px-5 py-3.5 rounded-xl bg-white border-2 border-slate-200 font-bold text-sm text-lbrce-blue">
                 </div>
                 <div class="space-y-1.5 text-left">
                     <label class="text-[9px] font-black text-slate-400 uppercase ml-4">Personal Email</label>
-                    <input type="email" name="m${id}_email" required class="w-full px-5 py-3.5 rounded-xl bg-white border-none font-bold text-sm text-lbrce-blue">
+                    <input type="email" name="m${id}_email" required class="w-full px-5 py-3.5 rounded-xl bg-white border-2 border-slate-200 font-bold text-sm text-lbrce-blue">
                 </div>
-                <input type="tel" name="m${id}_phone" placeholder="WhatsApp Number" required class="w-full px-5 py-3.5 rounded-xl bg-white border-none font-bold text-sm text-lbrce-blue md:col-span-2 mt-4">
+                <input type="tel" name="m${id}_phone" placeholder="WhatsApp Number" required class="w-full px-5 py-3.5 rounded-xl bg-white border-2 border-slate-200 font-bold text-sm text-lbrce-blue md:col-span-2 mt-4">
                 <div class="md:col-span-2 pt-2 text-left">
-                    <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-5 py-2.5 rounded-xl bg-white border-none font-bold text-[10px] text-slate-400">
+                    <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-5 py-2.5 rounded-xl bg-white border-2 border-slate-200 font-bold text-[10px] text-slate-400">
                 </div>
             `;
             document.getElementById('roster-container').appendChild(card);
