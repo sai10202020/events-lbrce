@@ -18,8 +18,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Razorpay Setup
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_SBYJMDaXO4aRid',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || 'O97dBbH6AK1zlvM4C96jdzeV'
+    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_SBek7WH7u0rVRL',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'WNuH9N2qNk066Th4xaeqTPlt'
 });
 
 // PRIMARY ACCOUNT (DynamoDB & S3)
@@ -1000,3 +1000,4 @@ app.post('/api/register/check-duplicates', async (req, res) => {
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
