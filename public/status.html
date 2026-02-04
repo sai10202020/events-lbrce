@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Participant Dashboard | LBRCE</title>
+    <title>Dashboard | LBRCE Prestige</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <script>
@@ -13,16 +13,34 @@
             theme: {
                 extend: {
                     fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
-                    colors: { lbrce: { blue: '#003366', accent: '#FFB800' } }
+                    colors: { 
+                        lbrce: { 
+                            blue: '#002D5A', 
+                            accent: '#FFB800',
+                            navy: '#001A33',
+                            surface: '#F8FAFC'
+                        } 
+                    },
+                    backgroundImage: {
+                        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)',
+                        'brand-mesh': 'radial-gradient(at 0% 0%, rgba(0, 51, 102, 0.03) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 184, 0, 0.05) 0, transparent 50%)'
+                    }
                 }
             }
         }
     </script>
     <style>
+        body { background-color: #F8FAFC; background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 32px 32px; }
         .custom-loader { border-top-color: #FFB800; animation: spinner 0.6s linear infinite; }
         @keyframes spinner { to { transform: rotate(360deg); } }
         
-        #printable-receipt { position: absolute; left: -9999px; top: -9999px; width: 800px; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        #printable-receipt { position: absolute; left: -9999px; top: -9999px; width: 850px; }
         
         @media print {
             body * { visibility: hidden; }
@@ -30,188 +48,245 @@
             #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; }
             .no-print { display: none !important; }
         }
+
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
     </style>
 </head>
-<body class="bg-[#F8FAFC] min-h-screen text-slate-700 antialiased flex flex-col items-center">
+<body class="min-h-screen text-slate-800 antialiased flex flex-col items-center bg-brand-mesh">
 
-    <!-- Navbar -->
-    <nav class="p-6 lg:p-10 flex justify-between items-center max-w-7xl mx-auto w-full no-print">
-        <a href="index.html" class="flex items-center gap-3 group">
-            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center transition-transform group-hover:scale-105">
-                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" class="h-8">
+    <!-- Premium Navbar -->
+    <nav class="w-full max-w-7xl px-6 py-8 flex justify-between items-center no-print">
+        <a href="index.html" class="flex items-center gap-4 group">
+            <div class="relative">
+                <div class="absolute inset-0 bg-lbrce-blue/10 blur-xl rounded-full group-hover:bg-lbrce-accent/20 transition-all"></div>
+                <div class="relative w-14 h-14 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center justify-center transition-all group-hover:scale-105 group-hover:-rotate-3">
+                    <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" class="h-9 w-auto object-contain">
+                </div>
             </div>
-            <div class="hidden sm:block text-left">
-                <p class="font-black text-lbrce-blue text-sm uppercase tracking-tighter leading-none">LBRCE Portal</p>
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Participant Console</p>
+            <div class="hidden sm:block">
+                <h1 class="font-extrabold text-lbrce-blue text-lg tracking-tighter leading-none">LBRCE <span class="text-lbrce-accent">EVENTS</span></h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Global Participant Console</p>
             </div>
         </a>
-        <button id="logout-btn" onclick="logout()" class="hidden px-6 py-2.5 bg-slate-100 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-red-50 hover:text-red-600 transition-all no-print">Sign Out</button>
+        
+        <div class="flex items-center gap-4">
+            <div id="status-dot" class="hidden md:flex items-center gap-2 px-4 py-2 bg-green-50 rounded-full border border-green-100">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-bold text-green-700 uppercase tracking-widest">System Secure</span>
+            </div>
+            <button id="logout-btn" onclick="logout()" class="hidden px-6 py-3 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-slate-100 transition-all active:scale-95 no-print">
+                Sign Out
+            </button>
+        </div>
     </nav>
 
-    <main class="flex flex-col items-center justify-center p-4 min-h-[60vh] no-print w-full max-w-md">
+    <main class="flex-1 w-full max-w-xl px-6 py-12 flex flex-col items-center justify-center no-print">
+        
         <!-- AUTH CARD -->
-        <div id="auth-card" class="bg-white rounded-[3.5rem] shadow-2xl shadow-blue-900/5 border border-slate-100 overflow-hidden relative w-full transition-all duration-500">
-            <div class="p-10 text-center">
-                <div class="w-20 h-20 bg-lbrce-blue/5 text-lbrce-blue rounded-[2.2rem] flex items-center justify-center mx-auto mb-6">
-                    <i class="ph-bold ph-shield-check text-4xl"></i>
+        <div id="auth-card" class="w-full glass-card rounded-[3.5rem] shadow-[0_32px_64px_-12px_rgba(0,45,90,0.1)] border border-white relative overflow-hidden transition-all duration-700">
+            <div class="p-12 text-center relative z-10">
+                <div class="w-24 h-24 bg-gradient-to-br from-lbrce-blue to-lbrce-navy text-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-lbrce-blue/20 animate-float">
+                    <i class="ph-fill ph-fingerprint text-5xl"></i>
                 </div>
-                <h2 class="text-2xl font-black text-lbrce-blue uppercase tracking-tight">Access Dashboard</h2>
-                <p class="text-slate-400 text-[10px] mt-2 font-bold uppercase tracking-[0.2em]">Secure verification portal</p>
+                <h2 class="text-3xl font-black text-lbrce-blue tracking-tight">Access Secure Dashboard</h2>
+                <p class="text-slate-400 text-xs mt-3 font-semibold uppercase tracking-[0.3em]">Identity Verification Required</p>
             </div>
 
-            <div id="step-email" class="px-10 pb-12 space-y-6">
-                <div class="space-y-2">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Lead Email Address</label>
-                    <input type="email" id="email-input" placeholder="e.g. participant@gmail.com" class="w-full px-8 py-5 rounded-[2rem] bg-slate-50 border-none focus:ring-2 focus:ring-lbrce-accent outline-none font-bold text-center text-sm">
+            <!-- Email Step -->
+            <div id="step-email" class="px-12 pb-14 space-y-8 relative z-10">
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Lead Registered Email</label>
+                    <div class="relative group">
+                        <i class="ph-bold ph-envelope-simple absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 text-xl group-focus-within:text-lbrce-blue transition-colors"></i>
+                        <input type="email" id="email-input" placeholder="name@domain.com" class="w-full pl-16 pr-8 py-6 rounded-3xl bg-slate-50/50 border border-slate-100 focus:bg-white focus:ring-4 focus:ring-lbrce-blue/5 focus:border-lbrce-blue/20 outline-none font-bold text-sm transition-all">
+                    </div>
                 </div>
-                <button onclick="sendOtp()" id="sendBtn" class="w-full bg-lbrce-blue text-white py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-lbrce-accent hover:text-lbrce-blue transition-all active:scale-95">
-                    <span id="send-btn-text">Generate Access Key</span>
+                <button onclick="sendOtp()" id="sendBtn" class="w-full bg-lbrce-blue text-white py-6 rounded-3xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-lbrce-blue/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all active:scale-[0.98] group">
+                    <span id="send-btn-text" class="flex items-center justify-center gap-2">
+                        Generate Access Key <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </span>
                 </button>
             </div>
 
-            <div id="step-otp" class="hidden px-10 pb-12 space-y-6 animate-in slide-in-from-bottom-4 duration-300">
-                <div class="p-4 bg-orange-50 border border-orange-100 rounded-2xl text-center">
-                    <p id="otp-hint" class="text-[9px] text-orange-600 font-black uppercase tracking-widest"></p>
+            <!-- OTP Step -->
+            <div id="step-otp" class="hidden px-12 pb-14 space-y-8 animate-in slide-in-from-bottom-8 duration-500">
+                <div class="p-5 bg-lbrce-accent/10 border border-lbrce-accent/20 rounded-3xl text-center">
+                    <p id="otp-hint" class="text-[10px] text-amber-700 font-black uppercase tracking-widest"></p>
                 </div>
-                <input type="text" id="otp-input" maxlength="6" placeholder="000000" class="w-full px-8 py-5 rounded-[2rem] bg-slate-50 border-none focus:ring-2 focus:ring-lbrce-accent outline-none font-black text-center tracking-[0.8em] text-3xl text-lbrce-blue">
-                <button onclick="verifyOtp()" id="verifyBtn" class="w-full bg-lbrce-blue text-white py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-lbrce-accent hover:text-lbrce-blue transition-all active:scale-95">
-                    Verify Access
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 text-center block">Enter 6-Digit Key</label>
+                    <input type="text" id="otp-input" maxlength="6" placeholder="••••••" class="w-full px-8 py-7 rounded-3xl bg-slate-50/50 border-none focus:ring-4 focus:ring-lbrce-accent/20 outline-none font-black text-center tracking-[1em] text-4xl text-lbrce-blue placeholder:text-slate-200">
+                </div>
+                <button onclick="verifyOtp()" id="verifyBtn" class="w-full bg-lbrce-blue text-white py-6 rounded-3xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-lbrce-blue/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all active:scale-[0.98]">
+                    Verify Authorization
                 </button>
-                <button onclick="location.reload()" class="w-full text-[9px] font-black text-slate-300 uppercase tracking-widest">Wrong Email? Start Over</button>
+                <button onclick="location.reload()" class="w-full text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-500 transition-colors">Wrong Email? Start Over</button>
             </div>
         </div>
 
         <!-- RESULT DASHBOARD -->
-        <div id="result-card" class="hidden bg-white rounded-[3.5rem] shadow-2xl shadow-blue-900/5 border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-500 w-full">
-            <div class="p-8 text-center border-b border-slate-50">
-                <div class="flex justify-between items-center mb-8 px-2">
-                    <span id="reg-id-badge" class="text-[9px] font-black text-slate-300 uppercase tracking-widest"></span>
-                    <span id="reg-status-badge" class="px-3 py-1.5 rounded-lg text-[8px] font-black uppercase border"></span>
-                </div>
-                <div class="w-28 h-28 rounded-[2.5rem] bg-slate-50 border-4 border-white shadow-xl mx-auto overflow-hidden flex items-center justify-center mb-6">
-                    <img id="res-photo" src="" class="w-full h-full object-cover hidden" crossorigin="anonymous">
-                    <i id="res-photo-placeholder" class="ph-bold ph-user text-5xl text-slate-200"></i>
-                </div>
-                <h3 id="reg-team-name" class="text-xl font-black text-lbrce-blue uppercase leading-tight px-4"></h3>
-                <p id="reg-event-name" class="text-[10px] font-black text-lbrce-accent uppercase tracking-widest mt-2"></p>
-            </div>
+        <div id="result-card" class="hidden w-full space-y-6 animate-in fade-in zoom-in-95 duration-700">
+            <!-- Main Profile Glass -->
+            <div class="glass-card rounded-[3.5rem] shadow-[0_32px_64px_-12px_rgba(0,45,90,0.08)] border border-white overflow-hidden">
+                <div class="p-10 text-center relative border-b border-slate-100/50">
+                    <div class="absolute top-8 left-8 right-8 flex justify-between items-center">
+                        <span id="reg-id-badge" class="px-3 py-1 bg-slate-100 rounded-lg text-[10px] font-black text-slate-400 uppercase tracking-tighter"></span>
+                        <span id="reg-status-badge" class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase border shadow-sm"></span>
+                    </div>
 
-            <div class="p-8 bg-slate-50/50 space-y-4">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Dashboard Management</p>
-                <div class="grid grid-cols-1 gap-3">
-                    <button onclick="generateAllCards()" class="w-full py-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 group hover:border-lbrce-blue transition-all">
-                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-lbrce-blue group-hover:bg-lbrce-blue group-hover:text-white transition-colors">
-                            <i class="ph-bold ph-identification-cards text-xl"></i>
+                    <div class="mt-12 mb-8 relative inline-block">
+                        <div class="w-32 h-32 rounded-[3rem] bg-white p-1 shadow-2xl relative z-10 overflow-hidden ring-8 ring-slate-50">
+                            <img id="res-photo" src="" class="w-full h-full object-cover hidden" crossorigin="anonymous">
+                            <div id="res-photo-placeholder" class="w-full h-full flex items-center justify-center bg-slate-50 text-slate-200">
+                                <i class="ph-fill ph-user-circle text-7xl"></i>
+                            </div>
                         </div>
-                        <div class="text-left text-lbrce-blue group-hover:text-lbrce-blue">
-                            <p class="text-[10px] font-black uppercase tracking-tight">Full Team ID Bundle</p>
-                            <p class="text-[8px] font-bold text-slate-400 uppercase">Lead + All Members</p>
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-lbrce-accent rounded-2xl flex items-center justify-center text-lbrce-blue shadow-lg z-20 border-4 border-white">
+                            <i class="ph-bold ph-check-badge text-xl"></i>
                         </div>
+                    </div>
+
+                    <h3 id="reg-team-name" class="text-2xl font-black text-lbrce-blue uppercase tracking-tight leading-tight px-6"></h3>
+                    <p id="reg-event-name" class="text-xs font-bold text-lbrce-accent uppercase tracking-[0.3em] mt-3"></p>
+                </div>
+
+                <div class="p-10 bg-white/30 grid grid-cols-1 gap-4">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] text-center mb-2">Participant Toolset</p>
+                    
+                    <button onclick="generateAllCards()" class="w-full p-5 bg-white border border-slate-100 rounded-3xl flex items-center gap-5 group hover:border-lbrce-blue hover:shadow-xl hover:shadow-blue-900/5 transition-all active:scale-[0.98]">
+                        <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-lbrce-blue group-hover:bg-lbrce-blue group-hover:text-white transition-all duration-500">
+                            <i class="ph-bold ph-identification-cards text-2xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-[11px] font-black text-lbrce-blue uppercase tracking-tight">Team ID Bundle</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Lead + Members Digital Cards</p>
+                        </div>
+                        <i class="ph-bold ph-caret-right ml-auto text-slate-200 group-hover:text-lbrce-blue group-hover:translate-x-1 transition-all"></i>
                     </button>
 
-                    <button onclick="generateDirectReceipt()" class="w-full py-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 group hover:border-green-500 transition-all">
-                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors">
-                            <i class="ph-bold ph-receipt text-xl"></i>
+                    <button onclick="generateDirectReceipt()" class="w-full p-5 bg-white border border-slate-100 rounded-3xl flex items-center gap-5 group hover:border-green-500 hover:shadow-xl hover:shadow-green-900/5 transition-all active:scale-[0.98]">
+                        <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-500">
+                            <i class="ph-bold ph-scroll text-2xl"></i>
                         </div>
-                        <div class="text-left text-green-700">
-                            <p class="text-[10px] font-black uppercase tracking-tight">Print Receipt</p>
-                            <p class="text-[8px] font-bold text-slate-400 uppercase">Includes Team Roster</p>
+                        <div class="text-left">
+                            <p class="text-[11px] font-black text-green-700 uppercase tracking-tight">Official Receipt</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Validated Transaction PDF</p>
                         </div>
+                        <i class="ph-bold ph-printer ml-auto text-slate-200 group-hover:text-green-600 transition-all"></i>
                     </button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- FOOTER CREDITS -->
-    <div class="w-full max-w-md no-print pb-12 mt-8">
-        <p class="text-center text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] leading-relaxed px-6">
-            Official Participant Portal &copy; 2026 <br class="sm:hidden"> Lakireddy Bali Reddy College of Engineering
+    <!-- FOOTER -->
+    <footer class="w-full max-w-xl no-print pb-12 pt-8 text-center px-6">
+        <div class="w-16 h-1 bg-slate-200 mx-auto rounded-full mb-8 opacity-50"></div>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] leading-relaxed">
+            Authorized Portal &copy; 2026 <br> Lakireddy Bali Reddy College of Engineering
         </p>
-        <p class="text-center mt-4 text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest px-6">
-            Designed & Developed By <a href="https://xetasolutions.in" target="_blank" class="text-lbrce-accent hover:text-lbrce-blue transition-colors">Xeta Tech Solutions</a>
-        </p>
-    </div>
+        <div class="mt-6 flex items-center justify-center gap-2">
+            <span class="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Powered by</span>
+            <a href="https://xetasolutions.in" target="_blank" class="text-[10px] font-black text-lbrce-accent hover:text-lbrce-blue transition-colors uppercase tracking-widest">Xeta Tech Solutions</a>
+        </div>
+    </footer>
 
-    <!-- HIDDEN PRINTABLE RECEIPT TEMPLATE -->
-    <div id="printable-receipt" class="bg-white p-12 text-slate-900 font-sans border border-slate-100 shadow-xl">
-        <div class="flex justify-between border-b-2 border-slate-100 pb-8 mb-8">
+    <!-- HIDDEN PRINTABLE RECEIPT TEMPLATE (Premium Styling) -->
+    <div id="printable-receipt" class="bg-white p-16 text-slate-900 font-sans border-[12px] border-slate-50">
+        <div class="flex justify-between items-start border-b-4 border-lbrce-blue/10 pb-12 mb-12">
             <div>
-                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" class="h-16 mb-4">
-                <h1 class="text-2xl font-black uppercase text-lbrce-blue tracking-tight text-left">Registration Receipt</h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mt-1 text-left">Authorized LBRCE Event Document</p>
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" class="h-20 mb-6">
+                <h1 class="text-4xl font-black uppercase text-lbrce-blue tracking-tighter">Event Receipt</h1>
+                <p class="text-[11px] text-slate-400 uppercase tracking-[0.3em] font-black mt-2">Digital Authenticated Document</p>
             </div>
             <div class="text-right">
-                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Transaction ID</p>
-                <p id="pr-reg-id" class="text-lg font-black text-lbrce-blue"></p>
-                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-6">Payment Date</p>
-                <p id="pr-date" class="text-sm font-black"></p>
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Registration ID</p>
+                    <p id="pr-reg-id" class="text-xl font-black text-lbrce-blue"></p>
+                    <div class="mt-4 pt-4 border-t border-slate-200/50">
+                        <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Issued On</p>
+                        <p id="pr-date" class="text-sm font-bold text-slate-600"></p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="mb-10">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-50 pb-2 text-left">Event Information</p>
-            <table class="w-full text-left">
-                <tr class="border-b border-slate-50">
-                    <td class="py-4 text-xs font-bold text-slate-500 uppercase w-1/3 tracking-widest text-left">Selected Event</td>
-                    <td id="pr-event" class="py-4 text-sm font-black uppercase text-lbrce-blue text-left"></td>
-                </tr>
-                <tr class="border-b border-slate-50">
-                    <td class="py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-left">Team Identity</td>
-                    <td id="pr-name" class="py-4 text-sm font-black uppercase text-lbrce-blue text-left"></td>
-                </tr>
-                <tr class="border-b border-slate-50">
-                    <td class="py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-left">Institution</td>
-                    <td id="pr-college" class="py-4 text-sm font-black uppercase text-lbrce-blue text-left"></td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="mb-10">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-50 pb-2 text-left">Verified Team Roster</p>
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 border-y border-slate-100">
-                        <th class="py-3 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-left">Member Role</th>
-                        <th class="py-3 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-left">Full Name</th>
-                        <th class="py-3 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Student ID / Roll</th>
-                    </tr>
-                </thead>
-                <tbody id="pr-team-list"></tbody>
-            </table>
-        </div>
-
-        <div class="bg-slate-50 p-8 rounded-3xl flex justify-between items-center mb-10 border border-slate-100">
-            <div class="text-left">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Fee Paid</p>
-                <div class="flex items-center gap-2">
+        <div class="grid grid-cols-2 gap-12 mb-12">
+            <div class="space-y-6">
+                <h4 class="text-[11px] font-black text-lbrce-accent uppercase tracking-[0.2em] border-b pb-2">Event Profile</h4>
+                <div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Activity Name</p>
+                    <p id="pr-event" class="text-lg font-black text-lbrce-blue uppercase"></p>
+                </div>
+                <div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">College/Institution</p>
+                    <p id="pr-college" class="text-sm font-bold text-slate-600 uppercase"></p>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <h4 class="text-[11px] font-black text-lbrce-accent uppercase tracking-[0.2em] border-b pb-2">Team Identity</h4>
+                <div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Group Name</p>
+                    <p id="pr-name" class="text-lg font-black text-lbrce-blue uppercase"></p>
+                </div>
+                <div class="flex items-center gap-3 bg-green-50 px-4 py-2 rounded-xl border border-green-100 w-fit">
                     <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span class="text-[10px] font-black text-green-600 uppercase tracking-widest">Payment Verified</span>
+                    <span class="text-[10px] font-black text-green-700 uppercase tracking-widest">Payment Success</span>
                 </div>
             </div>
-            <p id="pr-amount" class="text-4xl font-black text-lbrce-blue"></p>
         </div>
 
-        <div class="border-t pt-10 mt-16 text-left">
-            <div class="flex justify-between items-start">
-                <div class="w-1/2">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Legal Disclaimer</p>
-                    <p class="text-[9px] leading-relaxed text-slate-400 font-medium italic">This document is a valid digital proof of registration for LBRCE events. Entry is strictly permitted only for participants listed in the roster above.</p>
-                </div>
-                <div class="text-right">
-                    <div class="w-32 h-1 bg-lbrce-blue ml-auto mb-2 rounded-full"></div>
-                    <p class="text-[10px] font-black text-lbrce-blue uppercase tracking-widest">Certification Board</p>
-                    <p class="text-[8px] text-slate-400 font-bold uppercase tracking-[0.2em]">Digitally Authenticated</p>
-                </div>
+        <div class="mb-12">
+            <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Official Team Roster</h4>
+            <div class="rounded-3xl border border-slate-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="py-4 px-6 text-[10px] font-black text-slate-400 uppercase">Member Role</th>
+                            <th class="py-4 px-6 text-[10px] font-black text-slate-400 uppercase">Full Name</th>
+                            <th class="py-4 px-6 text-[10px] font-black text-slate-400 uppercase text-right">Student ID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pr-team-list" class="divide-y divide-slate-100"></tbody>
+                </table>
             </div>
+        </div>
+
+        <div class="flex justify-between items-center p-10 bg-lbrce-blue rounded-[3rem] text-white">
+            <div>
+                <p class="text-[11px] font-bold text-blue-200 uppercase tracking-[0.3em] mb-1">Total Contribution</p>
+                <p class="text-[10px] font-medium text-blue-100/60 uppercase">Inclusive of all event taxes</p>
+            </div>
+            <p id="pr-amount" class="text-5xl font-black text-lbrce-accent tracking-tighter"></p>
+        </div>
+
+        <div class="mt-20 pt-10 border-t-2 border-slate-50 flex justify-between items-end">
+            <div class="max-w-md">
+                <p class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3">Verification Note</p>
+                <p class="text-[11px] leading-relaxed text-slate-400 font-medium italic">This is an electronically generated receipt. No physical signature is required. Please present this document at the registration desk for verification.</p>
+            </div>
+            <div class="text-right">
+                <!-- <div class="mb-4 flex justify-end">
+                   <div class="w-32 h-32 border-4 border-slate-100 rounded-2xl flex items-center justify-center p-2">
+                        <i class="ph-bold ph-qr-code text-6xl text-slate-100"></i>
+                   </div>
+                </div>
+                <p class="text-[11px] font-black text-lbrce-blue uppercase tracking-[0.2em]">Authorized Certification</p>
+                <p class="text-[9px] text-slate-300 font-bold uppercase mt-1">LBRCE Events Portal 2026</p>
+            </div> -->
         </div>
     </div>
 
     <!-- PROGRESS OVERLAY -->
-    <div id="gen-overlay" class="hidden fixed inset-0 bg-lbrce-blue/95 backdrop-blur-md z-[200] flex flex-col items-center justify-center text-white text-center p-6">
-        <div class="w-20 h-20 border-4 border-white/10 border-t-lbrce-accent rounded-full animate-spin mb-8"></div>
-        <h3 class="text-2xl font-black uppercase tracking-widest">Building Bundle</h3>
-        <p class="text-blue-100/60 mt-4 text-xs font-medium">Assembling ID cards for the entire team...</p>
+    <div id="gen-overlay" class="hidden fixed inset-0 bg-lbrce-navy/98 backdrop-blur-xl z-[200] flex flex-col items-center justify-center text-white text-center p-6">
+        <div class="relative w-24 h-24 mb-10">
+            <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-t-lbrce-accent rounded-full animate-spin"></div>
+            <i class="ph-bold ph-stack absolute inset-0 flex items-center justify-center text-3xl text-lbrce-accent"></i>
+        </div>
+        <h3 class="text-3xl font-black uppercase tracking-[0.3em]">Assembling Bundle</h3>
+        <p class="text-blue-100/40 mt-4 text-xs font-bold uppercase tracking-widest">Generating high-fidelity ID cards for your team...</p>
     </div>
 
     <script>
@@ -236,7 +311,7 @@
             const btn = document.getElementById('sendBtn');
             const btnText = document.getElementById('send-btn-text');
             btn.disabled = true;
-            btnText.innerHTML = `<div class="w-4 h-4 border-2 border-white/30 custom-loader rounded-full mx-auto"></div>`;
+            btnText.innerHTML = `<div class="w-5 h-5 border-3 border-white/30 custom-loader rounded-full mx-auto"></div>`;
 
             try {
                 const res = await fetch('/api/status/send-otp', {
@@ -248,10 +323,10 @@
                 if(data.success) {
                     document.getElementById('step-email').classList.add('hidden');
                     document.getElementById('step-otp').classList.remove('hidden');
-                    document.getElementById('otp-hint').innerText = `Sent to: ${email}`;
+                    document.getElementById('otp-hint').innerText = `SENT TO: ${email}`;
                 } else { alert(data.error); }
-            } catch (err) { alert("Infrastructure timeout."); }
-            finally { btn.disabled = false; btnText.innerText = "Request Access Key"; }
+            } catch (err) { alert("Infrastructure connection failed."); }
+            finally { btn.disabled = false; btnText.innerHTML = `Generate Access Key <i class="ph-bold ph-arrow-right"></i>`; }
         }
 
         async function verifyOtp() {
@@ -260,7 +335,7 @@
             if(!otp) return;
             const btn = document.getElementById('verifyBtn');
             btn.disabled = true;
-            btn.innerText = "VERIFYING...";
+            btn.innerText = "AUTHORIZING...";
 
             try {
                 const res = await fetch('/api/status/verify-otp', {
@@ -275,16 +350,19 @@
                     showDashboard(userData);
                 } else { alert(result.error); }
             } catch (err) { alert("Authorization error."); }
-            finally { btn.disabled = false; btn.innerText = "Verify Access"; }
+            finally { btn.disabled = false; btn.innerText = "Verify Authorization"; }
         }
 
         function showDashboard(data) {
-            document.getElementById('logout-btn').classList.remove('hidden'); // Show signout button
+            document.getElementById('logout-btn').classList.remove('hidden');
+            document.getElementById('status-dot').classList.remove('hidden');
             document.getElementById('auth-card').classList.add('hidden');
             document.getElementById('result-card').classList.remove('hidden');
-            document.getElementById('reg-id-badge').innerText = data.registrationId;
+            
+            document.getElementById('reg-id-badge').innerText = `ID: ${data.registrationId}`;
             document.getElementById('reg-team-name').innerText = data.teamName || data.leadName;
             document.getElementById('reg-event-name').innerText = data.eventName;
+            
             if(data.photoUrl) {
                 const img = document.getElementById('res-photo');
                 img.src = data.photoUrl;
@@ -293,22 +371,42 @@
                     document.getElementById('res-photo-placeholder').classList.add('hidden');
                 }
             }
+            
             const badge = document.getElementById('reg-status-badge');
-            badge.innerText = data.paymentId === 'FREE_ENTRY' ? "Direct Pass" : "Verified Entry";
-            badge.className = `px-3 py-1.5 rounded-xl text-[9px] font-black uppercase border ${data.paymentId === 'FREE_ENTRY' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-green-50 text-green-600 border-green-100'}`;
+            const isFree = data.paymentId === 'FREE_ENTRY';
+            badge.innerText = isFree ? "Direct Pass" : "Verified Entry";
+            badge.className = `px-4 py-1.5 rounded-full text-[9px] font-black uppercase border shadow-sm ${
+                isFree 
+                ? 'bg-blue-50 text-blue-600 border-blue-100' 
+                : 'bg-green-50 text-green-600 border-green-100'
+            }`;
         }
 
         function generateDirectReceipt() {
             if(!userData) return;
             document.getElementById('pr-reg-id').innerText = userData.registrationId;
-            document.getElementById('pr-date').innerText = new Date(userData.timestamp).toLocaleDateString();
+            document.getElementById('pr-date').innerText = new Date(userData.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
             document.getElementById('pr-name').innerText = userData.teamName || userData.leadName;
             document.getElementById('pr-event').innerText = userData.eventName;
-            document.getElementById('pr-college').innerText = userData.college || "LBRCE Student";
+            document.getElementById('pr-college').innerText = userData.college || "LBRCE Student (Internal)";
             document.getElementById('pr-amount').innerText = `₹${userData.amount}`;
+            
             const teamList = document.getElementById('pr-team-list');
-            const roster = [{ role: 'Team Lead', name: userData.leadName, roll: userData.leadRoll }, ...(userData.members || []).map(m => ({ role: 'Participant', name: m.name, roll: m.roll }))];
-            teamList.innerHTML = roster.map(p => `<tr class="border-b border-slate-100"><td class="py-4 px-4 text-[9px] font-bold text-slate-400 uppercase text-left">${p.role}</td><td class="py-4 px-4 text-xs font-black text-lbrce-blue uppercase text-left">${p.name}</td><td class="py-4 px-4 text-[10px] font-bold text-slate-500 text-right uppercase tracking-widest">${p.roll}</td></tr>`).join('');
+            const roster = [
+                { role: 'Team Lead', name: userData.leadName, roll: userData.leadRoll }, 
+                ...(userData.members || []).map(m => ({ role: 'Participant', name: m.name, roll: m.roll }))
+            ];
+            
+            teamList.innerHTML = roster.map(p => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-5 px-6">
+                        <span class="text-[9px] font-black uppercase px-2 py-1 rounded-md ${p.role === 'Team Lead' ? 'bg-lbrce-blue text-white' : 'bg-slate-100 text-slate-400'}">${p.role}</span>
+                    </td>
+                    <td class="py-5 px-6 text-xs font-black text-lbrce-blue uppercase">${p.name}</td>
+                    <td class="py-5 px-6 text-[10px] font-bold text-slate-500 text-right uppercase tracking-widest">${p.roll}</td>
+                </tr>
+            `).join('');
+            
             window.print();
         }
 
@@ -316,7 +414,7 @@
             if(!userData) return;
             document.getElementById('gen-overlay').classList.remove('hidden');
             const q = new URLSearchParams({ id: userData.registrationId, email: userData.leadEmail, mode: 'bundle' });
-            setTimeout(() => { window.location.href = `id-card.html?${q.toString()}`; }, 1000);
+            setTimeout(() => { window.location.href = `id-card.html?${q.toString()}`; }, 1500);
         }
     </script>
 </body>
