@@ -274,7 +274,7 @@ app.post('/api/register/verify', async (req, res) => {
 
     const regId = `REG-${Date.now()}`;
     try {
-        const qrImage = await QRCode.toDataURL(`http://https://events-lbrce.onrender.com/verify-attendance/${regId}`);
+        const qrImage = await QRCode.toDataURL(`http://https://events-lbrce.in/verify-attendance/${regId}`);
         
         const registrationEntry = {
             registrationId: regId,
@@ -445,7 +445,7 @@ async function sendIDCardEmail(recipient, data, qrImage) {
 
                 <!-- Action Button -->
                 <div style="margin-bottom: 30px;">
-                    <a href="http://https://events-lbrce.onrender.com/id-card.html?id=${data.registrationId}&email=${recipient.email}" target="_blank" style="background-color: #FFB800; color: #003366; padding: 18px 30px; border-radius: 12px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 13px; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(255, 184, 0, 0.2);">
+                    <a href="http://https://events-lbrce.in/id-card.html?id=${data.registrationId}&email=${recipient.email}" target="_blank" style="background-color: #FFB800; color: #003366; padding: 18px 30px; border-radius: 12px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 13px; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(255, 184, 0, 0.2);">
                         DOWNLOAD FULL ID CARD
                     </a>
                 </div>
@@ -506,7 +506,7 @@ async function finalizeRegistration(data, payId, res) {
     const regId = `REG-${Date.now()}`;
     try {
         // The QR now points to the verification API endpoint
-        const qrContent = `http://https://events-lbrce.onrender.com/api/verify-attendance/${regId}`;
+        const qrContent = `http://https://events-lbrce.in/api/verify-attendance/${regId}`;
         const qrImage = await QRCode.toDataURL(qrContent);
         
         await dynamo.put({
