@@ -675,117 +675,99 @@ app.post('/api/admin/certificates/issue', isAdmin, async (req, res) => {
 // 1. Send OTP to Lead Email
 app.post('/api/status/send-otp', async (req, res) => {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email address is required.' });
+    if (!email) return res.status(400).json({ error: 'Email is required.' });
 
     try {
-        // Step A: Find the user in Registrations
         const regs = await dynamo.scan({ TableName: 'LBRCE_Registrations' }).promise();
-        const user = regs.Items.find(r => r.leadEmail.toLowerCase() === email.toLowerCase());
+        
+        // FIX: Added 'r.leadEmail &&' to prevent crash if a record is missing the email field
+        const user = regs.Items.find(r => r.leadEmail && r.leadEmail.toLowerCase() === email.toLowerCase());
         
         if (!user) {
-            return res.status(404).json({ error: 'No registration found. Please use the Lead Email used during registration.' });
+            return res.status(404).json({ error: 'No registration found for this Lead Email.' });
         }
 
-        // Step B: Generate & Store OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        try {
-            await dynamo.put({
-                TableName: 'LBRCE_OTPs',
-                Item: { 
-                    email: email.toLowerCase(), 
-                    otp: otp, 
-                    expiresAt: Math.floor(Date.now() / 1000) + 600 // 10 min expiry
-                }
-            }).promise();
-        } catch (tableErr) {
-            console.error("DynamoDB LBRCE_OTPs Error:", tableErr);
-            return res.status(500).json({ error: 'Database Error: Ensure "LBRCE_OTPs" table exists in DynamoDB.' });
-        }
+        await dynamo.put({
+            TableName: 'LBRCE_OTPs',
+            Item: { 
+                email: email.toLowerCase(), 
+                otp: otp, 
+                expiresAt: Math.floor(Date.now() / 1000) + 600 
+            }
+        }).promise();
 
-        // Step C: Send via SES
-        try {
-            await ses.sendEmail({
-                Destination: { ToAddresses: [email] },
-                Message: {
-                    Body: { Html: { Data: `
-                       <div style="margin: 0; padding: 40px 10px; background-color: #f4f7f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-    <!-- Main Email Card -->
-    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; margin: auto; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-collapse: collapse;">
-        
-        <!-- Header/Logo Area -->
-        <tr>
-            <td align="center" style="padding: 40px 40px 20px 40px;">
-                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" 
-                     alt="LBRCE Logo" 
-                     width="90" 
-                     style="display: block; outline: none; border: none; text-decoration: none;"
-                     onerror="this.src='https://via.placeholder.com/90?text=LBRCE'">
-            </td>
-        </tr>
+        // Prestige Email Template
+        const prestigeMailHtml = `
+        <div style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center" style="padding: 40px 10px;">
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 40px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,45,90,0.1); border: 1px solid #ffffff;">
+                            <!-- Header -->
+                            <tr>
+                                <td align="center" style="padding: 50px 40px 30px 40px; background: linear-gradient(135deg, #002D5A 0%, #001A33 100%);">
+                                    <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" alt="LBRCE" width="80" style="margin-bottom: 20px;">
+                                    <h2 style="color: #FFB800; font-size: 14px; margin: 0; font-weight: 800; letter-spacing: 4px; text-transform: uppercase;">Identity Verification</h2>
+                                </td>
+                            </tr>
 
-        <!-- Body Content -->
-        <tr>
-            <td align="center" style="padding: 0 40px;">
-                <h2 style="color: #003366; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
-                    Access Code
-                </h2>
-                <p style="color: #556677; font-size: 16px; line-height: 24px; margin: 15px 0 30px 0;">
-                    Use the verification code below to confirm your identity on the <strong>LBRCE Events Portal</strong>.
-                </p>
-                
-                <!-- OTP Box -->
-                <div style="background-color: #fff9e6; border: 2px dashed #FFB800; border-radius: 12px; padding: 25px 10px; margin-bottom: 20px;">
-                    <h1 style="color: #FFB800; font-size: 48px; letter-spacing: 10px; margin: 0; font-weight: 800; font-family: monospace;">
-                        ${otp}
-                    </h1>
-                </div>
+                            <!-- Body -->
+                            <tr>
+                                <td align="center" style="padding: 40px 40px;">
+                                    <p style="color: #64748B; font-size: 15px; line-height: 24px; margin: 0 0 30px 0; font-weight: 500;">
+                                        Enter the secure authorization key below to access your <strong>LBRCE Event Dashboard</strong>.
+                                    </p>
+                                    
+                                    <!-- OTP Box -->
+                                    <div style="background-color: #F1F5F9; border-radius: 24px; padding: 30px; margin-bottom: 30px;">
+                                        <h1 style="color: #002D5A; font-size: 48px; letter-spacing: 8px; margin: 0; font-weight: 900; font-family: 'Courier New', Courier, monospace;">
+                                            ${otp}
+                                        </h1>
+                                    </div>
 
-                <p style="color: #94a3b8; font-size: 13px; margin: 0 0 40px 0;">
-                    <span style="font-size: 16px; margin-right: 4px;">⏱</span>
-                    This code is valid for <strong>10 minutes</strong>.
-                </p>
-            </td>
-        </tr>
+                                    <table role="presentation" border="0" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                            <td align="center" style="border-radius: 12px; background-color: #FFFBEB; padding: 10px 20px; border: 1px solid #FEF3C7;">
+                                                <p style="color: #B45309; font-size: 11px; margin: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                                                    Expires in 10 minutes
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
 
-        <!-- Footer Area -->
-        <tr>
-            <td align="center" style="padding: 30px 40px; background-color: #f8fafc; border-top: 1px solid #edf2f7;">
-                <p style="color: #64748b; font-size: 12px; line-height: 18px; margin: 0;">
-                    If you did not request this code, please ignore this email or contact support.
-                </p>
-                <p style="color: #003366; font-size: 11px; font-weight: 600; margin-top: 15px; letter-spacing: 0.5px; line-height: 1.5;">
-                    This System was Designed & developed by <br>
-                    <a href="https://xetasolutions.in" target="_blank" style="color: #FFB800; text-decoration: none; border-bottom: 1px solid #FFB800;">Xeta Tech Solutions</a>
-                </p>
-            </td>
-        </tr>
-    </table>
+                            <!-- Footer -->
+                            <tr>
+                                <td align="center" style="padding: 30px 40px; background-color: #F8FAFC; border-top: 1px solid #F1F5F9;">
+                                    <p style="color: #94A3B8; font-size: 10px; line-height: 18px; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                                        LBRCE Events Portal &copy; 2026
+                                    </p>
+                                    <p style="color: #CBD5E1; font-size: 9px; margin-top: 10px; font-weight: 600;">
+                                        Secure Transmission by Xeta Tech Solutions
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>`;
 
-    <!-- Bottom Spacing -->
-    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; margin: auto;">
-        <tr>
-            <td align="center" style="padding-top: 20px;">
-                <p style="color: #cbd5e1; font-size: 11px; margin: 0;">
-                    &copy; 2024 LBRCE Events Portal. All rights reserved.
-                </p>
-            </td>
-        </tr>
-    </table>
-</div>` } },
-                    Subject: { Data: "LBRCE Portal: Verification Code" }
-                },
-                Source: 'events@xetasolutions.in' 
-            }).promise();
-        } catch (sesErr) {
-            console.error("SES Email Error:", sesErr);
-            return res.status(500).json({ error: 'Email Service Error: Check SES identity verification.' });
-        }
+        await ses.sendEmail({
+            Destination: { ToAddresses: [email] },
+            Message: {
+                Body: { Html: { Data: prestigeMailHtml } },
+                Subject: { Data: `Verification Key: ${otp} for LBRCE Portal` }
+            },
+            Source: 'events@xetasolutions.in' 
+        }).promise();
 
         res.json({ success: true });
     } catch (err) {
-        console.error("General OTP Process Error:", err);
-        res.status(500).json({ error: 'Internal Server Error: Check table permissions.' });
+        console.error("OTP Send Error:", err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -800,17 +782,17 @@ app.post('/api/status/verify-otp', async (req, res) => {
             return res.status(401).json({ error: 'Invalid or expired code.' });
         }
 
-        // Cleanup OTP
         await dynamo.delete({ TableName: 'LBRCE_OTPs', Key: { email: email.toLowerCase() } }).promise();
 
-        // Fetch User Registration details
         const regs = await dynamo.scan({ TableName: 'LBRCE_Registrations' }).promise();
-        const userData = regs.Items.find(r => r.leadEmail.toLowerCase() === email.toLowerCase());
+        
+        // FIX: Added 'r.leadEmail &&' here as well for consistency
+        const userData = regs.Items.find(r => r.leadEmail && r.leadEmail.toLowerCase() === email.toLowerCase());
         
         res.json({ success: true, data: userData });
     } catch (err) {
         console.error("OTP Verify Error:", err);
-        res.status(500).json({ error: 'Authorization server failure.' });
+        res.status(500).json({ error: 'Authorization failure.' });
     }
 });
 
