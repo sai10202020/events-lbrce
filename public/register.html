@@ -227,8 +227,8 @@
                         <div class="col-span-1 md:col-span-2">
                             <div class="bg-lbrce-surface p-10 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center cursor-pointer hover:border-lbrce-accent transition-all group" onclick="this.querySelector('input').click()">
                                 <i class="ph ph-user-circle-plus text-5xl text-slate-200 group-hover:text-lbrce-accent transition-colors"></i>
-                                <p id="leadPhotoName" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Upload Identity Portrait</p>
-                                <input type="file" name="leadPhoto" accept="image/*" required class="hidden" onchange="document.getElementById('leadPhotoName').innerText = this.files[0].name">
+                                <p id="leadPhotoName" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Upload Identity Portrait (Max 5MB)</p>
+                                <input type="file" name="leadPhoto" accept="image/*" required class="hidden" onchange="validateFileSize(this, 'leadPhotoName')">
                             </div>
                         </div>
                     </div>
@@ -264,7 +264,6 @@
                                     <p id="review-team" class="text-3xl font-black uppercase tracking-tighter"></p>
                                 </div>
                                 
-                                <!-- UPDATED: Payment Breakdown -->
                                 <div class="md:text-right space-y-2">
                                     <p class="text-[10px] font-black uppercase text-lbrce-accent tracking-[0.4em] mb-1">Payment Summary</p>
                                     <div class="flex flex-col items-end">
@@ -396,6 +395,24 @@
             document.getElementById('otherCollegeWrap').classList.toggle('hidden', sel.value !== 'OTHER');
         }
 
+        // New validation to prevent 413 error (Server limit)
+        function validateFileSize(input, labelId) {
+            const file = input.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB Limit
+
+            if (file) {
+                if (file.size > maxSize) {
+                    showPopup("File Too Large", "The image you selected exceeds the 5MB limit. Please choose a smaller photo to prevent upload errors.");
+                    input.value = ""; // Clear the input
+                    if(labelId) document.getElementById(labelId).innerText = "Upload Identity Portrait (Max 5MB)";
+                    return false;
+                }
+                if(labelId) document.getElementById(labelId).innerText = file.name;
+                return true;
+            }
+            return false;
+        }
+
         function addMemberUI() {
             const limit = parseInt(eventData.teamSize || 1);
             if(document.querySelectorAll('.member-card').length >= limit - 1) {
@@ -409,7 +426,6 @@
             card.id = `mem-row-${id}`;
             const depts = availableDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
 
-            // ADDED: Member Email Field
             card.innerHTML = `
                 <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-3 w-10 h-10 bg-red-500 text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-110 transition-all z-10"><i class="ph-bold ph-trash"></i></button>
                 <div class="space-y-6">
@@ -451,8 +467,8 @@
                         <input type="email" name="m${id}_email" required class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-sm text-lbrce-blue outline-none">
                     </div>
                     <div class="space-y-2 text-left">
-                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Photo Identity</label>
-                        <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-bold text-slate-400">
+                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Photo Identity (Max 5MB)</label>
+                        <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-bold text-slate-400" onchange="validateFileSize(this, null)">
                     </div>
                 </div>
             `;
@@ -501,7 +517,8 @@
                         });
                     }
 
-                    const res = await fetch('/api/register/check-duplicates', {
+                    // FIXED: Correct endpoint URL to match backend.js (removed /register)
+                    const res = await fetch('/api/check-duplicates', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ eventId: eventData.eventId, identifiers: idents })
@@ -551,7 +568,6 @@
             document.getElementById('review-team').innerText = document.getElementsByName('teamName')[0].value;
             document.getElementById('review-college').innerText = col === 'OTHER' ? document.getElementById('otherCollegeInput').value : col;
             
-            // UPDATED: Calculate and Show Price Breakup
             const basePrice = parseFloat(eventData.price || 0);
             const platformFee = parseFloat((basePrice * 0.0236).toFixed(2));
             const total = (basePrice + platformFee).toFixed(2);
@@ -600,6 +616,8 @@
                     if(!file) return null;
                     const fd = new FormData(); fd.append('photo', file);
                     const r = await fetch('/api/upload-photo', { method: 'POST', body: fd });
+                    // Handle 413 error gracefully in case client check is bypassed
+                    if (r.status === 413) throw new Error("File too large");
                     return (await r.json()).url;
                 };
 
@@ -612,14 +630,13 @@
                         dept: card.querySelector(`select[name="m${id}_dept"]`).value,
                         year: card.querySelector(`select[name="m${id}_year"]`).value,
                         roll: card.querySelector(`input[name="m${id}_roll"]`).value,
-                        email: card.querySelector(`input[name="m${id}_email"]`).value, // ADDED
+                        email: card.querySelector(`input[name="m${id}_email"]`).value, 
                         photoUrl: await uploadPhoto(card.querySelector(`input[type="file"]`).files[0])
                     });
                 }
 
                 const col = document.getElementById('collegeSelect').value;
                 
-                // UPDATED: Fee Calculation Logic
                 const basePrice = parseFloat(eventData.price || 0);
                 const platformFee = parseFloat((basePrice * 0.0236).toFixed(2));
                 const totalAmount = parseFloat((basePrice + platformFee).toFixed(2));
@@ -630,8 +647,8 @@
                     college: col === 'OTHER' ? document.getElementById('otherCollegeInput').value : col,
                     leadName: form.leadName.value, 
                     leadRoll: form.leadRoll.value,
-                    leadEmail: form.leadEmail.value, // ADDED: Critical Fix
-                    leadPhone: form.leadPhone.value, // ADDED: Critical Fix
+                    leadEmail: form.leadEmail.value, 
+                    leadPhone: form.leadPhone.value, 
                     photoUrl: leadUrl, 
                     members, 
                     amount: totalAmount, 
@@ -670,7 +687,11 @@
             } catch (e) { 
                 console.error(e);
                 btn.disabled = false; btn.innerText = "Retry Secure Payment";
-                showPopup("Payment Interrupted", "The secure payment process could not be completed. Please check your connection and try again.");
+                if(e.message.includes("File too large")) {
+                    showPopup("Upload Error", "One of your photos is too large (>5MB). Please compress it and try again.");
+                } else {
+                    showPopup("Payment Interrupted", "The secure payment process could not be completed. Please check your connection and try again.");
+                }
             }
         }
 
