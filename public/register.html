@@ -227,8 +227,9 @@
                         <div class="col-span-1 md:col-span-2">
                             <div class="bg-lbrce-surface p-10 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center cursor-pointer hover:border-lbrce-accent transition-all group" onclick="this.querySelector('input').click()">
                                 <i class="ph ph-user-circle-plus text-5xl text-slate-200 group-hover:text-lbrce-accent transition-colors"></i>
-                                <p id="leadPhotoName" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Upload Identity Portrait</p>
-                                <input type="file" name="leadPhoto" accept="image/*" required class="hidden" onchange="document.getElementById('leadPhotoName').innerText = this.files[0].name">
+                                <p id="leadPhotoName" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Upload Identity Portrait (Max 10MB)</p>
+                                <!-- UPDATED: Added validateFile -->
+                                <input type="file" name="leadPhoto" accept="image/*" required class="hidden" onchange="validateFile(this, 'leadPhotoName')">
                             </div>
                         </div>
                     </div>
@@ -264,7 +265,6 @@
                                     <p id="review-team" class="text-3xl font-black uppercase tracking-tighter"></p>
                                 </div>
                                 
-                                <!-- UPDATED: Payment Breakdown -->
                                 <div class="md:text-right space-y-2">
                                     <p class="text-[10px] font-black uppercase text-lbrce-accent tracking-[0.4em] mb-1">Payment Summary</p>
                                     <div class="flex flex-col items-end">
@@ -317,6 +317,7 @@
         const eventId = urlParams.get('event');
         let currentStep = 1, eventData = null, memberIndex = 1;
         let availableDepartments = [];
+        let rzpKey = ""; // Placeholder for Razorpay Key
 
         async function init() {
             if (!eventId) { window.location.href = 'index.html'; return; }
@@ -330,12 +331,17 @@
             }, 200);
 
             try {
-                const [evtRes, masterRes] = await Promise.all([
-                    fetch('/api/events'), fetch('/api/master-data')
+                const [evtRes, masterRes, configRes] = await Promise.all([
+                    fetch('/api/events'), fetch('/api/master-data'), fetch('/api/config')
                 ]);
                 const evts = await evtRes.json();
                 eventData = evts.find(e => e.eventId === eventId);
                 const master = await masterRes.json();
+                
+                // Fetch Key
+                const config = await configRes.json();
+                rzpKey = config.razorpay_key_id;
+
                 availableDepartments = (master.departments || []).sort();
 
                 const collegeSel = document.getElementById('collegeSelect');
@@ -364,6 +370,21 @@
                     document.getElementById('preloader').classList.add('loaded');
                 }, 1000);
             } catch (err) { console.error("Synchronization Failure"); }
+        }
+
+        // --- NEW: FILE SIZE VALIDATION FUNCTION ---
+        function validateFile(input, labelId) {
+            if (input.files && input.files[0]) {
+                const fileSize = input.files[0].size / 1024 / 1024; // in MB
+                if (fileSize > 10) {
+                    showPopup("File Too Large", "The selected image exceeds the 10MB maximum limit. Please upload a smaller image.");
+                    input.value = ""; // Clear the input
+                    if (labelId) document.getElementById(labelId).innerText = "Upload Identity Portrait (Max 10MB)";
+                    return;
+                }
+                // Update label if valid
+                if (labelId) document.getElementById(labelId).innerText = input.files[0].name;
+            }
         }
 
         function showPopup(title, message, isError = true, callback = null) {
@@ -409,7 +430,7 @@
             card.id = `mem-row-${id}`;
             const depts = availableDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
 
-            // ADDED: Member Email Field
+            // ADDED: validation to member file input
             card.innerHTML = `
                 <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-3 w-10 h-10 bg-red-500 text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-110 transition-all z-10"><i class="ph-bold ph-trash"></i></button>
                 <div class="space-y-6">
@@ -451,8 +472,8 @@
                         <input type="email" name="m${id}_email" required class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-sm text-lbrce-blue outline-none">
                     </div>
                     <div class="space-y-2 text-left">
-                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Photo Identity</label>
-                        <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-bold text-slate-400">
+                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Photo Identity (Max 10MB)</label>
+                        <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-bold text-slate-400" onchange="validateFile(this)">
                     </div>
                 </div>
             `;
@@ -518,7 +539,6 @@
             const next = currentStep + dir;
             if(next < 1 || next > 4) return;
 
-            // Mark nodes as blue/completed/active
             for (let i = 1; i <= 4; i++) {
                 const node = document.getElementById(`node-${i}`);
                 node.classList.remove('active-node', 'completed-node', 'bg-white', 'text-slate-300');
@@ -551,7 +571,6 @@
             document.getElementById('review-team').innerText = document.getElementsByName('teamName')[0].value;
             document.getElementById('review-college').innerText = col === 'OTHER' ? document.getElementById('otherCollegeInput').value : col;
             
-            // UPDATED: Calculate and Show Price Breakup
             const basePrice = parseFloat(eventData.price || 0);
             const platformFee = parseFloat((basePrice * 0.0236).toFixed(2));
             const total = (basePrice + platformFee).toFixed(2);
@@ -596,10 +615,30 @@
             btn.disabled = true; btn.innerText = "SYNCHRONIZING ASSETS...";
             try {
                 const form = document.getElementById('multiStepForm');
+                
+                // UPDATED UPLOAD FUNCTION
                 const uploadPhoto = async (file) => {
                     if(!file) return null;
+                    
+                    // Client-side guard check before even trying to upload
+                    const sizeInMB = file.size / (1024 * 1024);
+                    if (sizeInMB > 10) {
+                        throw new Error(`The file ${file.name} is too large (${sizeInMB.toFixed(2)}MB). Max 10MB.`);
+                    }
+
                     const fd = new FormData(); fd.append('photo', file);
                     const r = await fetch('/api/upload-photo', { method: 'POST', body: fd });
+                    
+                    if (!r.ok) {
+                        // Attempt to get error message from JSON, fallback to status
+                        try {
+                            const errData = await r.json();
+                            throw new Error(errData.error || `Upload failed: ${r.statusText}`);
+                        } catch (jsonErr) {
+                            // If it's HTML (413 or 500) and not JSON, this catches the SyntaxError
+                            throw new Error(`Server Error (${r.status}): Likely file size too large.`);
+                        }
+                    }
                     return (await r.json()).url;
                 };
 
@@ -612,27 +651,25 @@
                         dept: card.querySelector(`select[name="m${id}_dept"]`).value,
                         year: card.querySelector(`select[name="m${id}_year"]`).value,
                         roll: card.querySelector(`input[name="m${id}_roll"]`).value,
-                        email: card.querySelector(`input[name="m${id}_email"]`).value, // ADDED
+                        email: card.querySelector(`input[name="m${id}_email"]`).value, 
                         photoUrl: await uploadPhoto(card.querySelector(`input[type="file"]`).files[0])
                     });
                 }
 
                 const col = document.getElementById('collegeSelect').value;
-                
-                // UPDATED: Fee Calculation Logic
                 const basePrice = parseFloat(eventData.price || 0);
                 const platformFee = parseFloat((basePrice * 0.0236).toFixed(2));
                 const totalAmount = parseFloat((basePrice + platformFee).toFixed(2));
 
                 const regData = {
                     eventId: eventData.eventId,
-                    eventName: eventData.name, // Fixed: Added eventName to prevent 'undefined' errors
+                    eventName: eventData.name, 
                     teamName: form.teamName.value,
                     college: col === 'OTHER' ? document.getElementById('otherCollegeInput').value : col,
                     leadName: form.leadName.value, 
                     leadRoll: form.leadRoll.value,
-                    leadEmail: form.leadEmail.value, // ADDED: Critical Fix
-                    leadPhone: form.leadPhone.value, // ADDED: Critical Fix
+                    leadEmail: form.leadEmail.value, 
+                    leadPhone: form.leadPhone.value, 
                     photoUrl: leadUrl, 
                     members, 
                     amount: totalAmount, 
@@ -645,10 +682,12 @@
                     headers: {'Content-Type': 'application/json'}, 
                     body: JSON.stringify({ amount: regData.amount }) 
                 });
+                
+                if (!oRes.ok) throw new Error("Could not initiate payment order");
                 const order = await oRes.json();
 
                 new Razorpay({
-                    key: "", 
+                    key: rzpKey, // Updated to use the fetched key
                     amount: order.amount, 
                     currency: "INR", 
                     order_id: order.id,
@@ -671,7 +710,9 @@
             } catch (e) { 
                 console.error(e);
                 btn.disabled = false; btn.innerText = "Retry Secure Payment";
-                showPopup("Payment Interrupted", "The secure payment process could not be completed. Please check your connection and try again.");
+                // Show specific error if it's about file size, else generic
+                const msg = e.message.includes("too large") ? e.message : "The secure payment process could not be completed. Please check your connection and try again.";
+                showPopup("Registration Interrupted", msg);
             }
         }
 
