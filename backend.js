@@ -543,7 +543,9 @@ app.get('/api/admin/stats', isAdmin, async (req, res) => {
     try {
         const regs = await dynamo.scan({ TableName: 'LBRCE_Registrations' }).promise();
         const events = await dynamo.scan({ TableName: 'LBRCE_Events' }).promise();
-        const totalRevenue = regs.Items.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+        
+        // UPDATED: Calculate revenue using baseAmount (Event Price) only, ignoring platform fees.
+        const totalRevenue = regs.Items.reduce((acc, curr) => acc + parseFloat(curr.baseAmount || curr.amount || 0), 0);
         
         res.json({ 
             registrationCount: regs.Count, 
@@ -906,3 +908,4 @@ app.post('/api/check-duplicates', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
