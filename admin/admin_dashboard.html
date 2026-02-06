@@ -166,7 +166,15 @@
 
         async function loadDashboard() {
             try {
+                // FETCH STATS
                 const res = await fetch('/api/admin/stats');
+                
+                // AUTH CHECK: Redirect if 401/403 (Fixes the Forbidden error)
+                if (res.status === 401 || res.status === 403) {
+                    window.location.href = 'admin_login.html';
+                    return;
+                }
+                
                 const stats = await res.json();
                 
                 const grid = document.getElementById('stats-grid');
@@ -185,7 +193,7 @@
                             <i class="ph-bold ph-coins"></i>
                         </div>
                         <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Revenue</p>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Event Revenue</p>
                             <h4 class="text-2xl lg:text-4xl font-black text-lbrce-blue leading-none">₹${stats.revenue || 0}</h4>
                         </div>
                     </div>
@@ -200,12 +208,26 @@
                     </div>
                 `;
 
+                // FETCH REGISTRATIONS
                 const regRes = await fetch('/api/admin/registrations');
-                const regs = await regRes.json();
-                populateActivity(regs.slice(0, 8));
+                let regs = [];
                 
+                if (regRes.ok) {
+                    regs = await regRes.json();
+                }
+
+                // CRITICAL FIX: Ensure regs is an array before using slice()
+                if (!Array.isArray(regs)) {
+                    console.error("Expected array for registrations, got:", regs);
+                    regs = []; 
+                }
+                
+                populateActivity(regs.slice(0, 8)); // Now safe to slice
                 renderChart();
-            } catch (err) { console.error("Dashboard Sync Error:", err); }
+                
+            } catch (err) { 
+                console.error("Dashboard Sync Error:", err); 
+            }
         }
 
         function populateActivity(regs) {
