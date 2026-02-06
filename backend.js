@@ -173,7 +173,21 @@ app.delete('/api/admin/events/:id', isAdmin, async (req, res) => {
 });
 
 // 5. PHOTO UPLOAD ENDPOINT
-app.post('/api/upload-photo', upload.single('photo'), async (req, res) => {
+app.post('/api/upload-photo', (req, res, next) => {
+    // Wrap the upload middleware to catch errors
+    upload.single('photo')(req, res, (err) => {
+        if (err) {
+            // Check for Multer-specific errors
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(413).json({ error: 'File size exceeds the 10MB limit.' });
+            }
+            // Other Multer errors
+            return res.status(400).json({ error: `Upload error: ${err.message}` });
+        }
+        // If no error, proceed to the main handler
+        next();
+    });
+}, async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No photo provided' });
 
     const params = {
@@ -990,6 +1004,7 @@ app.get('/api/config', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
 
