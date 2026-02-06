@@ -905,7 +905,14 @@ app.post('/api/check-duplicates', async (req, res) => {
     }
 });
 
+app.get('/api/config', (req, res) => {
+    // Only send the public Key ID, never the Secret
+    res.json({ razorpay_key_id: process.env.RAZORPAY_KEY_ID });
+});
+
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
