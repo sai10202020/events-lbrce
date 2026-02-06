@@ -41,6 +41,19 @@
     </script>
 
     <style>
+
+        input, select { 
+    border: 2px solid #cbd5e1 !important; /* Thicker, darker border (Slate-300) */
+    background-color: #ffffff !important; /* Pure white background */
+    color: #0f172a !important; /* Dark text for readability */
+}
+
+/* 2. Add a strong glow when the user clicks a box */
+input:focus, select:focus { 
+    border-color: #FFB800 !important; /* LBRCE Gold Accent */
+    background: #ffffff !important; 
+    box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.2) !important; /* Gold glow */
+}
         .step-content { display: none; }
         .step-content.active { display: block; }
         .progress-line { transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1); }
@@ -720,3 +733,4 @@
     </script>
 </body>
 </html>
+
