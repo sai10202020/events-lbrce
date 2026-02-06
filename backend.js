@@ -349,22 +349,66 @@ app.post('/api/register/verify', async (req, res) => {
  */
 async function sendReceiptEmail(data) {
     const receiptHtml = `
-    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; color: #003366;">
-        <div style="background: #003366; padding: 30px; text-align: center;">
-            <h1 style="color: #FFB800; margin: 0; font-size: 20px; text-transform: uppercase;">Payment Receipt</h1>
+    <div style="background-color: #f8fafc; padding: 40px 10px; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+    <!-- Main Card Container -->
+    <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e2e8f0;">
+        
+        <!-- Header Section -->
+        <div style="background-color: #0f172a; padding: 40px 30px; text-align: center;">
+            <div style="background-color: #10b981; width: 48px; height: 48px; border-radius: 24px; margin: 0 auto 16px; display: inline-block; line-height: 48px; vertical-align: middle;">
+                <span style="color: #ffffff; font-size: 24px; font-weight: bold;">✓</span>
+            </div>
+            <h1 style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; font-weight: 700;">Payment Successful</h1>
+            <div style="font-size: 38px; font-weight: 800; margin-top: 8px; color: #ffffff;">₹${data.amount}</div>
         </div>
-        <div style="padding: 30px;">
-            <p>Hi <b>${data.leadName}</b>, your payment for <b>${data.eventName}</b> is successful.</p>
-            <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Registration ID</td><td style="text-align: right; font-weight: bold;">${data.registrationId}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Transaction ID</td><td style="text-align: right; font-weight: bold;">${data.paymentId}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Amount Paid</td><td style="text-align: right; font-weight: bold; color: #10b981;">₹${data.amount}</td></tr>
+
+        <!-- Body Section -->
+        <div style="padding: 32px;">
+            <p style="font-size: 16px; color: #334155; margin: 0 0 24px 0; line-height: 1.6;">
+                Hi <strong style="color: #0f172a;">${data.leadName}</strong>,<br>
+                Your registration for <span style="font-weight: 600; color: #0f172a;">${data.eventName}</span> has been confirmed. We've received your payment and secured your spot.
+            </p>
+
+            <!-- Details Table (Using table for email compatibility inside divs) -->
+            <div style="border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; padding: 20px 0; margin-bottom: 24px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: 600;">Status</td>
+                        <td style="padding: 6px 0; text-align: right;">
+                            <span style="background-color: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Paid</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: 600;">Registration ID</td>
+                        <td style="padding: 6px 0; text-align: right; color: #0f172a; font-size: 14px; font-weight: 600;">${data.registrationId}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: 600;">Transaction ID</td>
+                        <td style="padding: 6px 0; text-align: right; color: #0f172a; font-size: 14px; font-weight: 600;">${data.paymentId}</td>
+                    </tr>
                 </table>
             </div>
-            <p style="font-size: 12px; color: #64748b;">Note: Individual ID cards have been sent to your team members separately.</p>
+
+            <!-- Note Box -->
+            <div style="background-color: #f1f5f9; border-left: 4px solid #0f172a; padding: 16px; border-radius: 8px;">
+                <p style="margin: 0; font-size: 13px; color: #475569; line-height: 1.5;">
+                    <strong style="color: #0f172a;">Note:</strong> Individual ID cards have been sent to your team members' registered email addresses separately.
+                </p>
+            </div>
         </div>
-    </div>`;
+    </div>
+
+    <!-- Footer / Attribution -->
+    <div style="text-align: center; margin-top: 30px;">
+        <p style="margin: 0; font-size: 12px; color: #94a3b8; font-weight: 500;">
+            This system was developed by 
+            <a href="https://xetasolutions.in" style="color: #64748b; text-decoration: none; font-weight: 700;">Xeta Solutions</a>
+        </p>
+        <p style="margin: 5px 0 0 0; font-size: 11px; color: #cbd5e1;">
+            <a href="https://xetasolutions.in" style="color: #3b82f6; text-decoration: underline;">xetasolutions.in</a>
+        </p>
+    </div>
+</div>`;
 
     try {
         await ses.sendEmail({
@@ -383,24 +427,56 @@ async function sendReceiptEmail(data) {
  */
 async function sendIDCardEmail(recipient, data, qrImage) {
     const idHtml = `
-    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; color: #003366; text-align: center;">
-        <div style="background: #003366; padding: 30px;">
-            <h1 style="color: #FFB800; margin: 0; font-size: 20px; text-transform: uppercase;">Official Entry Pass</h1>
-            <p style="color: white; margin-top: 5px; opacity: 0.8;">${data.eventName}</p>
+   <div style="background-color: #f8fafc; padding: 40px 10px; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+    <!-- Main Pass Container -->
+    <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+        
+        <!-- Header Section -->
+        <div style="background-color: #0f172a; padding: 40px 30px; text-align: center;">
+            <h1 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 3px; color: #94a3b8; font-weight: 700;">Official Entry Pass</h1>
+            <div style="font-size: 24px; font-weight: 800; margin-top: 10px; color: #fbbf24;">${data.eventName}</div>
         </div>
-        <div style="padding: 30px;">
-            <p>Hi <b>${recipient.name}</b>, here is your digital pass for the event.</p>
-            <div style="margin: 30px 0;">
-                <img src="${qrImage}" width="180" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+
+        <!-- Body Section -->
+        <div style="padding: 40px 32px; text-align: center;">
+            <p style="font-size: 16px; color: #334155; margin: 0 0 30px 0; line-height: 1.6;">
+                Hi <strong style="color: #0f172a;">${recipient.name}</strong>,<br>
+                Here is your digital entry pass for the event.
+            </p>
+
+            <!-- Registration ID Section (QR Removed) -->
+            <div style="margin: 0 auto 30px auto; width: 260px; padding: 24px; background-color: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; border-style: dashed;">
+                <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; font-weight: 700;">Registration ID</div>
+                <div style="font-family: 'Courier New', Courier, monospace; font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: 2px;">
+                    ${data.registrationId}
+                </div>
             </div>
-            <p style="font-weight: 800; font-size: 14px; margin-bottom: 25px;">REG ID: ${data.registrationId}</p>
-            <a href="https://events-lbrce.in/id-card.html?id=${data.registrationId}&email=${recipient.email}" 
-               style="background: #FFB800; color: #003366; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 13px;">
-               DOWNLOAD FULL ID CARD
-            </a>
-            <p style="margin-top: 20px; font-size: 11px; color: #94a3b8;">Please present the QR code at the entrance for verification.</p>
+
+            <!-- Action Button -->
+            <div style="margin-bottom: 30px;">
+                <a href="https://events-lbrce.in/id-card.html?id=${data.registrationId}&email=${recipient.email}" 
+                   style="background-color: #fbbf24; color: #0f172a; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 14px; letter-spacing: 0.5px; box-shadow: 0 4px 6px -1px rgba(251, 191, 36, 0.3);">
+                    DOWNLOAD FULL ID CARD
+                </a>
+            </div>
+
+            <!-- Verification Note -->
+            <div style="background-color: #f1f5f9; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <p style="margin: 0; font-size: 12px; color: #64748b; line-height: 1.5;">
+                    <strong style="color: #475569;">Verification:</strong> Please present your Registration ID at the entrance. A valid government ID may be required for verification.
+                </p>
+            </div>
         </div>
-    </div>`;
+    </div>
+
+    <!-- Footer / Attribution -->
+    <div style="text-align: center; margin-top: 30px;">
+        <p style="margin: 0; font-size: 12px; color: #94a3b8; font-weight: 500;">
+            This system was developed by 
+            <a href="https://xetasolutions.in" style="color: #64748b; text-decoration: none; font-weight: 700;">Xeta Solutions</a>
+        </p>
+    </div>
+</div>`;
 
     try {
         await ses.sendEmail({
@@ -914,5 +990,6 @@ app.get('/api/config', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
