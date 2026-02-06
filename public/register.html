@@ -264,7 +264,7 @@
                                     <p id="review-team" class="text-3xl font-black uppercase tracking-tighter"></p>
                                 </div>
                                 
-                                <!-- UPDATED: Payment Breakdown -->
+                                <!-- Payment Breakdown -->
                                 <div class="md:text-right space-y-2">
                                     <p class="text-[10px] font-black uppercase text-lbrce-accent tracking-[0.4em] mb-1">Payment Summary</p>
                                     <div class="flex flex-col items-end">
@@ -317,6 +317,7 @@
         const eventId = urlParams.get('event');
         let currentStep = 1, eventData = null, memberIndex = 1;
         let availableDepartments = [];
+        let rzpKey = ""; // Placeholder for dynamically fetched key
 
         async function init() {
             if (!eventId) { window.location.href = 'index.html'; return; }
@@ -330,9 +331,16 @@
             }, 200);
 
             try {
-                const [evtRes, masterRes] = await Promise.all([
-                    fetch('/api/events'), fetch('/api/master-data')
+                // Fetch dynamic configuration (Razorpay Key) and other data
+                const [evtRes, masterRes, configRes] = await Promise.all([
+                    fetch('/api/events'), 
+                    fetch('/api/master-data'),
+                    fetch('/api/config')
                 ]);
+
+                const config = await configRes.json();
+                rzpKey = config.razorpay_key_id;
+
                 const evts = await evtRes.json();
                 eventData = evts.find(e => e.eventId === eventId);
                 const master = await masterRes.json();
@@ -409,7 +417,6 @@
             card.id = `mem-row-${id}`;
             const depts = availableDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
 
-            // ADDED: Member Email Field
             card.innerHTML = `
                 <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-3 w-10 h-10 bg-red-500 text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-110 transition-all z-10"><i class="ph-bold ph-trash"></i></button>
                 <div class="space-y-6">
@@ -518,7 +525,6 @@
             const next = currentStep + dir;
             if(next < 1 || next > 4) return;
 
-            // Mark nodes as blue/completed/active
             for (let i = 1; i <= 4; i++) {
                 const node = document.getElementById(`node-${i}`);
                 node.classList.remove('active-node', 'completed-node', 'bg-white', 'text-slate-300');
@@ -551,7 +557,6 @@
             document.getElementById('review-team').innerText = document.getElementsByName('teamName')[0].value;
             document.getElementById('review-college').innerText = col === 'OTHER' ? document.getElementById('otherCollegeInput').value : col;
             
-            // UPDATED: Calculate and Show Price Breakup
             const basePrice = parseFloat(eventData.price || 0);
             const platformFee = parseFloat((basePrice * 0.0236).toFixed(2));
             const total = (basePrice + platformFee).toFixed(2);
@@ -593,7 +598,9 @@
 
         async function processRegistration() {
             const btn = document.getElementById('nextBtn');
-            btn.disabled = true; btn.innerText = "SYNCHRONIZING ASSETS...";
+            btn.disabled = true; 
+            btn.innerText = "SYNCHRONIZING ASSETS...";
+
             try {
                 const form = document.getElementById('multiStepForm');
                 const uploadPhoto = async (file) => {
@@ -612,27 +619,25 @@
                         dept: card.querySelector(`select[name="m${id}_dept"]`).value,
                         year: card.querySelector(`select[name="m${id}_year"]`).value,
                         roll: card.querySelector(`input[name="m${id}_roll"]`).value,
-                        email: card.querySelector(`input[name="m${id}_email"]`).value, // ADDED
+                        email: card.querySelector(`input[name="m${id}_email"]`).value,
                         photoUrl: await uploadPhoto(card.querySelector(`input[type="file"]`).files[0])
                     });
                 }
 
                 const col = document.getElementById('collegeSelect').value;
-                
-                // UPDATED: Fee Calculation Logic
                 const basePrice = parseFloat(eventData.price || 0);
                 const platformFee = parseFloat((basePrice * 0.0236).toFixed(2));
                 const totalAmount = parseFloat((basePrice + platformFee).toFixed(2));
 
                 const regData = {
                     eventId: eventData.eventId,
-                    eventName: eventData.name, // Fixed: Added eventName to prevent 'undefined' errors
+                    eventName: eventData.name,
                     teamName: form.teamName.value,
                     college: col === 'OTHER' ? document.getElementById('otherCollegeInput').value : col,
                     leadName: form.leadName.value, 
                     leadRoll: form.leadRoll.value,
-                    leadEmail: form.leadEmail.value, // ADDED: Critical Fix
-                    leadPhone: form.leadPhone.value, // ADDED: Critical Fix
+                    leadEmail: form.leadEmail.value, 
+                    leadPhone: form.leadPhone.value,
                     photoUrl: leadUrl, 
                     members, 
                     amount: totalAmount, 
@@ -640,6 +645,26 @@
                     platformFee: platformFee 
                 };
 
+                // --- CHECK FOR FREE ENTRY ---
+                if (totalAmount <= 0) {
+                    btn.innerText = "FINALIZING FREE REGISTRY...";
+                    const fRes = await fetch('/api/register/free', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ registrationData: regData })
+                    });
+                    const fJ = await fRes.json();
+                    if(fJ.success) {
+                        showPopup("Success!", "Free Registration Verified. Check your email for details.", false, () => {
+                            window.location.href = `status.html?id=${fJ.registrationId}`;
+                        });
+                    } else {
+                        throw new Error(fJ.error || "Free registration failed");
+                    }
+                    return;
+                }
+
+                // --- PAID ENTRY FLOW ---
                 const oRes = await fetch('/api/register/create-order', { 
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'}, 
@@ -647,10 +672,14 @@
                 });
                 const order = await oRes.json();
 
-                new Razorpay({
-                    key: "rzp_test_SBYJMDaXO4aRid", 
+                if (!rzpKey) throw new Error("Gateway key not initialized.");
+
+                const options = {
+                    key: rzpKey, 
                     amount: order.amount, 
                     currency: "INR", 
+                    name: "LBRCE Events",
+                    description: regData.eventName,
                     order_id: order.id,
                     handler: async (resp) => {
                         btn.innerText = "FINALIZING REGISTRY...";
@@ -664,14 +693,24 @@
                             showPopup("Success!", "Registry Verified. Confirmation report has been sent to your email.", false, () => {
                                 window.location.href = `status.html?id=${vJ.registrationId}`;
                             });
+                        } else {
+                            showPopup("Verification Failed", vJ.error || "Could not verify payment.");
                         }
                     },
-                    modal: { ondismiss: () => { btn.disabled = false; btn.innerText = "Confirm & Secure Payment"; } }
-                }).open();
+                    modal: { ondismiss: () => { btn.disabled = false; btn.innerText = "Confirm & Secure Payment"; } },
+                    theme: { color: "#002855" }
+                };
+
+                const rzp1 = new Razorpay(options);
+                rzp1.on('payment.failed', function (response){
+                    showPopup("Payment Failed", response.error.description);
+                });
+                rzp1.open();
+
             } catch (e) { 
                 console.error(e);
                 btn.disabled = false; btn.innerText = "Retry Secure Payment";
-                showPopup("Payment Interrupted", "The secure payment process could not be completed. Please check your connection and try again.");
+                showPopup("Process Interrupted", e.message || "An unexpected error occurred. Please try again.");
             }
         }
 
