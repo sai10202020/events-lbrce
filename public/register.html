@@ -10,8 +10,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png">
-
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
@@ -84,7 +82,7 @@
                 <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769924817/admin-block_kgxvrc.jpg" class="w-full h-auto rounded-full object-cover">
             </div>
             <div class="relative z-10 flex flex-col items-center">
-                <img src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1760704788/XETA_SOLUTIONS_LOGO_bcsbwh.png" alt="LBRCE Logo" class="w-24 mb-8 drop-shadow-2xl">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" alt="LBRCE Logo" class="w-24 mb-8 drop-shadow-2xl">
                 <div class="w-48 h-1 bg-slate-100 rounded-full overflow-hidden">
                     <div id="loader-bar-pre" class="h-full bg-lbrce-accent w-0 transition-all duration-300"></div>
                 </div>
@@ -266,7 +264,6 @@
                                     <p id="review-team" class="text-3xl font-black uppercase tracking-tighter"></p>
                                 </div>
                                 
-                                <!-- Payment Breakdown -->
                                 <div class="md:text-right space-y-2">
                                     <p class="text-[10px] font-black uppercase text-lbrce-accent tracking-[0.4em] mb-1">Payment Summary</p>
                                     <div class="flex flex-col items-end">
@@ -284,7 +281,6 @@
                             </div>
                         </div>
 
-                        <!-- DATA BREAKDOWN BENTO -->
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                             <div class="p-10 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
                                 <p class="text-[10px] font-black text-lbrce-blue uppercase tracking-widest mb-8 border-b border-slate-100 pb-4">Captain Profile</p>
@@ -319,7 +315,7 @@
         const eventId = urlParams.get('event');
         let currentStep = 1, eventData = null, memberIndex = 1;
         let availableDepartments = [];
-        let rzpKey = ""; // Placeholder for dynamically fetched key
+        let rzpKey = ""; 
 
         async function init() {
             if (!eventId) { window.location.href = 'index.html'; return; }
@@ -333,7 +329,6 @@
             }, 200);
 
             try {
-                // Fetch dynamic configuration (Razorpay Key) and other data
                 const [evtRes, masterRes, configRes] = await Promise.all([
                     fetch('/api/events'), 
                     fetch('/api/master-data'),
@@ -367,8 +362,22 @@
                 document.getElementById('event-name-tag').innerText = eventData.name;
                 
                 const limit = parseInt(eventData.teamSize || 1);
-                document.getElementById('rosterHint').innerText = limit > 1 ? `Add up to ${limit-1} co-members` : "Individual Entry Profile";
-                if(limit <= 1) document.getElementById('addMemberBtn').classList.add('hidden');
+                // UPDATED: Changed default text to be more inclusive since button is now forced visible
+                document.getElementById('rosterHint').innerText = limit > 1 ? `Add up to ${limit-1} co-members` : "Add Co-Members (Optional)";
+                
+                // Ensure Expand Team button visibility matches team size
+                const addBtn = document.getElementById('addMemberBtn');
+                
+                // FORCE VISIBLE: Previously this hid the button if limit <= 1. 
+                // We now ensure it stays visible so you can always access the roster options.
+                addBtn.classList.remove('hidden'); 
+                
+                /* if(limit <= 1) {
+                    addBtn.classList.add('hidden');
+                } else {
+                    addBtn.classList.remove('hidden');
+                } 
+                */
 
                 setTimeout(() => {
                     document.getElementById('preloader').classList.add('loaded');
@@ -408,6 +417,7 @@
 
         function addMemberUI() {
             const limit = parseInt(eventData.teamSize || 1);
+            // Limit check includes leader as person #1
             if(document.querySelectorAll('.member-card').length >= limit - 1) {
                 return showPopup("Roster Full", "This event limits team sizes to a maximum of " + limit + " participants.");
             }
@@ -647,7 +657,6 @@
                     platformFee: platformFee 
                 };
 
-                // --- CHECK FOR FREE ENTRY ---
                 if (totalAmount <= 0) {
                     btn.innerText = "FINALIZING FREE REGISTRY...";
                     const fRes = await fetch('/api/register/free', {
@@ -666,7 +675,6 @@
                     return;
                 }
 
-                // --- PAID ENTRY FLOW ---
                 const oRes = await fetch('/api/register/create-order', { 
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'}, 
@@ -720,4 +728,3 @@
     </script>
 </body>
 </html>
-
