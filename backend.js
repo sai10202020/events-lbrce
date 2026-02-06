@@ -407,6 +407,7 @@ async function sendReceiptEmail(data) {
             <div style="background-color: #f1f5f9; border-left: 4px solid #0f172a; padding: 16px; border-radius: 8px;">
                 <p style="margin: 0; font-size: 13px; color: #475569; line-height: 1.5;">
                     <strong style="color: #0f172a;">Note:</strong> Individual ID cards have been sent to your team members' registered email addresses separately.
+                    The Platform fee was non-refundable
                 </p>
             </div>
         </div>
@@ -1004,6 +1005,7 @@ app.get('/api/config', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
 
