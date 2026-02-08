@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Registry | LBRCE Events</title>
+    <title>Secure Registration | LBRCE Events</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -41,28 +41,22 @@
     </script>
 
     <style>
-
         input, select { 
-    border: 2px solid #cbd5e1 !important; /* Thicker, darker border (Slate-300) */
-    background-color: #ffffff !important; /* Pure white background */
-    color: #0f172a !important; /* Dark text for readability */
-}
+            border: 2px solid #e2e8f0 !important;
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            transition: all 0.2s ease;
+        }
 
-/* 2. Add a strong glow when the user clicks a box */
-input:focus, select:focus { 
-    border-color: #FFB800 !important; /* LBRCE Gold Accent */
-    background: #ffffff !important; 
-    box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.2) !important; /* Gold glow */
-}
+        input:focus, select:focus { 
+            border-color: #FFB800 !important; 
+            background: #ffffff !important; 
+            box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.15) !important;
+        }
+
         .step-content { display: none; }
         .step-content.active { display: block; }
         .progress-line { transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1); }
-        
-        input:focus, select:focus { 
-            border-color: #FFB800 !important; 
-            background: white; 
-            box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.1); 
-        }
 
         #preloader {
             position: fixed; inset: 0; background: #ffffff; z-index: 9999;
@@ -77,171 +71,230 @@ input:focus, select:focus {
             border: 1px solid rgba(0, 40, 85, 0.05);
         }
 
-        #custom-popup { display: none; align-items: center; justify-content: center; z-index: 100; }
-        #custom-popup.active { display: flex; }
+        #custom-popup, #support-popup { display: none; align-items: center; justify-content: center; z-index: 100; }
+        #custom-popup.active, #support-popup.active { display: flex; }
 
-        /* Icon State Management */
         .step-node { transition: all 0.4s ease; }
-        .step-node.active-node { background-color: #002855 !important; color: white !important; border-color: #FFB800 !important; transform: scale(1.1); box-shadow: 0 10px 15px -3px rgba(0, 40, 85, 0.3); }
+        .step-node.active-node { background-color: #002855 !important; color: white !important; border-color: #FFB800 !important; transform: scale(1.1); box-shadow: 0 10px 15px -3px rgba(0, 40, 85, 0.2); }
         .step-node.completed-node { background-color: #002855 !important; color: white !important; border-color: #F8FAFC !important; }
+
+        @media (max-width: 640px) {
+            .step-node { width: 2.5rem; height: 2.5rem; }
+            .step-node i { font-size: 1rem; }
+        }
     </style>
 </head>
-<body class="bg-lbrce-surface min-h-screen py-6 sm:py-20 px-4 selection:bg-lbrce-accent/30 overflow-x-hidden">
+<body class="bg-lbrce-surface min-h-screen py-6 sm:py-16 px-4 selection:bg-lbrce-accent/30 overflow-x-hidden">
 
     <!-- PRELOADER -->
     <div id="preloader">
-        <div class="relative flex flex-col items-center max-w-sm w-full px-10">
+        <div class="relative flex flex-col items-center max-w-sm w-full px-10 text-center">
             <div class="absolute inset-0 -top-20 opacity-10 blur-sm scale-110">
-                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769924817/admin-block_kgxvrc.jpg" class="w-full h-auto rounded-full object-cover">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" class="w-full h-auto rounded-full object-cover">
             </div>
             <div class="relative z-10 flex flex-col items-center">
                 <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" alt="LBRCE Logo" class="w-24 mb-8 drop-shadow-2xl">
                 <div class="w-48 h-1 bg-slate-100 rounded-full overflow-hidden">
                     <div id="loader-bar-pre" class="h-full bg-lbrce-accent w-0 transition-all duration-300"></div>
                 </div>
+                <p class="mt-4 text-[9px] font-black text-lbrce-blue uppercase tracking-widest">Opening Secure Portal</p>
             </div>
         </div>
     </div>
 
     <!-- CUSTOM POPUP -->
     <div id="custom-popup" class="fixed inset-0 bg-lbrce-navy/60 backdrop-blur-xl px-4">
-        <div class="bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-3xl border border-slate-100 animate-slide-up">
-            <div id="popup-icon" class="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8">
-                <!-- Icon will be injected via JS -->
-            </div>
-            <h3 id="popup-title" class="text-2xl font-black text-lbrce-blue uppercase tracking-tighter text-center mb-3">Notice</h3>
-            <p id="popup-message" class="text-slate-500 text-sm font-medium text-center leading-relaxed mb-10"></p>
-            <button id="popup-btn" onclick="closePopup()" class="w-full py-5 bg-lbrce-blue text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">Understood</button>
+        <div class="bg-white rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-10 max-w-sm w-full shadow-3xl border border-slate-100 animate-slide-up">
+            <div id="popup-icon" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8"></div>
+            <h3 id="popup-title" class="text-xl sm:text-2xl font-black text-lbrce-blue uppercase tracking-tighter text-center mb-3">Notice</h3>
+            <p id="popup-message" class="text-slate-500 text-xs sm:text-sm font-medium text-center leading-relaxed mb-8 sm:mb-10"></p>
+            <button id="popup-btn" onclick="closePopup()" class="w-full py-4 sm:py-5 bg-lbrce-blue text-white rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">Understood</button>
         </div>
     </div>
 
-    <div class="max-w-5xl mx-auto">
+    <!-- SUPPORT POPUP -->
+    <div id="support-popup" class="fixed inset-0 bg-lbrce-navy/70 backdrop-blur-md px-4 pt-10 pb-10 overflow-y-auto">
+        <div class="bg-white rounded-[2.5rem] sm:rounded-[3.5rem] p-8 sm:p-10 max-w-lg w-full shadow-3xl animate-slide-up my-auto">
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-2xl font-black text-lbrce-blue uppercase tracking-tighter">Support Helpdesk</h3>
+                <button onclick="toggleSupport()" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-lbrce-blue transition-all"><i class="ph ph-x text-2xl"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Midhun</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 9010408899</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:9010408899" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/919010408899?text=Hi Midhun, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Sadhik</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 8978673566</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:8978673566" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/918978673566?text=Hi Sadhik, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Teja</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 6302181501</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:6302181501" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/916302181501?text=Hi Teja, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Sathvika</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 9494900763</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:9494900763" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/919494900763?text=Hi Sathvika, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto pb-20">
         <!-- TOP NAVIGATION -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-6 mb-12 sm:mb-16">
             <a href="index.html" class="flex items-center gap-4 group">
-                <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center transition-all group-hover:border-lbrce-accent group-hover:shadow-lg">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center transition-all group-hover:border-lbrce-accent group-hover:shadow-lg">
                     <i class="ph-bold ph-arrow-left text-lbrce-blue"></i>
                 </div>
                 <div class="text-left">
-                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Exit Registry</p>
-                    <p class="text-xs font-extrabold text-lbrce-blue mt-1">Back to Events</p>
+                    <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none">Cancel</p>
+                    <p class="text-[11px] sm:text-xs font-extrabold text-lbrce-blue mt-1">Back to Events</p>
                 </div>
             </a>
             
-            <div id="event-tag" class="hidden bg-lbrce-navy px-6 py-3 rounded-full shadow-2xl shadow-lbrce-blue/20 border border-white/5 flex items-center gap-4">
-                <div class="w-2 h-2 rounded-full bg-lbrce-accent animate-pulse"></div>
-                <span id="event-name-tag" class="text-[11px] font-black text-white uppercase tracking-[0.2em] truncate max-w-[200px]"></span>
+            <div id="event-tag" class="hidden bg-lbrce-navy px-5 sm:px-6 py-2.5 sm:py-3 rounded-full shadow-xl shadow-lbrce-blue/10 border border-white/5 flex items-center gap-3 sm:gap-4 max-w-full">
+                <div class="w-2 h-2 rounded-full bg-lbrce-accent animate-pulse shrink-0"></div>
+                <span id="event-name-tag" class="text-[9px] sm:text-[11px] font-black text-white uppercase tracking-[0.15em] sm:tracking-[0.2em] truncate"></span>
             </div>
         </div>
 
         <!-- PROGRESS TRACKER -->
-        <div class="mb-24 relative max-w-3xl mx-auto px-4">
-            <div class="h-1 w-full bg-slate-200 rounded-full absolute top-6 left-0 z-0 overflow-hidden">
-                <div id="progress-bar" class="progress-line h-full bg-lbrce-accent w-[25%] rounded-full shadow-[0_0_20px_rgba(255,184,0,0.4)]"></div>
+        <div class="mb-16 sm:mb-24 relative max-w-2xl mx-auto px-2">
+            <div class="h-1 w-full bg-slate-100 rounded-full absolute top-5 sm:top-6 left-0 z-0">
+                <div id="progress-bar" class="progress-line h-full bg-lbrce-accent w-[25%] rounded-full shadow-[0_0_15px_rgba(255,184,0,0.3)]"></div>
             </div>
             <div class="relative z-10 flex justify-between">
-                <div class="flex flex-col items-center gap-4">
-                    <div class="step-node active-node w-12 h-12 rounded-2xl bg-white text-slate-300 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-1"><i class="ph-bold ph-users text-lg"></i></div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-lbrce-blue">Identity</span>
+                <div class="flex flex-col items-center gap-3 sm:gap-4">
+                    <div class="step-node active-node w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white text-slate-200 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-1"><i class="ph-bold ph-identification-card"></i></div>
+                    <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-lbrce-blue">Team</span>
                 </div>
-                <div class="flex flex-col items-center gap-4">
-                    <div class="step-node w-12 h-12 rounded-2xl bg-white text-slate-300 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-2"><i class="ph-bold ph-crown text-lg"></i></div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Captain</span>
+                <div class="flex flex-col items-center gap-3 sm:gap-4">
+                    <div class="step-node w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white text-slate-200 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-2"><i class="ph-bold ph-user-circle"></i></div>
+                    <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-300">Leader</span>
                 </div>
-                <div class="flex flex-col items-center gap-4">
-                    <div class="step-node w-12 h-12 rounded-2xl bg-white text-slate-300 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-3"><i class="ph-bold ph-users-three text-lg"></i></div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Roster</span>
+                <div class="flex flex-col items-center gap-3 sm:gap-4">
+                    <div class="step-node w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white text-slate-200 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-3"><i class="ph-bold ph-users"></i></div>
+                    <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-300">Members</span>
                 </div>
-                <div class="flex flex-col items-center gap-4">
-                    <div class="step-node w-12 h-12 rounded-2xl bg-white text-slate-300 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-4"><i class="ph-bold ph-check-circle text-lg"></i></div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Review</span>
+                <div class="flex flex-col items-center gap-3 sm:gap-4">
+                    <div class="step-node w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white text-slate-200 flex items-center justify-center border-4 border-lbrce-surface shadow-sm" id="node-4"><i class="ph-bold ph-check-circle"></i></div>
+                    <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-300">Review</span>
                 </div>
             </div>
         </div>
 
         <!-- FORM CONTAINER -->
-        <div class="bg-white rounded-[3.5rem] shadow-3xl overflow-hidden border border-slate-100 glass-card">
-            <form id="multiStepForm" class="p-8 md:p-20" onsubmit="return false;" autocomplete="off">
+        <div class="bg-white rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl overflow-hidden border border-slate-100 glass-card">
+            <form id="multiStepForm" class="p-6 sm:p-12 md:p-20" onsubmit="return false;" autocomplete="off">
                 
                 <!-- STEP 1: TEAM -->
                 <div id="step-1" class="step-content active animate-slide-up">
-                    <div class="max-w-xl mx-auto text-center mb-16">
-                        <p class="text-lbrce-gold font-black uppercase text-[10px] tracking-[0.4em] mb-4">Stage 01</p>
-                        <h2 class="text-4xl md:text-5xl font-black text-lbrce-blue tracking-tighter uppercase">Team Registry</h2>
+                    <div class="max-w-xl mx-auto text-center mb-10 sm:mb-16">
+                        <p class="text-lbrce-gold font-black uppercase text-[10px] tracking-[0.4em] mb-4">Step 01</p>
+                        <h2 class="text-3xl sm:text-5xl font-black text-lbrce-blue tracking-tighter uppercase">Team Info</h2>
                     </div>
                     
-                    <div class="space-y-10 max-w-lg mx-auto">
-                        <div class="space-y-3">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Team / Group Alias</label>
-                            <input type="text" name="teamName" required onblur="this.value = formatToTitleCase(this.value)" placeholder="Enter Team Name" class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 outline-none font-bold text-lbrce-blue text-lg">
+                    <div class="space-y-8 sm:space-y-10 max-w-lg mx-auto">
+                        <div class="space-y-2">
+                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Team Name</label>
+                            <input type="text" name="teamName" required onblur="this.value = formatToTitleCase(this.value)" placeholder="Enter team name" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 outline-none font-bold text-lbrce-blue text-base sm:text-lg">
                         </div>
-                        <div class="space-y-3">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Institutional Affiliation</label>
+                        <div class="space-y-2">
+                            <label class="block text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">College Name</label>
                             <div class="relative">
-                                <select id="collegeSelect" name="college" required onchange="handleCollegeChange(this)" class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 outline-none font-bold text-lbrce-blue appearance-none cursor-pointer">
-                                    <option value="">Syncing Organizations...</option>
-                                    <option value="OTHER">Other Organization (Manual Entry)</option>
+                                <select id="collegeSelect" name="college" required onchange="handleCollegeChange(this)" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 outline-none font-bold text-lbrce-blue appearance-none cursor-pointer text-sm sm:text-base">
+                                    <option value="">Syncing Colleges...</option>
+                                    <option value="OTHER">Other College (Enter manually)</option>
                                 </select>
-                                <i class="ph-bold ph-caret-down absolute right-8 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
+                                <i class="ph-bold ph-caret-down absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
                             </div>
                         </div>
-                        <div id="otherCollegeWrap" class="hidden space-y-3">
-                            <label class="block text-[10px] font-black text-lbrce-gold uppercase ml-4 tracking-widest">Manual Institution Entry</label>
-                            <input type="text" id="otherCollegeInput" onblur="this.value = formatToTitleCase(this.value)" placeholder="Full College Name" class="w-full px-8 py-5 rounded-2xl bg-lbrce-accent/5 border border-lbrce-accent/20 font-bold text-lbrce-blue outline-none">
+                        <div id="otherCollegeWrap" class="hidden space-y-2 animate-slide-up">
+                            <label class="block text-[9px] sm:text-[10px] font-black text-lbrce-gold uppercase ml-4 tracking-widest">Enter Full College Name</label>
+                            <input type="text" id="otherCollegeInput" onblur="this.value = formatToTitleCase(this.value)" placeholder="Your college full name" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-lbrce-accent/5 border border-lbrce-accent/20 font-bold text-lbrce-blue outline-none text-sm sm:text-base">
                         </div>
                     </div>
                 </div>
 
                 <!-- STEP 2: LEADER -->
                 <div id="step-2" class="step-content animate-slide-up text-left">
-                    <div class="mb-12">
-                        <p class="text-lbrce-gold font-black uppercase text-[10px] tracking-[0.4em] mb-4">Stage 02</p>
-                        <h2 class="text-3xl md:text-4xl font-black text-lbrce-blue tracking-tighter uppercase">Captain Profile</h2>
+                    <div class="mb-8 sm:mb-12">
+                        <p class="text-lbrce-gold font-black uppercase text-[10px] tracking-[0.4em] mb-4">Step 02</p>
+                        <h2 class="text-2xl sm:text-4xl font-black text-lbrce-blue tracking-tighter uppercase">Leader Details</h2>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Full Legal Name</label>
-                            <input type="text" name="leadName" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none text-lbrce-blue">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Full Name</label>
+                            <input type="text" name="leadName" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 font-bold outline-none text-lbrce-blue text-sm sm:text-base">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Department</label>
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Department</label>
                             <div class="relative">
-                                <select id="deptSelect" name="leadDept" required class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none text-lbrce-blue appearance-none cursor-pointer">
+                                <select id="deptSelect" name="leadDept" required class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 font-bold outline-none text-lbrce-blue appearance-none cursor-pointer text-sm sm:text-base">
                                     <option value="">Select Department</option>
                                 </select>
-                                <i class="ph-bold ph-caret-down absolute right-8 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
+                                <i class="ph-bold ph-caret-down absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Year of Study</label>
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Current Year</label>
                             <div class="relative">
-                                <select name="leadYear" required class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none text-lbrce-blue appearance-none cursor-pointer">
+                                <select name="leadYear" required class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 font-bold outline-none text-lbrce-blue appearance-none cursor-pointer text-sm sm:text-base">
                                     <option value="">Select Year</option>
                                     <option value="1">1st Year</option>
                                     <option value="2">2nd Year</option>
                                     <option value="3">3rd Year</option>
                                     <option value="4">4th Year</option>
                                 </select>
-                                <i class="ph-bold ph-caret-down absolute right-8 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
+                                <i class="ph-bold ph-caret-down absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Roll / ID Number</label>
-                            <input type="text" name="leadRoll" required class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none text-lbrce-blue uppercase">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Roll / ID Number</label>
+                            <input type="text" name="leadRoll" required class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 font-bold outline-none text-lbrce-blue uppercase text-sm sm:text-base">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Email Address</label>
-                            <input type="email" name="leadEmail" required class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none text-lbrce-blue">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">Email ID</label>
+                            <input type="email" name="leadEmail" required class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 font-bold outline-none text-lbrce-blue text-sm sm:text-base">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">WhatsApp Contact</label>
-                            <input type="tel" name="leadPhone" required class="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 font-bold outline-none text-lbrce-blue">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase ml-4 tracking-widest">WhatsApp Number</label>
+                            <input type="tel" name="leadPhone" required class="w-full px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-slate-50 font-bold outline-none text-lbrce-blue text-sm sm:text-base">
                         </div>
                         <div class="col-span-1 md:col-span-2">
-                            <div class="bg-lbrce-surface p-10 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center cursor-pointer hover:border-lbrce-accent transition-all group" onclick="this.querySelector('input').click()">
-                                <i class="ph ph-user-circle-plus text-5xl text-slate-200 group-hover:text-lbrce-accent transition-colors"></i>
-                                <p id="leadPhotoName" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Upload Identity Portrait (Max 10MB)</p>
-                                <!-- UPDATED: Added validateFile -->
+                            <div class="bg-lbrce-surface p-8 sm:p-10 rounded-3xl sm:rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center cursor-pointer hover:border-lbrce-accent transition-all group" onclick="this.querySelector('input').click()">
+                                <i class="ph ph-id-card text-4xl sm:text-5xl text-slate-200 group-hover:text-lbrce-accent transition-colors"></i>
+                                <p id="leadPhotoName" class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Upload Photo (Below 5MB)</p>
+                                <p class="text-[8px] font-bold text-slate-300 uppercase tracking-wider mt-1 px-4">Note: This photo will be printed on your physical ID Card.</p>
                                 <input type="file" name="leadPhoto" accept="image/*" required class="hidden" onchange="validateFile(this, 'leadPhotoName')">
                             </div>
                         </div>
@@ -250,87 +303,98 @@ input:focus, select:focus {
 
                 <!-- STEP 3: MEMBERS -->
                 <div id="step-3" class="step-content animate-slide-up text-left">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 sm:mb-12 gap-6">
                         <div class="space-y-1">
-                            <h2 class="text-3xl font-black text-lbrce-blue uppercase tracking-tighter">Team Roster</h2>
-                            <p id="rosterHint" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
+                            <h2 class="text-2xl sm:text-3xl font-black text-lbrce-blue uppercase tracking-tighter">Team Members</h2>
+                            <p id="rosterHint" class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
                         </div>
-                        <button type="button" id="addMemberBtn" onclick="addMemberUI()" class="px-8 py-4 bg-lbrce-accent text-lbrce-blue rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-lbrce-accent/20 hover:scale-105 transition-all flex items-center gap-3">
-                            <i class="ph-bold ph-plus-circle text-lg"></i> Expand Team
+                        <button type="button" id="addMemberBtn" onclick="addMemberUI()" class="px-6 sm:px-8 py-3.5 sm:py-4 bg-lbrce-accent text-lbrce-blue rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest shadow-xl shadow-lbrce-accent/10 hover:scale-105 transition-all flex items-center gap-2">
+                            <i class="ph-bold ph-plus-circle text-lg"></i> Add Member
                         </button>
                     </div>
-                    <div id="roster-container" class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div id="roster-container" class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
                         <!-- Dynamic member cards populated here -->
                     </div>
                 </div>
 
                 <!-- STEP 4: REVIEW -->
                 <div id="step-4" class="step-content animate-slide-up">
-                    <h2 class="text-3xl font-black text-lbrce-blue uppercase tracking-tighter text-center mb-16">Final Validation</h2>
+                    <h2 class="text-2xl sm:text-3xl font-black text-lbrce-blue uppercase tracking-tighter text-center mb-10 sm:mb-16">Final Review</h2>
                     
-                    <div class="space-y-12 text-left">
-                        <!-- TICKET SUMMARY CARD -->
-                        <div class="bg-lbrce-blue p-10 md:p-16 rounded-[3.5rem] text-white shadow-3xl relative overflow-hidden">
+                    <div class="space-y-8 sm:space-y-12 text-left">
+                        <!-- CERTIFICATE WARNING -->
+                        <div class="bg-amber-50 border border-amber-200 p-6 rounded-2xl flex items-start gap-4">
+                            <i class="ph-fill ph-warning-circle text-amber-500 text-2xl shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="text-xs font-black text-amber-900 uppercase tracking-tighter mb-1">Important: Certificate Accuracy</p>
+                                <p class="text-[10px] font-bold text-amber-700 leading-relaxed">The details entered below will be printed exactly on your official certificates and ID cards. Please cross-check spelling and Roll numbers carefully. Corrections won't be possible later.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-lbrce-blue p-8 sm:p-12 md:p-16 rounded-[2.5rem] sm:rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden">
                             <div class="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-[100px]"></div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 relative z-10">
                                 <div class="space-y-2">
-                                    <p class="text-[10px] font-black uppercase text-lbrce-accent tracking-[0.4em]">Team Registry</p>
-                                    <p id="review-team" class="text-3xl font-black uppercase tracking-tighter"></p>
+                                    <p class="text-[9px] font-black uppercase text-lbrce-accent tracking-[0.3em]">Your Team</p>
+                                    <p id="review-team" class="text-2xl sm:text-3xl font-black uppercase tracking-tighter"></p>
                                 </div>
                                 
                                 <div class="md:text-right space-y-2">
-                                    <p class="text-[10px] font-black uppercase text-lbrce-accent tracking-[0.4em] mb-1">Payment Summary</p>
-                                    <div class="flex flex-col items-end">
-                                        <p class="text-xs font-bold text-blue-200 mb-1">Base: ₹<span id="review-base">0</span></p>
-                                        <p class="text-xs font-bold text-slate-400 mb-2">+ Platform Fee (2.36%): ₹<span id="review-fee">0</span></p>
-                                        <div class="h-px bg-white/20 w-24 mb-2"></div>
-                                        <p class="text-5xl font-black tracking-tighter">₹<span id="review-total">0</span></p>
+                                    <p class="text-[9px] font-black uppercase text-lbrce-accent tracking-[0.3em] mb-1">Fee Summary</p>
+                                    <div class="flex flex-col md:items-end">
+                                        <p class="text-[10px] font-bold text-blue-200 mb-0.5">Base Fee: ₹<span id="review-base">0</span></p>
+                                        <p class="text-[10px] font-bold text-slate-400 mb-1.5">+ Platform Fee (2.36%): ₹<span id="review-fee">0</span></p>
+                                        <div class="h-px bg-white/20 w-24 mb-2 hidden md:block"></div>
+                                        <p class="text-4xl sm:text-5xl font-black tracking-tighter">₹<span id="review-total">0</span></p>
                                     </div>
                                 </div>
 
-                                <div class="md:col-span-2 pt-10 border-t border-white/10">
-                                    <p class="text-[10px] font-black uppercase text-lbrce-accent tracking-[0.4em] mb-2">Representing</p>
-                                    <p id="review-college" class="text-lg font-bold text-blue-100"></p>
+                                <div class="md:col-span-2 pt-6 sm:pt-10 border-t border-white/10">
+                                    <p class="text-[9px] font-black uppercase text-lbrce-accent tracking-[0.3em] mb-2">Representing</p>
+                                    <p id="review-college" class="text-base sm:text-lg font-bold text-blue-100"></p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- DATA BREAKDOWN BENTO -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                            <div class="p-10 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-                                <p class="text-[10px] font-black text-lbrce-blue uppercase tracking-widest mb-8 border-b border-slate-100 pb-4">Captain Profile</p>
-                                <div id="review-captain-info" class="space-y-6"></div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
+                            <div class="p-8 sm:p-10 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                                <p class="text-[9px] font-black text-lbrce-blue uppercase tracking-widest mb-6 sm:mb-8 border-b border-slate-50 pb-4">Leader Profile</p>
+                                <div id="review-captain-info" class="space-y-4 sm:space-y-6"></div>
                             </div>
-                            <div class="p-10 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-                                <p class="text-[10px] font-black text-lbrce-blue uppercase tracking-widest mb-8 border-b border-slate-100 pb-4">Roster Status</p>
-                                <div id="review-roster-info" class="space-y-4"></div>
+                            <div class="p-8 sm:p-10 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                                <p class="text-[9px] font-black text-lbrce-blue uppercase tracking-widest mb-6 sm:mb-8 border-b border-slate-50 pb-4">Team Members</p>
+                                <div id="review-roster-info" class="space-y-3 sm:space-y-4"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- FORM CONTROLS -->
-                <div class="mt-20 flex flex-col md:flex-row gap-5">
-                    <button type="button" id="prevBtn" onclick="changeStep(-1)" class="hidden w-full md:w-auto px-12 py-5 bg-white border border-slate-200 text-slate-400 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Previous Stage</button>
-                    <button type="button" id="nextBtn" onclick="handleNextClick()" class="flex-1 w-full px-12 py-5 bg-lbrce-blue text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-lbrce-blue/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">
-                        <span id="next-btn-text">Proceed to Captain Profile</span>
+                <div class="mt-12 sm:mt-20 flex flex-col md:flex-row gap-4">
+                    <button type="button" id="prevBtn" onclick="changeStep(-1)" class="hidden w-full md:w-auto px-10 py-4 bg-white border border-slate-200 text-slate-400 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Back</button>
+                    <button type="button" id="nextBtn" onclick="handleNextClick()" class="flex-1 w-full px-10 py-4 sm:py-5 bg-lbrce-blue text-white rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-lbrce-blue/10 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">
+                        <span id="next-btn-text">Proceed to Leader Details</span>
                     </button>
                 </div>
             </form>
         </div>
         
-        <p class="text-center mt-20 text-[10px] font-black text-slate-300 uppercase tracking-[0.5em] leading-relaxed">
-            Secured Gateway &copy; 2026 Xeta Tech Solutions <br> 
-            <span class="text-lbrce-accent">LBRCE Engineering Core</span>
+        <p class="text-center mt-12 sm:mt-20 text-[8px] sm:text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] sm:tracking-[0.5em] leading-relaxed px-4">
+            Official LBRCE Events Gateway <br class="sm:hidden"> &copy; 2026 Xeta Tech Solutions
         </p>
     </div>
+
+    <!-- FLOATING SUPPORT BUTTON -->
+    <button onclick="toggleSupport()" class="fixed bottom-6 right-6 z-[80] bg-lbrce-blue text-white px-6 py-4 rounded-full font-black text-[10px] uppercase tracking-[0.3em] shadow-2xl shadow-lbrce-blue/30 border border-white/10 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all flex items-center gap-3">
+        <i class="ph-fill ph-headset text-lg"></i> Support
+    </button>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event');
         let currentStep = 1, eventData = null, memberIndex = 1;
         let availableDepartments = [];
-        let rzpKey = ""; // Placeholder for Razorpay Key
+        let rzpKey = "";
 
         async function init() {
             if (!eventId) { window.location.href = 'index.html'; return; }
@@ -338,10 +402,10 @@ input:focus, select:focus {
             const lBar = document.getElementById('loader-bar-pre');
             let p = 0;
             const int = setInterval(() => {
-                p += 20; if(p > 100) p = 100;
+                p += 25; if(p > 100) p = 100;
                 lBar.style.width = p + '%';
                 if(p === 100) clearInterval(int);
-            }, 200);
+            }, 150);
 
             try {
                 const [evtRes, masterRes, configRes] = await Promise.all([
@@ -350,8 +414,6 @@ input:focus, select:focus {
                 const evts = await evtRes.json();
                 eventData = evts.find(e => e.eventId === eventId);
                 const master = await masterRes.json();
-                
-                // Fetch Key
                 const config = await configRes.json();
                 rzpKey = config.razorpay_key_id;
 
@@ -363,7 +425,7 @@ input:focus, select:focus {
                     const o = document.createElement('option');
                     o.value = c; o.textContent = c; collegeSel.appendChild(o);
                 });
-                collegeSel.innerHTML += '<option value="OTHER">Other Organization (Manual Entry)</option>';
+                collegeSel.innerHTML += '<option value="OTHER">Other College (Enter manually)</option>';
 
                 const deptSel = document.getElementById('deptSelect');
                 deptSel.innerHTML = '<option value="">Select Department</option>';
@@ -376,26 +438,37 @@ input:focus, select:focus {
                 document.getElementById('event-name-tag').innerText = eventData.name;
                 
                 const limit = parseInt(eventData.teamSize || 1);
-                document.getElementById('rosterHint').innerText = limit > 1 ? `Add up to ${limit-1} co-members` : "Individual Entry Profile";
+                document.getElementById('rosterHint').innerText = limit > 1 ? `Up to ${limit-1} additional members` : "Solo Participation Only";
                 if(limit <= 1) document.getElementById('addMemberBtn').classList.add('hidden');
 
                 setTimeout(() => {
                     document.getElementById('preloader').classList.add('loaded');
-                }, 1000);
-            } catch (err) { console.error("Synchronization Failure"); }
+                }, 800);
+            } catch (err) { 
+                console.error("Sync Failure"); 
+                eventData = { name: "Hackathon Event", teamSize: 4, price: 500 };
+                document.getElementById('event-tag').classList.remove('hidden');
+                document.getElementById('event-name-tag').innerText = eventData.name;
+                document.getElementById('preloader').classList.add('loaded');
+            }
         }
 
-        // --- NEW: FILE SIZE VALIDATION FUNCTION ---
+        function toggleSupport() {
+            const popup = document.getElementById('support-popup');
+            popup.classList.toggle('active');
+            if(popup.classList.contains('active')) document.body.style.overflow = 'hidden';
+            else document.body.style.overflow = 'auto';
+        }
+
         function validateFile(input, labelId) {
             if (input.files && input.files[0]) {
-                const fileSize = input.files[0].size / 1024 / 1024; // in MB
-                if (fileSize > 10) {
-                    showPopup("File Too Large", "The selected image exceeds the 10MB maximum limit. Please upload a smaller image.");
-                    input.value = ""; // Clear the input
-                    if (labelId) document.getElementById(labelId).innerText = "Upload Identity Portrait (Max 10MB)";
+                const fileSize = input.files[0].size / 1024 / 1024;
+                if (fileSize > 5) { // Updated to 5MB
+                    showPopup("File Too Large", "Please upload a photo smaller than 5MB for ID card printing.");
+                    input.value = ""; 
+                    if (labelId) document.getElementById(labelId).innerText = "Upload Photo (Below 5MB)";
                     return;
                 }
-                // Update label if valid
                 if (labelId) document.getElementById(labelId).innerText = input.files[0].name;
             }
         }
@@ -403,16 +476,15 @@ input:focus, select:focus {
         function showPopup(title, message, isError = true, callback = null) {
             const popup = document.getElementById('custom-popup');
             const iconWrap = document.getElementById('popup-icon');
-            
             document.getElementById('popup-title').innerText = title;
             document.getElementById('popup-message').innerText = message;
 
             if (isError) {
-                iconWrap.className = "w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8";
-                iconWrap.innerHTML = '<i class="ph-bold ph-warning-circle text-4xl"></i>';
+                iconWrap.className = "w-16 h-16 sm:w-20 sm:h-20 bg-red-50 text-red-500 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8";
+                iconWrap.innerHTML = '<i class="ph-bold ph-warning-circle text-3xl sm:text-4xl"></i>';
             } else {
-                iconWrap.className = "w-20 h-20 bg-green-50 text-green-500 rounded-3xl flex items-center justify-center mx-auto mb-8";
-                iconWrap.innerHTML = '<i class="ph-bold ph-check-circle text-4xl"></i>';
+                iconWrap.className = "w-16 h-16 sm:w-20 sm:h-20 bg-green-50 text-green-500 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8";
+                iconWrap.innerHTML = '<i class="ph-bold ph-check-circle text-3xl sm:text-4xl"></i>';
             }
 
             popup.classList.add('active');
@@ -433,60 +505,51 @@ input:focus, select:focus {
         function addMemberUI() {
             const limit = parseInt(eventData.teamSize || 1);
             if(document.querySelectorAll('.member-card').length >= limit - 1) {
-                return showPopup("Roster Full", "This event limits team sizes to a maximum of " + limit + " participants.");
+                return showPopup("Team Full", `You can only add up to ${limit-1} members for this event.`);
             }
             memberIndex++;
             const id = memberIndex;
             const container = document.getElementById('roster-container');
             const card = document.createElement('div');
-            card.className = "member-card p-10 bg-white rounded-[3rem] border border-slate-100 shadow-xl relative group animate-slide-up";
+            card.className = "member-card p-8 bg-white rounded-3xl border border-slate-100 shadow-lg relative group animate-slide-up";
             card.id = `mem-row-${id}`;
             const depts = availableDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
 
-            // ADDED: validation to member file input
             card.innerHTML = `
-                <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-3 w-10 h-10 bg-red-500 text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-110 transition-all z-10"><i class="ph-bold ph-trash"></i></button>
-                <div class="space-y-6">
-                    <div class="space-y-2 text-left">
-                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Full Name</label>
-                        <input type="text" name="m${id}_name" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-sm text-lbrce-blue outline-none">
+                <button type="button" onclick="this.parentElement.remove()" class="absolute -top-3 -right-3 w-8 h-8 bg-red-500 text-white rounded-lg shadow-lg flex items-center justify-center hover:scale-110 transition-all z-10"><i class="ph-bold ph-trash"></i></button>
+                <div class="space-y-4">
+                    <div class="space-y-1.5 text-left">
+                        <label class="text-[8px] font-black text-slate-300 uppercase ml-4 tracking-widest">Full Name</label>
+                        <input type="text" name="m${id}_name" required onblur="this.value = formatToTitleCase(this.value)" class="w-full px-5 py-3 rounded-xl bg-slate-50 border border-slate-50 font-bold text-sm text-lbrce-blue outline-none">
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div class="space-y-2 text-left">
-                            <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Department</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5 text-left">
+                            <label class="text-[8px] font-black text-slate-300 uppercase ml-4 tracking-widest">Dept</label>
                             <div class="relative">
-                                <select name="m${id}_dept" required class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-xs text-lbrce-blue outline-none appearance-none">
-                                    <option value="">Select Dept</option>
-                                    ${depts}
+                                <select name="m${id}_dept" required class="w-full px-5 py-3 rounded-xl bg-slate-50 border border-slate-50 font-bold text-[10px] text-lbrce-blue outline-none appearance-none">
+                                    <option value="">Dept</option>${depts}
                                 </select>
-                                <i class="ph-bold ph-caret-down absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
+                                <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
                             </div>
                         </div>
-                        <div class="space-y-2 text-left">
-                            <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Academic Year</label>
+                        <div class="space-y-1.5 text-left">
+                            <label class="text-[8px] font-black text-slate-300 uppercase ml-4 tracking-widest">Year</label>
                             <div class="relative">
-                                <select name="m${id}_year" required class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-xs text-lbrce-blue outline-none appearance-none">
-                                    <option value="">Select Year</option>
-                                    <option value="1">1st Year</option>
-                                    <option value="2">2nd Year</option>
-                                    <option value="3">3rd Year</option>
-                                    <option value="4">4th Year</option>
+                                <select name="m${id}_year" required class="w-full px-5 py-3 rounded-xl bg-slate-50 border border-slate-50 font-bold text-[10px] text-lbrce-blue outline-none appearance-none">
+                                    <option value="">Year</option>
+                                    <option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option>
                                 </select>
-                                <i class="ph-bold ph-caret-down absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
+                                <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
                             </div>
                         </div>
                     </div>
-                    <div class="space-y-2 text-left">
-                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Roll Number</label>
-                        <input type="text" name="m${id}_roll" required class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-sm text-lbrce-blue outline-none uppercase">
+                    <div class="space-y-1.5 text-left">
+                        <label class="text-[8px] font-black text-slate-300 uppercase ml-4 tracking-widest">Roll Number</label>
+                        <input type="text" name="m${id}_roll" required class="w-full px-5 py-3 rounded-xl bg-slate-50 border border-slate-50 font-bold text-sm text-lbrce-blue outline-none uppercase">
                     </div>
-                    <div class="space-y-2 text-left">
-                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Email Address</label>
-                        <input type="email" name="m${id}_email" required class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-sm text-lbrce-blue outline-none">
-                    </div>
-                    <div class="space-y-2 text-left">
-                        <label class="text-[9px] font-black text-slate-300 uppercase ml-4 tracking-widest">Photo Identity (Max 10MB)</label>
-                        <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-bold text-slate-400" onchange="validateFile(this)">
+                    <div class="space-y-1.5 text-left">
+                        <label class="text-[8px] font-black text-slate-300 uppercase ml-4 tracking-widest">Photo (Below 5MB)</label>
+                        <input type="file" name="m${id}_photo" accept="image/*" required class="w-full px-4 py-3 bg-slate-50 rounded-xl text-[9px] font-bold text-slate-400" onchange="validateFile(this)">
                     </div>
                 </div>
             `;
@@ -503,10 +566,10 @@ input:focus, select:focus {
             const inputs = step.querySelectorAll('input[required], select[required]');
             let valid = true;
             inputs.forEach(i => {
-                if(!i.value.trim()) { i.classList.add('ring-2', 'ring-red-500'); valid = false; }
-                else i.classList.remove('ring-2', 'ring-red-500');
+                if(!i.value.trim()) { i.classList.add('!border-red-400'); valid = false; }
+                else i.classList.remove('!border-red-400');
             });
-            if(!valid) showPopup("Missing Information", "Every highlighted field is required for a secure registration. Please complete them to proceed.");
+            if(!valid) showPopup("Incomplete Step", "Please fill in all the required fields to move forward.");
             return valid;
         }
 
@@ -517,7 +580,7 @@ input:focus, select:focus {
                 const btn = document.getElementById('nextBtn');
                 const t = document.getElementById('next-btn-text');
                 const original = t.innerText;
-                t.innerText = "AUTHENTICATING...";
+                t.innerText = "CHECKING DATABASE...";
                 btn.disabled = true;
 
                 try {
@@ -542,10 +605,10 @@ input:focus, select:focus {
                     });
                     const status = await res.json();
                     if(status.exists) {
-                        showPopup("Duplicate Identity", `The ID "${status.conflict}" is already registered for this event. Unique participants only.`);
+                        showPopup("Already Registered", `The ID "${status.conflict}" has already been used for this event. No duplicates allowed.`);
                         btn.disabled = false; t.innerText = original; return;
                     }
-                } catch (e) { console.error("Integrity check failed"); }
+                } catch (e) { console.warn("Check bypassed"); }
                 finally { btn.disabled = false; t.innerText = original; }
             }
 
@@ -554,14 +617,10 @@ input:focus, select:focus {
 
             for (let i = 1; i <= 4; i++) {
                 const node = document.getElementById(`node-${i}`);
-                node.classList.remove('active-node', 'completed-node', 'bg-white', 'text-slate-300');
-                if (i < next) {
-                    node.classList.add('completed-node');
-                } else if (i === next) {
-                    node.classList.add('active-node');
-                } else {
-                    node.classList.add('bg-white', 'text-slate-300');
-                }
+                node.classList.remove('active-node', 'completed-node', 'bg-white', 'text-slate-200');
+                if (i < next) node.classList.add('completed-node');
+                else if (i === next) node.classList.add('active-node');
+                else node.classList.add('bg-white', 'text-slate-200');
             }
 
             document.getElementById(`step-${currentStep}`).classList.remove('active');
@@ -570,7 +629,7 @@ input:focus, select:focus {
             document.getElementById('prevBtn').style.display = next > 1 ? 'block' : 'none';
             
             const btnText = document.getElementById('next-btn-text');
-            const map = { 1: "Proceed to Captain Profile", 2: "Assemble Team Roster", 3: "Review Registration Data", 4: "Secure Payment & Finalize" };
+            const map = { 1: "Proceed to Leader Details", 2: "Assemble Team Members", 3: "Review Details", 4: "Secure Payment & Finish" };
             btnText.innerText = map[next];
 
             if(next === 4) populateReview();
@@ -598,26 +657,26 @@ input:focus, select:focus {
             const leadRoll = document.getElementsByName('leadRoll')[0].value;
 
             document.getElementById('review-captain-info').innerHTML = `
-                <div class="flex justify-between items-center"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Full Name</span><span class="text-xs font-black text-lbrce-blue uppercase">${leadName}</span></div>
-                <div class="flex justify-between items-center"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">ID / Roll No</span><span class="text-xs font-black text-lbrce-blue uppercase">${leadRoll}</span></div>
-                <div class="flex justify-between items-center"><span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Academic</span><span class="text-xs font-black text-lbrce-blue uppercase">${leadDept} / YR ${leadYear}</span></div>
+                <div class="flex justify-between items-center"><span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Name</span><span class="text-[11px] font-black text-lbrce-blue uppercase">${leadName}</span></div>
+                <div class="flex justify-between items-center"><span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Roll No</span><span class="text-[11px] font-black text-lbrce-blue uppercase">${leadRoll}</span></div>
+                <div class="flex justify-between items-center"><span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Academic</span><span class="text-[10px] font-black text-lbrce-blue uppercase">${leadDept} / YR ${leadYear}</span></div>
             `;
 
             const roster = document.getElementById('review-roster-info');
             const mems = document.querySelectorAll('.member-card');
             if(mems.length === 0) {
-                roster.innerHTML = `<div class="py-6 text-center opacity-30"><i class="ph ph-user text-4xl mb-2 block mx-auto"></i><p class="text-[9px] font-black uppercase">Solo Entry</p></div>`;
+                roster.innerHTML = `<div class="py-6 text-center opacity-30"><i class="ph ph-user text-3xl mb-1 block mx-auto"></i><p class="text-[8px] font-black uppercase">Solo Entry</p></div>`;
             } else {
                 roster.innerHTML = Array.from(mems).map(c => {
                     const id = c.id.split('-').pop();
                     const name = c.querySelector(`input[name="m${id}_name"]`).value;
                     const roll = c.querySelector(`input[name="m${id}_roll"]`).value;
-                    return `<div class="flex justify-between items-center p-5 bg-lbrce-surface rounded-2xl border border-slate-100">
+                    return `<div class="flex justify-between items-center p-4 bg-lbrce-surface rounded-xl border border-slate-50">
                         <div class="text-left">
-                            <span class="text-[10px] font-black text-lbrce-blue uppercase block">${name}</span>
+                            <span class="text-[10px] font-black text-lbrce-blue uppercase block leading-none mb-1">${name}</span>
                             <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${roll}</span>
                         </div>
-                        <i class="ph-bold ph-check-circle text-green-500 text-lg"></i>
+                        <i class="ph-bold ph-check-circle text-green-500 text-base"></i>
                     </div>`;
                 }).join('');
             }
@@ -625,33 +684,16 @@ input:focus, select:focus {
 
         async function processRegistration() {
             const btn = document.getElementById('nextBtn');
-            btn.disabled = true; btn.innerText = "SYNCHRONIZING ASSETS...";
+            btn.disabled = true; btn.innerText = "PREPARING ASSETS...";
             try {
                 const form = document.getElementById('multiStepForm');
                 
-                // UPDATED UPLOAD FUNCTION
                 const uploadPhoto = async (file) => {
                     if(!file) return null;
-                    
-                    // Client-side guard check before even trying to upload
-                    const sizeInMB = file.size / (1024 * 1024);
-                    if (sizeInMB > 10) {
-                        throw new Error(`The file ${file.name} is too large (${sizeInMB.toFixed(2)}MB). Max 10MB.`);
-                    }
-
+                    if (file.size / (1024 * 1024) > 5) throw new Error(`File ${file.name} is over 5MB.`);
                     const fd = new FormData(); fd.append('photo', file);
                     const r = await fetch('/api/upload-photo', { method: 'POST', body: fd });
-                    
-                    if (!r.ok) {
-                        // Attempt to get error message from JSON, fallback to status
-                        try {
-                            const errData = await r.json();
-                            throw new Error(errData.error || `Upload failed: ${r.statusText}`);
-                        } catch (jsonErr) {
-                            // If it's HTML (413 or 500) and not JSON, this catches the SyntaxError
-                            throw new Error(`Server Error (${r.status}): Likely file size too large.`);
-                        }
-                    }
+                    if (!r.ok) throw new Error("Upload failed");
                     return (await r.json()).url;
                 };
 
@@ -664,68 +706,47 @@ input:focus, select:focus {
                         dept: card.querySelector(`select[name="m${id}_dept"]`).value,
                         year: card.querySelector(`select[name="m${id}_year"]`).value,
                         roll: card.querySelector(`input[name="m${id}_roll"]`).value,
-                        email: card.querySelector(`input[name="m${id}_email"]`).value, 
                         photoUrl: await uploadPhoto(card.querySelector(`input[type="file"]`).files[0])
                     });
                 }
 
                 const col = document.getElementById('collegeSelect').value;
-                const basePrice = parseFloat(eventData.price || 0);
-                const platformFee = parseFloat((basePrice * 0.0236).toFixed(2));
-                const totalAmount = parseFloat((basePrice + platformFee).toFixed(2));
+                const totalAmount = parseFloat(document.getElementById('review-total').innerText);
 
                 const regData = {
-                    eventId: eventData.eventId,
-                    eventName: eventData.name, 
-                    teamName: form.teamName.value,
+                    eventId: eventData.eventId, teamName: form.teamName.value,
                     college: col === 'OTHER' ? document.getElementById('otherCollegeInput').value : col,
-                    leadName: form.leadName.value, 
-                    leadRoll: form.leadRoll.value,
-                    leadEmail: form.leadEmail.value, 
-                    leadPhone: form.leadPhone.value, 
-                    photoUrl: leadUrl, 
-                    members, 
-                    amount: totalAmount, 
-                    baseAmount: basePrice, 
-                    platformFee: platformFee 
+                    leadName: form.leadName.value, leadRoll: form.leadRoll.value,
+                    leadEmail: form.leadEmail.value, leadPhone: form.leadPhone.value, 
+                    photoUrl: leadUrl, members, amount: totalAmount 
                 };
 
                 const oRes = await fetch('/api/register/create-order', { 
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, 
                     body: JSON.stringify({ amount: regData.amount }) 
                 });
-                
-                if (!oRes.ok) throw new Error("Could not initiate payment order");
                 const order = await oRes.json();
 
                 new Razorpay({
-                    key: rzpKey, // Updated to use the fetched key
-                    amount: order.amount, 
-                    currency: "INR", 
-                    order_id: order.id,
+                    key: rzpKey, amount: order.amount, currency: "INR", order_id: order.id,
                     handler: async (resp) => {
-                        btn.innerText = "FINALIZING REGISTRY...";
+                        btn.innerText = "VERIFYING PAYMENT...";
                         const vRes = await fetch('/api/register/verify', { 
-                            method: 'POST', 
-                            headers: {'Content-Type': 'application/json'}, 
+                            method: 'POST', headers: {'Content-Type': 'application/json'}, 
                             body: JSON.stringify({ ...resp, registrationData: regData }) 
                         });
                         const vJ = await vRes.json();
                         if(vJ.success) {
-                            showPopup("Success!", "Registry Verified. Confirmation report has been sent to your email.", false, () => {
+                            showPopup("Success!", "Registration complete. Redirecting to your ticket...", false, () => {
                                 window.location.href = `status.html?id=${vJ.registrationId}`;
                             });
                         }
                     },
-                    modal: { ondismiss: () => { btn.disabled = false; btn.innerText = "Confirm & Secure Payment"; } }
+                    modal: { ondismiss: () => { btn.disabled = false; btn.innerText = "Retry Payment"; } }
                 }).open();
             } catch (e) { 
-                console.error(e);
-                btn.disabled = false; btn.innerText = "Retry Secure Payment";
-                // Show specific error if it's about file size, else generic
-                const msg = e.message.includes("too large") ? e.message : "The secure payment process could not be completed. Please check your connection and try again.";
-                showPopup("Registration Interrupted", msg);
+                btn.disabled = false; btn.innerText = "Confirm & Pay";
+                showPopup("Payment Interrupted", "Something went wrong while securing the transaction. Please try again.");
             }
         }
 
@@ -733,4 +754,3 @@ input:focus, select:focus {
     </script>
 </body>
 </html>
-
