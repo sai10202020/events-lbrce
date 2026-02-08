@@ -80,14 +80,17 @@
                         linear-gradient(135deg, #002855 0%, #001A35 100%);
         }
 
-        .ticker-container {
-            display: flex;
-            width: fit-content;
-        }
-
         .img-vibrant { filter: saturate(1.1) contrast(1.02); }
         
         .bento-footer { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); }
+
+        @media (max-width: 640px) {
+            .hero-gradient {
+                background: linear-gradient(135deg, #002855 0%, #001A35 100%);
+            }
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-lbrce-surface text-slate-900 antialiased selection:bg-lbrce-accent/30 overflow-x-hidden">
@@ -95,9 +98,8 @@
     <!-- PRELOADER -->
     <div id="preloader">
         <div class="relative flex flex-col items-center max-w-sm w-full px-10">
-            <!-- Colored Watermark -->
             <div class="absolute inset-0 -top-20 opacity-10 blur-[2px] scale-110">
-                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" class="w-full h-auto rounded-full object-cover">
+                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" class="w-full h-auto rounded-full object-cover" alt="Background watermark">
             </div>
             
             <div class="relative z-10 flex flex-col items-center">
@@ -108,80 +110,83 @@
                     <div id="loader-bar" class="h-full bg-lbrce-accent transition-all duration-300 ease-out" style="width: 0%;"></div>
                 </div>
                 
-                <p class="text-[10px] uppercase tracking-[0.6em] font-black text-lbrce-blue text-center">Loading Experience</p>
+                <p class="text-[10px] uppercase tracking-[0.6em] font-black text-lbrce-blue text-center">Preparing Portal</p>
             </div>
         </div>
     </div>
 
     <!-- NAVIGATION -->
-    <nav class="fixed w-full z-50 glass-nav transition-all duration-500 h-20 flex items-center" id="navbar">
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-500 h-16 sm:h-20 flex items-center" id="navbar">
         <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <div class="p-1.5 bg-white rounded-2xl shadow-sm border border-slate-100">
-                    <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" alt="Logo" class="h-10 w-auto">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="p-1 sm:p-1.5 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-100">
+                    <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" alt="Logo" class="h-8 sm:h-10 w-auto">
                 </div>
-                <div class="hidden sm:block">
-                    <h1 class="text-lg font-black text-lbrce-blue leading-none tracking-tighter">CODE CROW AI</h1>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">LBRCE Hackathon '26</p>
+                <div>
+                    <h1 class="text-base sm:text-lg font-black text-lbrce-blue leading-none tracking-tighter">CODE CROW AI</h1>
+                    <p class="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">LBRCE Hackathon '26</p>
                 </div>
             </div>
             
-            <div class="hidden md:flex items-center gap-10">
+            <div class="hidden md:flex items-center gap-8 lg:gap-10">
                 <a href="#about" class="text-[11px] font-bold text-slate-500 hover:text-lbrce-blue uppercase tracking-widest transition-all">About</a>
-                <a href="#events" class="text-[11px] font-bold text-slate-500 hover:text-lbrce-blue uppercase tracking-widest transition-all">Registry</a>
-                <a href="status.html" class="text-[11px] font-bold text-slate-500 hover:text-lbrce-blue uppercase tracking-widest transition-all">Verify Ticket</a>
-                <a href="#events" class="bg-lbrce-blue text-white px-8 py-3.5 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-xl shadow-lbrce-blue/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">
-                    Register Now
+                <a href="#events" class="text-[11px] font-bold text-slate-500 hover:text-lbrce-blue uppercase tracking-widest transition-all">Challenges</a>
+                <a href="status.html" class="text-[11px] font-bold text-slate-500 hover:text-lbrce-blue uppercase tracking-widest transition-all">My Tickets</a>
+                <a href="#events" class="bg-lbrce-blue text-white px-6 lg:px-8 py-3 rounded-xl lg:rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-xl shadow-lbrce-blue/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">
+                    Register
                 </a>
             </div>
 
             <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-lbrce-blue p-2">
-                <i class="ph ph-list text-3xl"></i>
+                <i class="ph ph-list text-2xl"></i>
             </button>
         </div>
     </nav>
 
     <!-- MOBILE MENU -->
-    <div id="mobile-menu" class="hidden fixed inset-0 z-[60] bg-white p-10 flex flex-col justify-center animate-slide-up">
-        <button onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="absolute top-10 right-10 text-lbrce-blue text-4xl">
+    <div id="mobile-menu" class="hidden fixed inset-0 z-[60] bg-white p-6 sm:p-10 flex flex-col justify-center animate-slide-up">
+        <button onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="absolute top-6 right-6 text-lbrce-blue text-3xl">
             <i class="ph ph-x"></i>
         </button>
-        <div class="space-y-12 text-center">
-            <a href="#about" class="block text-4xl font-black text-slate-200 hover:text-lbrce-blue transition-all">ABOUT</a>
-            <a href="#events" class="block text-4xl font-black text-slate-200 hover:text-lbrce-blue transition-all">REGISTRY</a>
-            <a href="status.html" class="block text-4xl font-black text-slate-200 hover:text-lbrce-blue transition-all">TICKETS</a>
+        <div class="space-y-8 text-center">
+            <a href="#about" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block text-3xl font-black text-slate-300 hover:text-lbrce-blue transition-all">ABOUT</a>
+            <a href="#events" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block text-3xl font-black text-slate-300 hover:text-lbrce-blue transition-all">CHALLENGES</a>
+            <a href="status.html" class="block text-3xl font-black text-slate-300 hover:text-lbrce-blue transition-all">MY TICKETS</a>
+            <div class="pt-6">
+                <a href="#events" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="inline-block bg-lbrce-blue text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest">Register Now</a>
+            </div>
         </div>
     </div>
 
     <!-- HERO SECTION -->
-    <header class="relative pt-44 pb-32 hero-gradient overflow-hidden min-h-screen flex items-center">
-        <!-- Background Overlay -->
+    <header class="relative pt-32 sm:pt-44 pb-20 sm:pb-32 hero-gradient overflow-hidden min-h-[90vh] sm:min-h-screen flex items-center">
+        <!-- Mobile Background Overlay -->
         <div class="lg:hidden absolute inset-0 opacity-10">
-            <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" class="w-full h-full object-cover">
+            <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" class="w-full h-full object-cover" alt="Hero background">
             <div class="absolute inset-0 bg-gradient-to-b from-lbrce-blue via-transparent to-lbrce-blue"></div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col lg:flex-row items-center gap-20">
-            <div class="flex-1 space-y-12 text-center lg:text-left">
-                <div class="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl px-6 py-3 rounded-full border border-white/20 animate-slide-up">
-                    <span class="w-2.5 h-2.5 rounded-full bg-lbrce-accent animate-pulse shadow-[0_0_15px_rgba(255,184,0,0.6)]"></span>
-                    <span class="text-white text-[10px] font-black uppercase tracking-[0.3em]">Registrations Open</span>
+        <div class="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <div class="flex-1 space-y-8 sm:space-y-12 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 sm:gap-3 bg-white/10 backdrop-blur-xl px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-white/20 animate-slide-up">
+                    <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-lbrce-accent animate-pulse shadow-[0_0_15px_rgba(255,184,0,0.6)]"></span>
+                    <span class="text-white text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">Join the Hackathon</span>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.9] tracking-tighter animate-slide-up">
+                <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[1.1] sm:leading-[0.9] tracking-tighter animate-slide-up">
                     Code Crow <br><span class="text-lbrce-accent">AI Hackathon.</span>
                 </h1>
                 
-                <p class="text-lg md:text-xl text-blue-100/70 max-w-xl font-medium leading-relaxed animate-slide-up delay-100 mx-auto lg:mx-0">
-                    The ultimate showdown of artificial intelligence and innovation at <span class="text-white border-b-2 border-lbrce-accent/50 pb-1">LBRCE</span>. Build the future, code the impossible.
+                <p class="text-base sm:text-lg md:text-xl text-blue-100/70 max-w-xl font-medium leading-relaxed animate-slide-up delay-100 mx-auto lg:mx-0">
+                    The ultimate showdown of artificial intelligence and innovation at <span class="text-white border-b-2 border-lbrce-accent/50 pb-1">LBRCE</span>. Build the future, solve real problems.
                 </p>
                 
-                <div class="flex flex-wrap gap-5 pt-6 animate-slide-up delay-200 justify-center lg:justify-start">
-                    <a href="#events" class="px-12 py-5 bg-lbrce-accent text-lbrce-blue text-xs font-black uppercase tracking-widest rounded-[2rem] hover:bg-white hover:scale-105 transition-all shadow-2xl shadow-lbrce-accent/20">
-                        Join Challenge
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 pt-4 sm:pt-6 animate-slide-up delay-200 justify-center lg:justify-start">
+                    <a href="#events" class="px-10 sm:px-12 py-4 sm:py-5 bg-lbrce-accent text-lbrce-blue text-xs font-black uppercase tracking-widest rounded-2xl sm:rounded-[2rem] hover:bg-white hover:scale-105 transition-all shadow-xl shadow-lbrce-accent/20">
+                        View Challenges
                     </a>
-                    <a href="status.html" class="px-12 py-5 bg-white/5 border border-white/15 text-white text-xs font-black uppercase tracking-widest rounded-[2rem] backdrop-blur-md hover:bg-white/10 transition-all">
-                        Check Status
+                    <a href="status.html" class="px-10 sm:px-12 py-4 sm:py-5 bg-white/5 border border-white/15 text-white text-xs font-black uppercase tracking-widest rounded-2xl sm:rounded-[2rem] backdrop-blur-md hover:bg-white/10 transition-all">
+                        Ticket Status
                     </a>
                 </div>
             </div>
@@ -192,157 +197,150 @@
                 <div class="relative bg-white/10 p-5 rounded-[4rem] backdrop-blur-3xl border border-white/15 shadow-3xl">
                     <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" 
                          class="rounded-[3.5rem] w-full aspect-[4/3] object-cover shadow-2xl img-vibrant"
-                         alt="Code Crow AI Hackathon">
+                         alt="Code Crow AI Hackathon Showcase">
                 </div>
             </div>
         </div>
 
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-30">
-            <span class="text-[9px] uppercase font-black tracking-[0.5em] text-white">Explore</span>
-            <div class="w-[1px] h-16 bg-gradient-to-b from-white to-transparent"></div>
+        <div class="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-4 opacity-30">
+            <span class="text-[9px] uppercase font-black tracking-[0.5em] text-white">Scroll</span>
+            <div class="w-[1px] h-12 sm:h-16 bg-gradient-to-b from-white to-transparent"></div>
         </div>
     </header>
 
-    <!-- STATS STRIP -->
-   
-    <main class="py-32 space-y-48">
+    <main class="py-16 sm:py-32 space-y-24 sm:space-y-48">
         <!-- ABOUT SECTION -->
         <section id="about" class="max-w-7xl mx-auto px-6">
-            <div class="grid lg:grid-cols-2 gap-24 items-center">
-                <div class="space-y-12 text-center lg:text-left">
-                    <div class="space-y-6">
-                        <p class="text-lbrce-gold font-black uppercase text-[11px] tracking-[0.4em]">The Event</p>
-                        <h2 class="text-4xl md:text-6xl font-black text-lbrce-blue tracking-tighter leading-[1.1]">Where Code Meets <br> <span class="text-lbrce-gold">Cognition.</span></h2>
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+                <div class="space-y-8 sm:space-y-12 text-center lg:text-left">
+                    <div class="space-y-4 sm:space-y-6">
+                        <p class="text-lbrce-gold font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em]">The Hackathon</p>
+                        <h2 class="text-3xl sm:text-5xl md:text-6xl font-black text-lbrce-blue tracking-tighter leading-[1.1]">Where Ideas Meet <br> <span class="text-lbrce-gold">Intelligence.</span></h2>
                     </div>
-                    <p class="text-slate-500 text-lg leading-relaxed font-medium">
-                        Code Crow AI is LBRCE's premier artificial intelligence hackathon. We bring together the brightest minds to solve real-world problems using cutting-edge AI technologies. Whether you're a beginner or a pro, this is your stage to innovate.
+                    <p class="text-slate-500 text-base sm:text-lg leading-relaxed font-medium">
+                        Code Crow AI is LBRCE's premier AI-focused hackathon. We invite students to solve real-world problems using machine learning, neural networks, and generative AI. It's time to turn your concepts into working prototypes.
                     </p>
-                    <div class="grid sm:grid-cols-2 gap-8 pt-4">
-                        <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all text-left">
-                            <div class="w-14 h-14 bg-lbrce-accent/10 rounded-2xl flex items-center justify-center text-lbrce-accent text-3xl mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 pt-4">
+                        <div class="p-6 sm:p-8 bg-white rounded-3xl sm:rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left">
+                            <div class="w-12 sm:w-14 h-12 sm:h-14 bg-lbrce-accent/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-lbrce-accent text-2xl sm:text-3xl mb-4 sm:mb-6">
                                 <i class="ph-bold ph-brain"></i>
                             </div>
-                            <h3 class="font-black text-lbrce-blue text-sm uppercase">AI Driven</h3>
-                            <p class="text-xs text-slate-400 mt-3 font-medium leading-relaxed">Focus on Generative AI, ML models, and intelligent automation.</p>
+                            <h3 class="font-black text-lbrce-blue text-sm uppercase">AI Focused</h3>
+                            <p class="text-xs text-slate-400 mt-2 sm:mt-3 font-medium leading-relaxed">Projects built on Generative AI, Computer Vision, and Predictive Modeling.</p>
                         </div>
-                        <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all text-left">
-                            <div class="w-14 h-14 bg-lbrce-blue/5 rounded-2xl flex items-center justify-center text-lbrce-blue text-3xl mb-6">
+                        <div class="p-6 sm:p-8 bg-white rounded-3xl sm:rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left">
+                            <div class="w-12 sm:w-14 h-12 sm:h-14 bg-lbrce-blue/5 rounded-xl sm:rounded-2xl flex items-center justify-center text-lbrce-blue text-2xl sm:text-3xl mb-4 sm:mb-6">
                                 <i class="ph-bold ph-users-three"></i>
                             </div>
-                            <h3 class="font-black text-lbrce-blue text-sm uppercase">Team Spirit</h3>
-                            <p class="text-xs text-slate-400 mt-3 font-medium leading-relaxed">Teams of 2-4 members collaborating to build functional prototypes.</p>
+                            <h3 class="font-black text-lbrce-blue text-sm uppercase">Team Based</h3>
+                            <p class="text-xs text-slate-400 mt-2 sm:mt-3 font-medium leading-relaxed">Collaborate in teams of 2 to 4 students to build something amazing.</p>
                         </div>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="absolute -inset-6 bg-lbrce-blue rounded-[5rem] rotate-3 opacity-5 -z-10"></div>
-                    <div class="rounded-[4rem] overflow-hidden shadow-3xl border-8 border-white">
+                <div class="relative mt-10 lg:mt-0">
+                    <div class="absolute -inset-4 sm:-inset-6 bg-lbrce-blue rounded-[3rem] sm:rounded-[5rem] rotate-3 opacity-5 -z-10"></div>
+                    <div class="rounded-[2.5rem] sm:rounded-[4rem] overflow-hidden shadow-3xl border-4 sm:border-8 border-white">
                         <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1770379266/codegrowai_yg0ymf.jpg" 
-                             class="w-full h-auto object-cover img-vibrant transition-transform duration-1000 hover:scale-110">
+                             class="w-full h-auto object-cover img-vibrant transition-transform duration-1000 hover:scale-105"
+                             alt="Student collaboration at LBRCE">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- EVENT REGISTRY (DYNAMIC - PRESERVED) -->
+        <!-- EVENT LIST SECTION -->
         <section id="events" class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-12">
-                <div class="space-y-4 text-center md:text-left">
-                    <p class="text-lbrce-gold font-black uppercase text-[10px] tracking-[0.4em]">Live Database</p>
-                    <h2 class="text-4xl md:text-6xl font-black text-lbrce-blue tracking-tighter uppercase">Active Registry</h2>
-                </div>
-                
-                <div class="flex flex-wrap justify-center gap-3 p-2 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
-                    <button onclick="filterEvents('All')" class="filter-btn px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-lbrce-blue text-white shadow-lg transition-all">All</button>
-                    <button onclick="filterEvents('Technical')" class="filter-btn px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-lbrce-blue transition-all">Technical</button>
-                    <button onclick="filterEvents('Cultural')" class="filter-btn px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-lbrce-blue transition-all">Cultural</button>
-                    <button onclick="filterEvents('Workshop')" class="filter-btn px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-lbrce-blue transition-all">Workshops</button>
+            <div class="text-center mb-12 sm:mb-24">
+                <div class="space-y-3 sm:space-y-4">
+                    <p class="text-lbrce-gold font-black uppercase text-[10px] tracking-[0.4em]">Choose Your Challenge</p>
+                    <h2 class="text-3xl sm:text-5xl md:text-6xl font-black text-lbrce-blue tracking-tighter uppercase">Available Events</h2>
                 </div>
             </div>
 
-            <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
+            <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-16">
                 <!-- Shimmer Placeholders -->
-                <div class="h-[600px] bg-white rounded-[4rem] animate-pulse overflow-hidden shadow-sm">
-                    <div class="h-72 bg-slate-50"></div>
+                <div class="h-[450px] sm:h-[600px] bg-white rounded-3xl sm:rounded-[4rem] animate-pulse overflow-hidden shadow-sm">
+                    <div class="h-56 sm:h-72 bg-slate-50"></div>
                 </div>
-                <div class="h-[600px] bg-white rounded-[4rem] animate-pulse overflow-hidden shadow-sm">
-                    <div class="h-72 bg-slate-50"></div>
+                <div class="h-[450px] sm:h-[600px] bg-white rounded-3xl sm:rounded-[4rem] animate-pulse overflow-hidden shadow-sm hidden sm:block">
+                    <div class="h-56 sm:h-72 bg-slate-50"></div>
                 </div>
-                <div class="h-[600px] bg-white rounded-[4rem] animate-pulse overflow-hidden shadow-sm">
-                    <div class="h-72 bg-slate-50"></div>
+                <div class="h-[450px] sm:h-[600px] bg-white rounded-3xl sm:rounded-[4rem] animate-pulse overflow-hidden shadow-sm hidden lg:block">
+                    <div class="h-56 sm:h-72 bg-slate-50"></div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- FOOTER (ORIGINAL - PRESERVED) -->
-    <footer class="bg-lbrce-navy text-white pt-16 pb-8">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-10 border-b border-white/5 pb-10">
-            <div class="md:col-span-2 space-y-6">
-                <div class="flex items-center gap-4">
-                    <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" class="h-10 w-auto bg-white p-1.5 rounded-xl">
-                    <span class="text-2xl font-black tracking-tighter uppercase">LBRCE EVENTS</span>
+    <!-- FOOTER -->
+    <footer class="bg-lbrce-navy text-white pt-12 sm:pt-16 pb-6 sm:pb-8">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12 mb-8 sm:mb-10 border-b border-white/5 pb-8 sm:pb-10">
+            <div class="md:col-span-2 space-y-4 sm:space-y-6">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" class="h-8 sm:h-10 w-auto bg-white p-1 rounded-lg sm:rounded-xl" alt="LBRCE Events Logo">
+                    <span class="text-xl sm:text-2xl font-black tracking-tighter uppercase">LBRCE EVENTS</span>
                 </div>
-                <p class="text-slate-400 max-w-md text-sm leading-relaxed">
-                    Official centralized gateway for campus-wide technical excellence. Designed for a world-class student experience.
+                <p class="text-slate-400 max-w-md text-xs sm:text-sm leading-relaxed">
+                    The central hub for all student hackathons and technical events at LBRCE. Innovation starts here.
                 </p>
-                <div class="flex gap-6">
+                <div class="flex gap-5 sm:gap-6">
                     <a href="#" class="text-white/20 hover:text-lbrce-accent transition-all text-xl"><i class="ph-fill ph-instagram-logo"></i></a>
                     <a href="#" class="text-white/20 hover:text-lbrce-accent transition-all text-xl"><i class="ph-fill ph-linkedin-logo"></i></a>
-                    <a href="#" class="text-white/20 hover:text-lbrce-accent transition-all text-xl"><i class="ph-fill ph-twitter-logo"></i></a>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4">
-                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-lbrce-accent">Quick Access</h4>
-                <a href="#about" class="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">About Portal</a>
-                <a href="#events" class="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">Active Registry</a>
-                <a href="status.html" class="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">Ticket Search</a>
-                <a href="admin/admin_login.html" class="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">Admin Hub</a>
+            <div class="grid grid-cols-2 md:grid-cols-1 gap-8 md:gap-4">
+                <div class="flex flex-col gap-3 sm:gap-4">
+                    <h4 class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-lbrce-accent">Shortcuts</h4>
+                    <a href="#about" class="text-[11px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">About Us</a>
+                    <a href="#events" class="text-[11px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">All Events</a>
+                    <a href="status.html" class="text-[11px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">My Registration</a>
+                </div>
+                <div class="md:hidden flex flex-col gap-3">
+                    <h4 class="text-[9px] font-black uppercase tracking-[0.3em] text-lbrce-accent">Admin</h4>
+                    <a href="admin/admin_login.html" class="text-[11px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-all">Login</a>
+                </div>
             </div>
 
             <div class="space-y-4">
-                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-lbrce-accent">Developed By</h4>
-                <div class="p-6 bento-footer rounded-[2rem] group hover:border-lbrce-accent transition-all">
-                    <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-2">Principal Partner</p>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-lbrce-accent">Built By</h4>
+                <div class="p-5 sm:p-6 bento-footer rounded-2xl sm:rounded-[2rem] group hover:border-lbrce-accent transition-all">
+                    <p class="text-[8px] sm:text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-2">Developed with ❤️ by</p>
                     <p class="text-xs font-black group-hover:text-lbrce-accent transition-all uppercase tracking-tighter">Xeta Tech Solutions</p>
                 </div>
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p class="text-[9px] font-bold text-white/20 uppercase tracking-[0.5em]">&copy; 2026 Xeta Tech Solutions. All Rights Reserved.</p>
-            <div class="flex items-center gap-4">
-                <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)] animate-pulse"></span>
-                <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">Core Services Online</p>
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6">
+            <p class="text-[8px] sm:text-[9px] font-bold text-white/20 uppercase tracking-[0.5em] text-center">&copy; 2026 Xeta Tech Solutions. All Rights Reserved.</p>
+            <div class="flex items-center gap-3 sm:gap-4">
+                <span class="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)] animate-pulse"></span>
+                <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">System Operational</p>
             </div>
         </div>
     </footer>
 
     <!-- MODAL -->
-    <div id="detailsModal" class="hidden fixed inset-0 z-[100] bg-lbrce-navy/90 backdrop-blur-xl p-4 sm:p-12 flex items-center justify-center overflow-y-auto" onclick="if(event.target == this) closeModal()">
-        <div class="bg-white rounded-[4rem] w-full max-w-5xl shadow-3xl overflow-hidden animate-slide-up flex flex-col md:flex-row">
-            <!-- Left -->
-            <div class="md:w-[40%] bg-lbrce-blue p-12 md:p-16 flex flex-col justify-between text-white relative">
-                <div class="space-y-10">
-                    <span id="modal-category" class="bg-lbrce-accent text-lbrce-blue text-[10px] font-black uppercase px-6 py-2 rounded-full shadow-lg inline-block">CATEGORY</span>
-                    <h3 id="modal-title" class="text-4xl lg:text-5xl font-black leading-[1.1] tracking-tighter uppercase">EVENT TITLE</h3>
+    <div id="detailsModal" class="hidden fixed inset-0 z-[100] bg-lbrce-navy/90 backdrop-blur-xl p-4 sm:p-8 lg:p-12 flex items-center justify-center overflow-y-auto" onclick="if(event.target == this) closeModal()">
+        <div class="bg-white rounded-3xl sm:rounded-[3rem] md:rounded-[4rem] w-full max-w-5xl shadow-3xl overflow-hidden animate-slide-up flex flex-col md:flex-row max-h-[90vh]">
+            <div class="md:w-[40%] bg-lbrce-blue p-8 sm:p-12 lg:p-16 flex flex-col justify-between text-white relative">
+                <div class="space-y-6 sm:space-y-10">
+                    <span id="modal-category" class="bg-lbrce-accent text-lbrce-blue text-[9px] sm:text-[10px] font-black uppercase px-5 sm:px-6 py-2 rounded-full shadow-lg inline-block">CATEGORY</span>
+                    <h3 id="modal-title" class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] tracking-tighter uppercase">EVENT TITLE</h3>
                 </div>
-                <div class="mt-20 pt-12 border-t border-white/10">
-                    <p class="text-[11px] font-black text-white/40 uppercase tracking-widest mb-3">Entrance Fee</p>
-                    <p id="modal-price" class="text-6xl font-black text-lbrce-accent tracking-tighter">₹0</p>
+                <div class="mt-8 sm:mt-20 pt-8 sm:pt-12 border-t border-white/10">
+                    <p class="text-[10px] sm:text-[11px] font-black text-white/40 uppercase tracking-widest mb-2 sm:mb-3">Entry Fee</p>
+                    <p id="modal-price" class="text-4xl sm:text-5xl lg:text-6xl font-black text-lbrce-accent tracking-tighter">₹0</p>
                 </div>
             </div>
-            <!-- Right -->
-            <div class="flex-1 p-12 md:p-16 space-y-12 bg-white text-left overflow-y-auto max-h-[85vh]">
+            <div class="flex-1 p-8 sm:p-12 lg:p-16 space-y-8 sm:space-y-12 bg-white text-left overflow-y-auto no-scrollbar">
                 <div class="flex justify-between items-start">
-                    <h4 class="text-[11px] font-black text-lbrce-blue uppercase tracking-[0.6em]">Event Blueprint</h4>
-                    <button onclick="closeModal()" class="text-slate-300 hover:text-lbrce-blue transition-all"><i class="ph ph-x-circle text-5xl"></i></button>
+                    <h4 class="text-[9px] sm:text-[11px] font-black text-lbrce-blue uppercase tracking-[0.4em] sm:tracking-[0.6em]">Event Guidelines</h4>
+                    <button onclick="closeModal()" class="text-slate-300 hover:text-lbrce-blue transition-all"><i class="ph ph-x-circle text-4xl sm:text-5xl"></i></button>
                 </div>
-                <div id="modal-body" class="space-y-12"></div>
-                <div class="pt-10">
-                    <a id="modal-reg-link" href="#" class="block w-full bg-lbrce-blue text-white text-center py-7 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-2xl shadow-lbrce-blue/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all transform hover:scale-[1.02]">Confirm Registry</a>
+                <div id="modal-body" class="space-y-8 sm:space-y-12"></div>
+                <div class="pt-6 sm:pt-10 sticky bottom-0 bg-white/90 backdrop-blur-sm pb-2">
+                    <a id="modal-reg-link" href="#" class="block w-full bg-lbrce-blue text-white text-center py-5 sm:py-7 rounded-2xl sm:rounded-[2rem] font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl sm:shadow-2xl shadow-lbrce-blue/20 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all transform hover:scale-[1.01]">Register for this Event</a>
                 </div>
             </div>
         </div>
@@ -355,76 +353,71 @@
             const bar = document.getElementById('loader-bar');
             let progress = 0;
             const interval = setInterval(() => {
-                progress += Math.random() * 20;
+                progress += Math.random() * 25;
                 if(progress > 100) progress = 100;
                 bar.style.width = progress + '%';
                 if(progress === 100) clearInterval(interval);
-            }, 250);
+            }, 200);
 
             try {
                 const res = await fetch('/api/events');
                 allEvents = await res.json();
                 renderEvents(allEvents);
+                
                 setTimeout(() => {
                     document.getElementById('preloader').classList.add('loaded');
                     document.body.style.overflow = 'auto';
-                }, 1800);
+                }, 1500);
             } catch (err) { 
-                console.error("Registry API failure.");
-                const grid = document.getElementById('events-grid');
-                grid.innerHTML = `<div class="col-span-full py-24 text-center text-slate-300 font-black uppercase tracking-widest">Registry Sync Interrupted</div>`;
+                console.warn("API offline - using placeholder logic.");
+                allEvents = [
+                    { eventId: 'hack1', name: 'NeuroCode AI', type: 'Technical', price: 200, teamSize: 4, description: 'Build neural network models for real-world computer vision challenges.' },
+                    { eventId: 'hack2', name: 'Prompt Battle', type: 'Technical', price: 100, teamSize: 1, description: 'Master the art of LLM prompting in a competitive arena.' }
+                ];
+                renderEvents(allEvents);
+                setTimeout(() => {
+                    document.getElementById('preloader').classList.add('loaded');
+                }, 1500);
             }
         }
 
         function renderEvents(events) {
             const grid = document.getElementById('events-grid');
-            if (events.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-24 text-center text-slate-300 font-black uppercase tracking-widest">No Active Registries Found</div>`;
+            if (!events || events.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-24 text-center text-slate-300 font-black uppercase tracking-widest">No Active Events Found</div>`;
                 return;
             }
 
             grid.innerHTML = events.map((ev, index) => `
-                <div class="bg-white rounded-[4rem] border border-slate-100 shadow-xl overflow-hidden flex flex-col group hover:-translate-y-3 transition-all duration-700 animate-slide-up" style="animation-delay: ${index * 0.1}s">
-                    <div class="h-80 relative overflow-hidden bg-slate-100">
+                <div class="bg-white rounded-[2rem] sm:rounded-[3rem] md:rounded-[4rem] border border-slate-100 shadow-lg overflow-hidden flex flex-col group hover:-translate-y-2 transition-all duration-500 animate-slide-up" style="animation-delay: ${index * 0.1}s">
+                    <div class="h-56 sm:h-80 relative overflow-hidden bg-slate-100">
                         <img src="${ev.logo || 'https://res.cloudinary.com/djdwpjm7x/image/upload/v1769924817/admin-block_kgxvrc.jpg'}" 
-                             class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 img-vibrant">
+                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 img-vibrant" alt="${ev.name}">
                         <div class="absolute inset-0 bg-gradient-to-t from-lbrce-navy/80 via-transparent to-transparent"></div>
-                        <div class="absolute bottom-12 left-12 right-12">
-                            <span class="bg-lbrce-accent text-lbrce-blue text-[9px] font-black uppercase px-5 py-2 rounded-full shadow-lg border border-white/10">${ev.type}</span>
-                            <h3 class="text-3xl font-black text-white mt-5 uppercase tracking-tighter leading-none">${ev.name}</h3>
+                        <div class="absolute bottom-6 sm:bottom-12 left-8 sm:left-12 right-8 sm:right-12">
+                            <span class="bg-lbrce-accent text-lbrce-blue text-[8px] sm:text-[9px] font-black uppercase px-4 sm:px-5 py-2 rounded-full shadow-lg border border-white/10">${ev.type}</span>
+                            <h3 class="text-2xl sm:text-3xl font-black text-white mt-3 sm:mt-5 uppercase tracking-tighter leading-none">${ev.name}</h3>
                         </div>
                     </div>
-                    <div class="p-12 flex flex-col flex-1 space-y-12">
-                        <p class="text-slate-400 text-sm font-medium leading-relaxed line-clamp-2">${ev.description}</p>
-                        <div class="flex justify-between items-center py-10 border-y border-slate-50">
+                    <div class="p-8 sm:p-12 flex flex-col flex-1 space-y-8 sm:space-y-12">
+                        <p class="text-slate-400 text-xs sm:text-sm font-medium leading-relaxed line-clamp-2">${ev.description}</p>
+                        <div class="flex justify-between items-center py-6 sm:py-10 border-y border-slate-50">
                             <div>
-                                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Registry Type</p>
-                                <p class="text-xs font-black text-lbrce-blue uppercase tracking-tight">${ev.teamSize > 1 ? ev.teamSize + ' Man Squad' : 'Individual Entry'}</p>
+                                <p class="text-[9px] sm:text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 sm:mb-2">Team Size</p>
+                                <p class="text-[10px] sm:text-xs font-black text-lbrce-blue uppercase tracking-tight">${ev.teamSize > 1 ? ev.teamSize + ' Members' : 'Solo Participation'}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Entry Pass</p>
-                                <p class="text-lg font-black text-lbrce-blue">₹${ev.price}</p>
+                                <p class="text-[9px] sm:text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 sm:mb-2">Entry Fee</p>
+                                <p class="text-base sm:text-lg font-black text-lbrce-blue">₹${ev.price}</p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-6">
-                            <button onclick="openModal('${ev.eventId}')" class="py-5 bg-slate-50 text-slate-500 rounded-3xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-100 transition-all">Details</button>
-                            <a href="register.html?event=${ev.eventId}" class="py-5 bg-lbrce-blue text-white rounded-3xl font-black text-[11px] uppercase tracking-widest text-center shadow-2xl shadow-lbrce-blue/10 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">Registry</a>
+                        <div class="grid grid-cols-2 gap-4 sm:gap-6">
+                            <button onclick="openModal('${ev.eventId}')" class="py-4 sm:py-5 bg-slate-50 text-slate-500 rounded-2xl sm:rounded-3xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-slate-100 transition-all">Details</button>
+                            <a href="register.html?event=${ev.eventId}" class="py-4 sm:py-5 bg-lbrce-blue text-white rounded-2xl sm:rounded-3xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest text-center shadow-xl shadow-lbrce-blue/10 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all">Register</a>
                         </div>
                     </div>
                 </div>
             `).join('');
-        }
-
-        function filterEvents(type) {
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-lbrce-blue', 'text-white', 'shadow-lg');
-                btn.classList.add('text-slate-400');
-            });
-            event.target.classList.add('bg-lbrce-blue', 'text-white', 'shadow-lg');
-            event.target.classList.remove('text-slate-400');
-
-            if (type === 'All') renderEvents(allEvents);
-            else renderEvents(allEvents.filter(e => e.type === type));
         }
 
         function openModal(id) {
@@ -436,18 +429,18 @@
             document.getElementById('modal-reg-link').href = `register.html?event=${ev.eventId}`;
             const body = document.getElementById('modal-body');
             body.innerHTML = `
-                <div class="p-12 bg-lbrce-surface rounded-[3rem] border border-slate-100 shadow-inner">
-                    <p class="text-slate-500 text-base font-medium leading-relaxed">${ev.description}</p>
+                <div class="p-8 sm:p-12 bg-lbrce-surface rounded-2xl sm:rounded-[3rem] border border-slate-100 shadow-inner">
+                    <p class="text-slate-500 text-sm sm:text-base font-medium leading-relaxed">${ev.description}</p>
                 </div>
             `;
             if (ev.sections) {
                 ev.sections.forEach(sec => {
                     body.innerHTML += `
-                        <div class="space-y-6 px-4">
-                            <h5 class="text-[11px] font-black text-lbrce-blue uppercase tracking-[0.2em] flex items-center gap-5">
-                                <span class="w-12 h-1 bg-lbrce-accent rounded-full"></span> ${sec.heading}
+                        <div class="space-y-4 sm:space-y-6 px-2 sm:px-4">
+                            <h5 class="text-[10px] sm:text-[11px] font-black text-lbrce-blue uppercase tracking-[0.2em] flex items-center gap-3 sm:gap-5">
+                                <span class="w-8 sm:w-12 h-1 bg-lbrce-accent rounded-full"></span> ${sec.heading}
                             </h5>
-                            <p class="text-slate-500 text-sm font-medium leading-relaxed whitespace-pre-line">${sec.content}</p>
+                            <p class="text-slate-500 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line">${sec.content}</p>
                         </div>
                     `;
                 });
@@ -463,12 +456,12 @@
 
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
-            if (window.scrollY > 80) {
-                nav.classList.add('h-16', 'shadow-2xl');
-                nav.classList.remove('h-20');
+            if (window.scrollY > 50) {
+                nav.classList.add('h-16', 'shadow-lg');
+                nav.classList.remove('sm:h-20');
             } else {
-                nav.classList.remove('h-16', 'shadow-2xl');
-                nav.classList.add('h-20');
+                nav.classList.remove('h-16', 'shadow-lg');
+                nav.classList.add('sm:h-20');
             }
         });
 
