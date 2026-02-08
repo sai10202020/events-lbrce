@@ -346,6 +346,68 @@
         </div>
     </div>
 
+    <!-- SUPPORT POPUP -->
+    <div id="support-popup" class="fixed inset-0 bg-lbrce-navy/70 backdrop-blur-md px-4 pt-10 pb-10 overflow-y-auto hidden items-center justify-center z-[110]">
+        <div class="bg-white rounded-[2.5rem] sm:rounded-[3.5rem] p-8 sm:p-10 max-w-lg w-full shadow-3xl animate-slide-up my-auto">
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-2xl font-black text-lbrce-blue uppercase tracking-tighter">Support Helpdesk</h3>
+                <button onclick="toggleSupport()" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-lbrce-blue transition-all"><i class="ph ph-x text-2xl"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Coordinator 1 -->
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Midhun</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 9010408899</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:9010408899" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/919010408899?text=Hi Midhun, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+                <!-- Coordinator 2 -->
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Sadhik</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 8978673566</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:8978673566" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/918978673566?text=Hi Sadhik, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+                <!-- Coordinator 3 -->
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Teja</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 6302181501</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:6302181501" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/916302181501?text=Hi Teja, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+                <!-- Coordinator 4 -->
+                <div class="p-5 bg-slate-50 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xs font-black text-lbrce-blue uppercase">Sathvika</p>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest">+91 9494900763</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:9494900763" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-lbrce-blue flex items-center justify-center rounded-xl hover:bg-lbrce-blue hover:text-white transition-all"><i class="ph ph-phone text-lg"></i></a>
+                        <a href="https://wa.me/919494900763?text=Hi Sathvika, I need assistance with Code Crow AI registration." target="_blank" class="w-10 h-10 bg-white shadow-sm border border-slate-100 text-green-500 flex items-center justify-center rounded-xl hover:bg-green-500 hover:text-white transition-all"><i class="ph ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING SUPPORT BUTTON -->
+    <button onclick="toggleSupport()" class="fixed bottom-6 right-6 z-[90] bg-lbrce-blue text-white px-6 py-4 rounded-full font-black text-[10px] uppercase tracking-[0.3em] shadow-2xl shadow-lbrce-blue/30 border border-white/10 hover:bg-lbrce-accent hover:text-lbrce-blue transition-all flex items-center gap-3">
+        <i class="ph-fill ph-headset text-lg"></i> Support
+    </button>
+
     <script>
         let allEvents = [];
 
@@ -378,6 +440,21 @@
                 setTimeout(() => {
                     document.getElementById('preloader').classList.add('loaded');
                 }, 1500);
+            }
+        }
+
+        function toggleSupport() {
+            const popup = document.getElementById('support-popup');
+            // Simplified toggle logic using Tailwind classes only
+            const isHidden = popup.classList.contains('hidden');
+            if (isHidden) {
+                popup.classList.remove('hidden');
+                popup.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            } else {
+                popup.classList.add('hidden');
+                popup.classList.remove('flex');
+                document.body.style.overflow = 'auto';
             }
         }
 
