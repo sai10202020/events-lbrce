@@ -86,9 +86,29 @@
             if(!regId) return;
 
             try {
+                // 1. Fetch Registration Data
                 const response = await fetch(`/api/registration-details/${regId}`);
                 const data = await response.json();
                 if(!data || data.error) throw new Error("Not Found");
+
+                // --- EVENT NAME FIX START ---
+                // If eventName is undefined or missing, fetch it using the ID
+                if (!data.eventName || data.eventName === 'undefined') {
+                    console.log("Event Name missing, fetching from backend...");
+                    try {
+                        const nameRes = await fetch(`/api/events/name/${data.eventId}`);
+                        const nameData = await nameRes.json();
+                        if(nameData.success) {
+                            data.eventName = nameData.eventName;
+                        } else {
+                            data.eventName = 'LBRCE Event';
+                        }
+                    } catch (e) {
+                        console.warn("Could not fetch event name", e);
+                        data.eventName = 'LBRCE Event';
+                    }
+                }
+                // --- EVENT NAME FIX END ---
 
                 const participants = [];
                 
@@ -218,7 +238,6 @@
                     
                     setTimeout(() => {
                         const qrCanvas = document.createElement('canvas');
-                        // ADDED ?roll= TO MAKE EVERY QR UNIQUE
                         const verificationUrl = `${window.location.origin}/api/verify-attendance/${data.registrationId}?roll=${encodeURIComponent(p.roll)}`;
                         
                         QRCode.toCanvas(qrCanvas, verificationUrl, { 
