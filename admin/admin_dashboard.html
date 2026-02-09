@@ -166,10 +166,10 @@
 
         async function loadDashboard() {
             try {
-                // FETCH STATS
+                // 1. FETCH STATS
                 const res = await fetch('/api/admin/stats');
                 
-                // AUTH CHECK: Redirect if 401/403 (Fixes the Forbidden error)
+                // AUTH CHECK
                 if (res.status === 401 || res.status === 403) {
                     window.location.href = 'admin_login.html';
                     return;
@@ -177,6 +177,7 @@
                 
                 const stats = await res.json();
                 
+                // Render Stats Grid
                 const grid = document.getElementById('stats-grid');
                 grid.innerHTML = `
                     <div class="bg-white p-6 lg:p-8 rounded-3xl border border-slate-100 shadow-xl shadow-slate-900/5 flex items-center gap-6 group hover:border-lbrce-accent transition-all">
@@ -208,21 +209,34 @@
                     </div>
                 `;
 
-                // FETCH REGISTRATIONS
-                const regRes = await fetch('/api/admin/registrations');
+                // 2. FETCH REGISTRATIONS & EVENTS (Parallel Fetch for Speed)
+                const [regRes, evtRes] = await Promise.all([
+                    fetch('/api/admin/registrations'),
+                    fetch('/api/events')
+                ]);
+
                 let regs = [];
-                
-                if (regRes.ok) {
-                    regs = await regRes.json();
+                let events = [];
+
+                if (regRes.ok) regs = await regRes.json();
+                if (evtRes.ok) events = await evtRes.json();
+
+                // 3. CREATE EVENT ID -> NAME LOOKUP MAP
+                // This fixes the issue where eventName might be undefined in the registration object
+                const eventMap = {};
+                if (Array.isArray(events)) {
+                    events.forEach(e => {
+                        eventMap[e.eventId] = e.name;
+                    });
                 }
 
-                // CRITICAL FIX: Ensure regs is an array before using slice()
                 if (!Array.isArray(regs)) {
                     console.error("Expected array for registrations, got:", regs);
                     regs = []; 
                 }
                 
-                populateActivity(regs.slice(0, 8)); // Now safe to slice
+                // Pass the lookup map to the populate function
+                populateActivity(regs.slice(0, 8), eventMap);
                 renderChart();
                 
             } catch (err) { 
@@ -230,26 +244,35 @@
             }
         }
 
-        function populateActivity(regs) {
+        function populateActivity(regs, eventMap) {
             const container = document.getElementById('recent-activity');
             if(!regs || regs.length === 0) {
                 container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold uppercase text-[9px]">No data logged yet</p>`;
                 return;
             }
-            container.innerHTML = regs.map(r => `
+            container.innerHTML = regs.map(r => {
+                // FALLBACK LOGIC: 
+                // 1. Try r.eventName
+                // 2. If undefined, try eventMap[r.eventId]
+                // 3. If still not found, show 'Unknown Event'
+                const displayEventName = (r.eventName && r.eventName !== 'undefined') 
+                    ? r.eventName 
+                    : (eventMap[r.eventId] || 'Unknown Event ID');
+
+                return `
                 <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 border border-transparent hover:border-lbrce-accent hover:bg-white hover:shadow-lg hover:shadow-slate-200/50 transition-all cursor-default">
                     <div class="w-9 h-9 rounded-xl bg-white border shadow-sm flex items-center justify-center overflow-hidden shrink-0">
                         ${r.photoUrl ? `<img src="${r.photoUrl}" class="w-full h-full object-cover">` : `<i class="ph ph-user text-slate-300"></i>`}
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-[10px] font-black text-lbrce-blue uppercase truncate">${r.leadName}</p>
-                        <p class="text-[8px] font-bold text-slate-400 uppercase truncate">${r.eventName}</p>
+                        <p class="text-[8px] font-bold text-slate-400 uppercase truncate">${displayEventName}</p>
                     </div>
                     <div class="text-right shrink-0">
                         <p class="text-[10px] font-black text-slate-700">₹${r.amount}</p>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderChart() {
@@ -264,7 +287,7 @@
                     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     datasets: [{
                         label: 'Registrations',
-                        data: [15, 28, 12, 45, 30, 65, 52],
+                        data: [15, 28, 12, 45, 30, 65, 52], // Placeholder data
                         borderColor: '#003366',
                         borderWidth: 4,
                         backgroundColor: gradient,
