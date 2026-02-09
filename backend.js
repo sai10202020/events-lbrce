@@ -307,10 +307,12 @@ app.post('/api/register/create-order', async (req, res) => {
     }
 });
 
+
 app.post('/api/register/verify', async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, registrationData } = req.body;
     
-    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'O97dBbH6AK1zlvM4C96jdzeV');
+    // Security check: Verify Razorpay Signature
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'YOUR_KEY_SECRET');
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     
     if (hmac.digest('hex') !== razorpay_signature) {
@@ -321,33 +323,24 @@ app.post('/api/register/verify', async (req, res) => {
     try {
         const qrImage = await QRCode.toDataURL(`https://events-lbrce.in/verify-attendance/${regId}`);
         
+        // Build the final entry for DynamoDB
         const registrationEntry = {
             registrationId: regId,
             paymentId: razorpay_payment_id,
-            ...registrationData,
+            ...registrationData, // Now includes eventName from the frontend
             timestamp: new Date().toISOString()
         };
 
+        // Save to DynamoDB
         await dynamo.put({ TableName: 'LBRCE_Registrations', Item: registrationEntry }).promise();
         
-        // --- SEPARATE EMAIL LOGIC ---
-
-        // A. Send Receipt only to Team Lead
+        // Emails
         await sendReceiptEmail(registrationEntry);
+        await sendIDCardEmail({ name: registrationEntry.leadName, email: registrationEntry.leadEmail }, registrationEntry, qrImage);
 
-        // B. Send Individual ID Card to Team Lead
-        await sendIDCardEmail({ 
-            name: registrationEntry.leadName, 
-            email: registrationEntry.leadEmail 
-        }, registrationEntry, qrImage);
-
-        // C. Send Individual ID Card to each Team Member
         if(registrationEntry.members && registrationEntry.members.length > 0) {
             for(const member of registrationEntry.members) {
-                await sendIDCardEmail({ 
-                    name: member.name, 
-                    email: member.email 
-                }, registrationEntry, qrImage);
+                await sendIDCardEmail({ name: member.name, email: member.email }, registrationEntry, qrImage);
             }
         }
         
@@ -1005,6 +998,7 @@ app.get('/api/config', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
 
