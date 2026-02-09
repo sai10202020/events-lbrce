@@ -294,10 +294,34 @@
     <script>
         let userData = null;
 
-        window.onload = () => {
+        // HELPER: Fix Missing Event Names
+        async function ensureEventName(data) {
+            if (!data.eventName || data.eventName === 'undefined') {
+                console.log("Event Name missing, fetching from backend...");
+                try {
+                    const nameRes = await fetch(`/api/events/name/${data.eventId}`);
+                    const nameData = await nameRes.json();
+                    if(nameData.success) {
+                        data.eventName = nameData.eventName;
+                    } else {
+                        data.eventName = 'LBRCE Event';
+                    }
+                } catch (e) {
+                    console.warn("Could not fetch event name", e);
+                    data.eventName = 'LBRCE Event';
+                }
+            }
+            return data;
+        }
+
+        window.onload = async () => {
             const savedData = sessionStorage.getItem('lbrce_participant_session');
             if (savedData) {
-                userData = JSON.parse(savedData);
+                let data = JSON.parse(savedData);
+                // Apply Fix
+                userData = await ensureEventName(data);
+                // Save fixed data back to storage
+                sessionStorage.setItem('lbrce_participant_session', JSON.stringify(userData));
                 showDashboard(userData);
             }
         };
@@ -347,7 +371,8 @@
                 });
                 const result = await res.json();
                 if(result.success) {
-                    userData = result.data;
+                    // Apply Fix before showing
+                    userData = await ensureEventName(result.data);
                     sessionStorage.setItem('lbrce_participant_session', JSON.stringify(userData));
                     showDashboard(userData);
                 } else { alert(result.error); }
@@ -421,4 +446,3 @@
     </script>
 </body>
 </html>
-
