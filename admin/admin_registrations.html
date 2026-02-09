@@ -251,16 +251,35 @@
 
         async function init() {
             try {
+                // FETCH BOTH REGISTRATIONS AND EVENTS TO FIX UNDEFINED NAMES
                 const [regRes, eventRes] = await Promise.all([
                     fetch('/api/admin/registrations'),
                     fetch('/api/events')
                 ]);
                 
-                allRegistrations = await regRes.json();
+                let rawRegs = await regRes.json();
+                let events = await eventRes.json();
 
+                // Create Event ID -> Name Map
+                const eventMap = {};
+                if (Array.isArray(events)) {
+                    events.forEach(e => eventMap[e.eventId] = e.name);
+                }
+
+                // Patch Registration Data immediately with Correct Event Names
+                allRegistrations = rawRegs.map(r => {
+                    let displayEvent = r.eventName;
+                    // Fix if undefined or missing
+                    if (!displayEvent || displayEvent === 'undefined') {
+                        displayEvent = eventMap[r.eventId] || 'Unknown Event';
+                    }
+                    return { ...r, eventName: displayEvent };
+                });
+
+                // Populate Dropdown with Corrected Names
                 const eventSelect = document.getElementById('eventFilter');
-                const uniqueEvents = [...new Set(allRegistrations.map(r => r.eventName))];
-                uniqueEvents.forEach(evt => {
+                const uniqueEvents = [...new Set(allRegistrations.map(r => r.eventName))].filter(Boolean);
+                uniqueEvents.sort().forEach(evt => {
                     const opt = document.createElement('option');
                     opt.value = evt;
                     opt.textContent = evt;
@@ -337,6 +356,8 @@
                 </tr>
             `).join('');
         }
+
+        
 
         function showDetails(id) {
             const reg = allRegistrations.find(r => r.registrationId === id);
