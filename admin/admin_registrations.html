@@ -33,7 +33,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         
-        /* Modal Animation */
         .modal-overlay { opacity: 0; pointer-events: none; transition: all 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -42,7 +41,6 @@
 </head>
 <body class="bg-[#F8FAFC] flex h-screen overflow-hidden text-slate-700">
 
-    <!-- Mobile Toggle Input (Hidden) -->
     <input type="checkbox" id="sidebar-toggle" class="hidden">
 
     <!-- SIDEBAR -->
@@ -79,12 +77,7 @@
         </div>
     </aside>
 
-    <!-- Overlay for mobile -->
-    <label for="sidebar-toggle" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" id="mobile-overlay"></label>
-
-    <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col overflow-hidden w-full">
-        <!-- HEADER -->
         <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 shrink-0">
             <div class="flex items-center gap-4">
                 <label for="sidebar-toggle" class="lg:hidden p-2 bg-slate-100 rounded-lg cursor-pointer">
@@ -103,39 +96,32 @@
             </div>
         </header>
 
-        <!-- DASHBOARD BODY -->
         <div class="flex-1 overflow-y-auto p-4 lg:p-10 space-y-6">
             
-            <!-- FILTERS BAR -->
             <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Search -->
                     <div class="relative">
                         <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchFilter" oninput="applyFilters()" placeholder="Search Lead or Team..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
+                        <input type="text" id="searchFilter" oninput="applyFilters()" placeholder="Search Name, ID or Roll..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
                     </div>
-                    <!-- College Filter -->
+                    <!-- College Filter (Dynamic) -->
                     <select id="collegeFilter" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
                         <option value="">All Colleges</option>
-                        <option>LBRCE (Autonomous)</option>
-                        <option>GEC, Gudlavalleru</option>
-                        <option>VRSCE, Vijayawada</option>
-                        <option>Other Organization</option>
                     </select>
-                    <!-- Event Filter -->
+                    <!-- Event Filter (Dynamic) -->
                     <select id="eventFilter" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
                         <option value="">All Events</option>
                     </select>
                     <!-- Status Filter -->
                     <select id="statusFilter" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-lbrce-accent outline-none">
-                        <option value="">All Status</option>
-                        <option value="true">Present</option>
-                        <option value="false">Absent</option>
+                        <option value="">All Attendance</option>
+                        <option value="true">Verified (Present)</option>
+                        <option value="false">Pending (Absent)</option>
                     </select>
                 </div>
             </div>
 
-            <!-- TABLE CONTAINER -->
             <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
                 <div class="custom-scrollbar overflow-x-auto">
                     <table class="w-full text-left border-collapse min-w-[1000px]">
@@ -149,11 +135,9 @@
                             </tr>
                         </thead>
                         <tbody id="regTableBody" class="divide-y divide-slate-50">
-                            <!-- Data populated via script -->
                         </tbody>
                     </table>
                 </div>
-                <!-- Empty State -->
                 <div id="noData" class="hidden flex flex-col items-center justify-center py-20">
                     <i class="ph ph-files text-5xl text-slate-200 mb-4"></i>
                     <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No matching records found</p>
@@ -165,7 +149,6 @@
     <!-- DETAILS MODAL -->
     <div id="detailsModal" class="modal-overlay fixed inset-0 bg-lbrce-blue/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 lg:p-10">
         <div class="modal-content bg-white w-full max-w-4xl max-h-full rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative">
-            <!-- Modal Header -->
             <div class="p-8 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-lbrce-blue/5 rounded-2xl flex items-center justify-center text-lbrce-blue text-2xl">
@@ -181,10 +164,8 @@
                 </button>
             </div>
 
-            <!-- Modal Body -->
             <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Left: Lead Summary -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="p-4 bg-slate-50 rounded-[2.5rem] border border-slate-100 text-center">
                             <div class="w-32 h-32 mx-auto rounded-[2rem] bg-white p-1 border-4 border-white shadow-xl overflow-hidden mb-4">
@@ -206,9 +187,7 @@
                         </div>
                     </div>
 
-                    <!-- Right: Event & Team Details -->
                     <div class="lg:col-span-2 space-y-8">
-                        <!-- Transaction & Event -->
                         <div class="grid grid-cols-2 gap-4">
                             <div class="p-6 bg-lbrce-blue rounded-[2.5rem] text-white">
                                 <p class="text-[8px] font-black opacity-40 uppercase tracking-widest mb-1">Event Name</p>
@@ -223,18 +202,15 @@
                             </div>
                         </div>
 
-                        <!-- Team Members -->
                         <div>
                             <div class="flex items-center justify-between mb-4 px-2">
                                 <h5 class="text-[10px] font-black text-lbrce-blue uppercase tracking-widest">Co-Members Info</h5>
                                 <span id="modalTeamSize" class="text-[9px] font-black px-2 py-1 bg-lbrce-accent/10 text-lbrce-accent rounded-lg"></span>
                             </div>
                             <div id="modalMembersList" class="space-y-3">
-                                <!-- Members populated here -->
                             </div>
                         </div>
                         
-                        <!-- Metadata -->
                         <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 grid grid-cols-2 gap-4">
                             <div><p class="text-[8px] font-black text-slate-300 uppercase">College</p><p id="modalCollege" class="text-xs font-bold text-slate-600"></p></div>
                             <div><p class="text-[8px] font-black text-slate-300 uppercase">Timestamp</p><p id="modalTime" class="text-xs font-bold text-slate-600"></p></div>
@@ -251,59 +227,76 @@
 
         async function init() {
             try {
-                // FETCH BOTH REGISTRATIONS AND EVENTS TO FIX UNDEFINED NAMES
-                const [regRes, eventRes] = await Promise.all([
+                // Fetch Master Data (Colleges), Events, and Registrations
+                const [regRes, eventRes, masterRes] = await Promise.all([
                     fetch('/api/admin/registrations'),
-                    fetch('/api/events')
+                    fetch('/api/events'),
+                    fetch('/api/master-data')
                 ]);
                 
                 let rawRegs = await regRes.json();
                 let events = await eventRes.json();
+                let master = await masterRes.json();
 
-                // Create Event ID -> Name Map
                 const eventMap = {};
                 if (Array.isArray(events)) {
                     events.forEach(e => eventMap[e.eventId] = e.name);
                 }
 
-                // Patch Registration Data immediately with Correct Event Names
+                // Patch Registration Data
                 allRegistrations = rawRegs.map(r => {
                     let displayEvent = r.eventName;
-                    // Fix if undefined or missing
                     if (!displayEvent || displayEvent === 'undefined') {
                         displayEvent = eventMap[r.eventId] || 'Unknown Event';
                     }
                     return { ...r, eventName: displayEvent };
                 });
 
-                // Populate Dropdown with Corrected Names
-                const eventSelect = document.getElementById('eventFilter');
-                const uniqueEvents = [...new Set(allRegistrations.map(r => r.eventName))].filter(Boolean);
-                uniqueEvents.sort().forEach(evt => {
-                    const opt = document.createElement('option');
-                    opt.value = evt;
-                    opt.textContent = evt;
-                    eventSelect.appendChild(opt);
-                });
+                // Populate Dynamic Filters
+                populateDropdown('eventFilter', [...new Set(allRegistrations.map(r => r.eventName))].filter(Boolean).sort());
+                populateDropdown('collegeFilter', master.colleges || []);
 
                 applyFilters();
-            } catch (err) { console.error("Sync Failed:", err); }
+            } catch (err) { console.error("Initial Sync Failed:", err); }
+        }
+
+        function populateDropdown(elementId, items) {
+            const select = document.getElementById(elementId);
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                select.appendChild(opt);
+            });
         }
 
         function applyFilters() {
-            const search = document.getElementById('searchFilter').value.toLowerCase();
+            const search = document.getElementById('searchFilter').value.toLowerCase().trim();
             const college = document.getElementById('collegeFilter').value;
             const event = document.getElementById('eventFilter').value;
             const status = document.getElementById('statusFilter').value;
 
             filteredData = allRegistrations.filter(r => {
+                // Search across ID, Lead Name, Lead Roll, Team Name, and Members
+                const memberSearch = r.members?.some(m => m.name.toLowerCase().includes(search) || m.roll?.toLowerCase().includes(search)) || false;
+                
                 const matchesSearch = !search || 
                     r.leadName.toLowerCase().includes(search) || 
-                    r.teamName.toLowerCase().includes(search) || 
-                    r.registrationId.toLowerCase().includes(search);
+                    (r.teamName && r.teamName.toLowerCase().includes(search)) || 
+                    (r.leadRoll && r.leadRoll.toLowerCase().includes(search)) ||
+                    r.registrationId.toLowerCase().includes(search) ||
+                    memberSearch;
+
                 const matchesCollege = !college || r.college === college;
                 const matchesEvent = !event || r.eventName === event;
-                const matchesStatus = !status || String(r.attendance) === status;
+                
+                // Attendance status filter
+                let matchesStatus = true;
+                if (status !== "") {
+                    const isPresent = String(r.attendance) === "true";
+                    matchesStatus = isPresent === (status === "true");
+                }
+
                 return matchesSearch && matchesCollege && matchesEvent && matchesStatus;
             });
 
@@ -325,7 +318,7 @@
                 <tr onclick="showDetails('${r.registrationId}')" class="hover:bg-slate-100/80 cursor-pointer transition-all group">
                     <td class="p-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-slate-100 border-2 border-white shadow-md flex items-center justify-center overflow-hidden shrink-0 relative">
+                            <div class="w-12 h-12 rounded-xl bg-slate-100 border-2 border-white shadow-md flex items-center justify-center overflow-hidden shrink-0">
                                 ${r.photoUrl ? `<img src="${r.photoUrl}" class="w-full h-full object-cover">` : `<i class="ph ph-user text-slate-300 text-xl"></i>`}
                             </div>
                             <div class="min-w-0">
@@ -335,17 +328,17 @@
                         </div>
                     </td>
                     <td class="p-6">
-                        <p class="text-xs font-bold text-slate-700">${r.eventName}</p>
-                        <p class="text-[10px] font-black text-lbrce-accent uppercase truncate">${r.college}</p>
+                        <p class="text-xs font-bold text-slate-700 truncate max-w-[200px]">${r.eventName}</p>
+                        <p class="text-[10px] font-black text-lbrce-accent uppercase truncate max-w-[200px]">${r.college}</p>
                     </td>
                     <td class="p-6 text-center">
                         <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-slate-50 text-lbrce-blue text-xs font-black border">
-                            ${(r.members ? r.members.length : 0) + 1} Members
+                            ${(r.members ? r.members.length : 0) + 1}
                         </span>
                     </td>
                     <td class="p-6">
                         <p class="text-xs font-black text-slate-700">₹${r.amount}</p>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase">${r.paymentId === 'FREE_ENTRY' ? 'Complementary' : 'Online Payment'}</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">${r.paymentId === 'FREE_ENTRY' ? 'Complimentary' : 'Online'}</p>
                     </td>
                     <td class="p-6">
                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${r.attendance ? 'bg-green-50 text-green-700 border-green-100' : 'bg-slate-50 text-slate-400 border-slate-100'}">
@@ -357,15 +350,13 @@
             `).join('');
         }
 
-        
-
         function showDetails(id) {
             const reg = allRegistrations.find(r => r.registrationId === id);
             if (!reg) return;
 
             document.getElementById('modalRegId').innerText = reg.registrationId;
             document.getElementById('modalLeadName').innerText = reg.leadName;
-            document.getElementById('modalLeadRoll').innerText = reg.leadRoll;
+            document.getElementById('modalLeadRoll').innerText = reg.leadRoll || 'N/A';
             document.getElementById('modalLeadEmail').innerText = reg.leadEmail;
             document.getElementById('modalLeadPhone').innerText = reg.leadPhone;
             document.getElementById('modalLeadPhoto').src = reg.photoUrl || 'https://via.placeholder.com/150';
@@ -375,26 +366,26 @@
             document.getElementById('modalPayBadge').innerText = reg.paymentId === 'FREE_ENTRY' ? 'FREE' : 'PAID';
             document.getElementById('modalCollege').innerText = reg.college;
             document.getElementById('modalTime').innerText = new Date(reg.timestamp).toLocaleString();
-            document.getElementById('modalTeamSize').innerText = `${(reg.members ? reg.members.length : 0) + 1} PERSONS`;
+            document.getElementById('modalTeamSize').innerText = `${(reg.members ? reg.members.length : 0) + 1} TOTAL`;
 
             const mList = document.getElementById('modalMembersList');
             if (reg.members && reg.members.length > 0) {
-                mList.innerHTML = reg.members.map((m, i) => `
+                mList.innerHTML = reg.members.map((m) => `
                     <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
                         <div class="w-10 h-10 rounded-xl overflow-hidden bg-white shrink-0 border border-slate-200">
                             <img src="${m.photoUrl || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover">
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-[10px] font-black text-lbrce-blue uppercase truncate">${m.name}</p>
-                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${m.roll}</p>
+                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${m.roll || 'N/A'}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-[8px] font-bold text-slate-500">${m.phone}</p>
+                            <p class="text-[8px] font-bold text-slate-500">${m.phone || ''}</p>
                         </div>
                     </div>
                 `).join('');
             } else {
-                mList.innerHTML = `<p class="text-center py-6 text-slate-400 text-[10px] font-black uppercase">No Co-Members (Individual)</p>`;
+                mList.innerHTML = `<p class="text-center py-6 text-slate-400 text-[10px] font-black uppercase">Individual Registration</p>`;
             }
 
             document.getElementById('detailsModal').classList.add('active');
@@ -409,25 +400,43 @@
             const wsData = filteredData.map(r => ({
                 'Reg ID': r.registrationId,
                 'Event': r.eventName,
-                'Team': r.teamName,
                 'College': r.college,
                 'Lead': r.leadName,
+                'Lead Roll': r.leadRoll || '',
                 'Amount': r.amount,
-                'Attendance': r.attendance ? 'Present' : 'Absent'
+                'Attendance': r.attendance ? 'Verified' : 'Pending'
             }));
             const ws = XLSX.utils.json_to_sheet(wsData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Registrations");
-            XLSX.writeFile(wb, `LBRCE_Regs_${Date.now()}.xlsx`);
+            XLSX.writeFile(wb, `LBRCE_Registrations_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
         function exportToPDF() {
             if (filteredData.length === 0) return;
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4');
+            doc.setFontSize(18);
             doc.text("LBRCE Event Registration Report", 14, 20);
-            const tableRows = filteredData.map(r => [r.registrationId, r.eventName, r.leadName, r.college, r.amount, r.attendance ? 'Present' : 'Absent']);
-            doc.autoTable({ startY: 30, head: [['ID', 'Event', 'Lead', 'College', 'Amount', 'Status']], body: tableRows });
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
+            
+            const tableRows = filteredData.map(r => [
+                r.registrationId, 
+                r.eventName, 
+                r.leadName, 
+                r.college, 
+                `INR ${r.amount}`, 
+                r.attendance ? 'Verified' : 'Pending'
+            ]);
+
+            doc.autoTable({ 
+                startY: 35, 
+                head: [['ID', 'Event', 'Lead Participant', 'College', 'Amount', 'Status']], 
+                body: tableRows,
+                theme: 'striped',
+                headStyles: { fillColor: [0, 51, 102] }
+            });
             doc.save(`LBRCE_Report_${Date.now()}.pdf`);
         }
 
