@@ -373,7 +373,7 @@ async function sendReceiptEmail(data) {
         <div style="padding: 32px;">
             <p style="font-size: 16px; color: #334155; margin: 0 0 24px 0; line-height: 1.6;">
                 Hi <strong style="color: #0f172a;">${data.leadName}</strong>,<br>
-                Your registration for <span style="font-weight: 600; color: #0f172a;">${data.eventName}</span> has been confirmed. We've received your payment and secured your spot.
+                Your registration for <span style="font-weight: 600; color: #0f172a;">Lbrce Hackathon</span> has been confirmed. We've received your payment and secured your spot.
             </p>
 
             <!-- Details Table (Using table for email compatibility inside divs) -->
@@ -442,7 +442,7 @@ async function sendIDCardEmail(recipient, data, qrImage) {
         <!-- Header Section -->
         <div style="background-color: #0f172a; padding: 40px 30px; text-align: center;">
             <h1 style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 3px; color: #94a3b8; font-weight: 700;">Official Entry Pass</h1>
-            <div style="font-size: 24px; font-weight: 800; margin-top: 10px; color: #fbbf24;">${data.eventName}</div>
+            <div style="font-size: 24px; font-weight: 800; margin-top: 10px; color: #fbbf24;">Lbrce Hackathon</div>
         </div>
 
         <!-- Body Section -->
@@ -998,6 +998,7 @@ app.get('/api/config', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
 
