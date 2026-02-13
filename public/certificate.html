@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- ADDED: Sci-Fi and Tech Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Russo+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script>
         tailwind.config = {
@@ -66,50 +70,81 @@
         async function loadCertificate() {
             const params = new URLSearchParams(window.location.search);
             const name = params.get('name');
-            const template = params.get('template');
-            
-            // Convert strings to numbers with robust fallbacks
-            const x_pct = parseFloat(params.get('x')) || 500;
-            const y_pct = parseFloat(params.get('y')) || 500;
-            const fs = parseInt(params.get('fs')) || 60;
-            const event = params.get('event') || "Official Fest Event";
+            const configId = params.get('cid'); // Check for Config ID
 
-            if(!name || !template) {
+            if(!name) {
                 showError("Invalid link. Please check your email for the correct certificate URL.");
+                return;
+            }
+
+            // Defaults (Fallback)
+            let x_pct = 500, y_pct = 500, fs = 60;
+            let fontParam = "'Plus Jakarta Sans', sans-serif";
+            let colorParam = "#003366";
+            let template = params.get('template'); // Legacy fallback
+            let event = "Official Fest Event";
+
+            // If CID is present, fetch from DB
+            if (configId) {
+                try {
+                    const res = await fetch(`/api/certificate-config/${configId}`);
+                    const config = await res.json();
+                    
+                    if (config.templateUrl) {
+                        template = config.templateUrl;
+                        x_pct = parseFloat(config.x);
+                        y_pct = parseFloat(config.y);
+                        fs = parseInt(config.fs);
+                        fontParam = config.font;
+                        colorParam = config.color;
+                        event = config.eventName;
+                    }
+                } catch (e) {
+                    console.error("Config fetch failed, attempting fallback...");
+                }
+            } else {
+                 // Fallback to URL params for legacy links
+                 x_pct = parseFloat(params.get('x')) || 500;
+                 y_pct = parseFloat(params.get('y')) || 500;
+                 fs = parseInt(params.get('fs')) || 60;
+                 fontParam = params.get('font') || fontParam;
+                 colorParam = params.get('color') || colorParam;
+                 event = params.get('event') || event;
+            }
+
+            if(!template) {
+                showError("Certificate Configuration Not Found.");
                 return;
             }
 
             document.getElementById('event-name').innerText = event;
 
             const img = new Image();
-            // IMPORTANT: crossOrigin MUST be anonymous for S3 images to work on Canvas
-            img.crossOrigin = "anonymous";
+            img.crossOrigin = "anonymous"; 
             
             img.onload = async () => {
-                // Ensure fonts are actually ready before drawing
-                await document.fonts.ready;
-                
                 canvas.width = img.width;
                 canvas.height = img.height;
+
+                const fontString = `bold ${fs}px ${fontParam}`;
+                try {
+                    await document.fonts.load(fontString);
+                    console.log("Font loaded:", fontString);
+                } catch(e) {
+                    console.warn("Font load failed/timeout:", e);
+                }
                 
-                // 1. Draw Background
                 ctx.drawImage(img, 0, 0);
                 
-                // 2. Calculate Responsive Coordinates
                 const x = (x_pct / 1000) * canvas.width;
                 const y = (y_pct / 1000) * canvas.height;
                 
-                // 3. Set Text Styles
-                // Added fallbacks for font family
-                ctx.font = `bold ${fs}px "Plus Jakarta Sans", "Inter", sans-serif`;
-                ctx.fillStyle = "#003366";
+                ctx.font = fontString;
+                ctx.fillStyle = colorParam;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                
-                // 4. Draw Identity
                 ctx.fillText(name.toUpperCase(), x, y);
 
-                // 5. Success UI
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('content').classList.remove('hidden');
             };
@@ -131,7 +166,6 @@
             const { jsPDF } = window.jspdf;
             const imgData = canvas.toDataURL('image/jpeg', 1.0);
             
-            // Create PDF based on canvas dimensions (Landscape)
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'px',
@@ -142,7 +176,6 @@
             pdf.save(`Certificate_${Date.now()}.pdf`);
         }
 
-        // Start Logic
         window.onload = loadCertificate;
     </script>
 </body>
