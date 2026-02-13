@@ -6,7 +6,12 @@
     <title>Certification Engine | LBRCE Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Russo+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -19,14 +24,22 @@
     </script>
     <style>
         .sidebar-item-active { background: #FFB800 !important; color: #003366 !important; box-shadow: 0 10px 15px -3px rgba(255, 184, 0, 0.3); }
-        #sidebar-toggle:checked ~ aside { transform: translateX(0); }
-        @media (max-width: 1024px) {
-            aside { transform: translateX(-100%); transition: transform 0.3s ease; }
-        }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         canvas { max-width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        
+        .editable-cell { outline: none; transition: all 0.2s; }
+        .editable-cell:focus { background: #f1f5f9; border-bottom: 2px solid #003366; }
+        .active-row { background-color: #f0f9ff; border-left: 4px solid #003366; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #003366; cursor: pointer; margin-top: -6px; box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.1); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 2px; }
+        
+        option.font-orbitron { font-family: 'Orbitron', sans-serif; }
+        option.font-audiowide { font-family: 'Audiowide', cursive; }
+        option.font-russo { font-family: 'Russo One', sans-serif; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] flex h-screen overflow-hidden text-slate-700">
@@ -49,74 +62,159 @@
         </nav>
     </aside>
 
-    <label for="sidebar-toggle" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" id="mobile-overlay"></label>
-
     <main class="flex-1 flex flex-col overflow-hidden w-full">
         <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 shrink-0">
-            <div class="flex items-center gap-4">
-                <label for="sidebar-toggle" class="lg:hidden p-2 bg-slate-100 rounded-lg cursor-pointer"><i class="ph-bold ph-list text-xl text-lbrce-blue"></i></label>
-                <div>
-                    <h2 class="text-xl lg:text-2xl font-black text-lbrce-blue uppercase">Certificate Engine</h2>
-                    <p class="hidden sm:block text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Cost-Optimized Dynamic Dispatch</p>
-                </div>
+            <div>
+                <h2 class="text-xl lg:text-2xl font-black text-lbrce-blue uppercase">Certificate Engine</h2>
+                <p class="hidden sm:block text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Database-Backed Config System</p>
             </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 lg:p-10 custom-scrollbar bg-[#F8FAFC]">
-            <div class="max-w-6xl mx-auto space-y-10">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 space-y-6">
-                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-6">
+            <div class="max-w-7xl mx-auto space-y-8">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Controls -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-6">
                             <div class="flex items-center gap-3 border-b border-slate-50 pb-4">
-                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-lbrce-blue"><i class="ph-bold ph-image"></i></div>
-                                <h3 class="text-sm font-black text-lbrce-blue uppercase tracking-tight">Template Setup</h3>
+                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-lbrce-blue"><i class="ph-bold ph-sliders-horizontal"></i></div>
+                                <h3 class="text-sm font-black text-lbrce-blue uppercase tracking-tight">Template Config</h3>
                             </div>
-                            <div class="space-y-4">
-                                <button onclick="document.getElementById('templateInput').click()" class="w-full py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-lbrce-accent transition-all group">
-                                    <input type="file" id="templateInput" class="hidden" accept="image/png, image/jpeg" onchange="loadTemplate(event)">
-                                    <i class="ph-bold ph-upload-simple text-2xl text-slate-300 group-hover:text-lbrce-blue"></i>
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-lbrce-blue">Upload Blank PNG</span>
-                                </button>
-                                <div class="space-y-4 pt-4 border-t border-slate-50 text-[10px]">
-                                    <label class="block"><span>Y-Position</span><input type="range" id="posY" min="0" max="1000" value="500" oninput="updatePreview()" class="w-full h-1.5 bg-slate-100 accent-lbrce-blue"></label>
-                                    <label class="block"><span>X-Position</span><input type="range" id="posX" min="0" max="1000" value="500" oninput="updatePreview()" class="w-full h-1.5 bg-slate-100 accent-lbrce-blue"></label>
-                                    <label class="block"><span>Font Size</span><input type="range" id="fontSize" min="10" max="150" value="60" oninput="updatePreview()" class="w-full h-1.5 bg-slate-100 accent-lbrce-blue"></label>
+                            
+                            <button onclick="document.getElementById('templateInput').click()" class="w-full py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-lbrce-accent transition-all group cursor-pointer">
+                                <input type="file" id="templateInput" class="hidden" accept="image/png, image/jpeg" onchange="loadTemplate(event)">
+                                <i class="ph-bold ph-upload-simple text-2xl text-slate-300 group-hover:text-lbrce-blue"></i>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-lbrce-blue">Upload Empty Certificate</span>
+                            </button>
+
+                            <div class="space-y-6 pt-4 border-t border-slate-50 text-[10px]">
+                                <label class="block">
+                                    <span class="font-bold text-slate-500 mb-2 block">Font Style</span>
+                                    <div class="relative">
+                                        <select id="fontFamily" onchange="updatePreview()" class="w-full bg-slate-100 p-3 rounded-xl appearance-none font-bold text-slate-700 outline-none focus:ring-2 focus:ring-lbrce-blue cursor-pointer">
+                                            <option value="'Orbitron', sans-serif" class="font-orbitron">Orbitron (Sci-Fi / CodeCrow)</option>
+                                            <option value="'Russo One', sans-serif" class="font-russo">Russo One (Bold/Boxy)</option>
+                                            <option value="'Audiowide', cursive" class="font-audiowide">Audiowide (Tech)</option>
+                                            <option value="'Rajdhani', sans-serif">Rajdhani (Clean Tech)</option>
+                                            <option value="'Share Tech Mono', monospace">Share Tech (Mono)</option>
+                                            <option value="'Plus Jakarta Sans', sans-serif">Jakarta Sans (Modern)</option>
+                                            <option value="'Courier New', monospace">Courier (Classic)</option>
+                                        </select>
+                                        <i class="ph-bold ph-caret-down absolute right-3 top-3.5 text-slate-400 pointer-events-none"></i>
+                                    </div>
+                                </label>
+
+                                <div class="space-y-4">
+                                    <label class="block group">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-bold text-slate-500 group-hover:text-lbrce-blue transition-colors">Vertical Position (Y)</span>
+                                            <span id="posY-val" class="font-mono text-slate-400">50%</span>
+                                        </div>
+                                        <input type="range" id="posY" min="0" max="1000" value="500" oninput="updatePreview()" class="w-full accent-lbrce-blue">
+                                    </label>
+                                    
+                                    <label class="block group">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-bold text-slate-500 group-hover:text-lbrce-blue transition-colors">Horizontal Position (X)</span>
+                                            <span id="posX-val" class="font-mono text-slate-400">50%</span>
+                                        </div>
+                                        <input type="range" id="posX" min="0" max="1000" value="500" oninput="updatePreview()" class="w-full accent-lbrce-blue">
+                                    </label>
                                 </div>
+
+                                <label class="block group">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="font-bold text-slate-500 group-hover:text-lbrce-blue transition-colors">Font Size</span>
+                                        <span id="fs-val" class="font-mono text-slate-400">60px</span>
+                                    </div>
+                                    <input type="range" id="fontSize" min="20" max="250" value="60" oninput="updatePreview()" class="w-full accent-lbrce-blue">
+                                </label>
+
+                                <label class="block">
+                                    <span class="font-bold text-slate-500 mb-2 block">Font Color</span>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="fontColor" value="#003366" oninput="updatePreview()" class="h-10 w-12 rounded-lg cursor-pointer border border-slate-200 p-1">
+                                        <input type="text" id="fontColorText" value="#003366" oninput="document.getElementById('fontColor').value=this.value; updatePreview()" class="flex-1 bg-slate-100 p-2.5 rounded-lg text-xs font-mono font-bold text-slate-600 focus:ring-2 focus:ring-lbrce-blue outline-none transition-all">
+                                    </div>
+                                </label>
                             </div>
                         </div>
                     </div>
-                    <div class="lg:col-span-2 flex items-center justify-center bg-slate-200/30 rounded-[3rem] p-4 lg:p-10 border border-slate-100 shadow-inner min-h-[400px]">
-                        <div id="previewContainer" class="w-full flex flex-col items-center">
-                            <canvas id="certCanvas"></canvas>
-                            <p id="canvasMsg" class="mt-6 text-xs font-bold text-slate-400 uppercase tracking-widest">Upload template to begin preview</p>
+
+                    <!-- Canvas Preview -->
+                    <div class="lg:col-span-8 bg-slate-200/50 rounded-[2rem] p-6 lg:p-10 border border-slate-200 shadow-inner flex flex-col items-center justify-center min-h-[500px] relative overflow-hidden group">
+                        <div id="previewContainer" class="relative shadow-2xl rounded-xl transition-transform duration-300">
+                            <canvas id="certCanvas" class="max-w-full h-auto max-h-[600px]"></canvas>
                         </div>
+                        <p id="canvasMsg" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-100 z-10 rounded-[2rem]">Upload template to begin preview</p>
                     </div>
                 </div>
 
-                <div class="bg-white p-8 lg:p-10 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-8">
-                    <div class="flex items-center justify-between border-b border-slate-50 pb-6">
+                <!-- Section 2: Data Management -->
+                <div class="bg-white p-6 lg:p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 flex flex-col h-[600px]">
+                    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-50 pb-6 shrink-0">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500"><i class="ph-bold ph-database text-xl"></i></div>
-                            <h3 class="text-lg font-black text-lbrce-blue uppercase tracking-tight">Recipient Master List</h3>
+                            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500"><i class="ph-bold ph-users text-xl"></i></div>
+                            <div>
+                                <h3 class="text-lg font-black text-lbrce-blue uppercase tracking-tight">Recipient Data</h3>
+                                <p class="text-[10px] text-slate-400 font-bold">Emails are routed to Team Lead</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="importFromDB()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold flex items-center gap-2 transition-all">
+                                <i class="ph-bold ph-database"></i> Import DB
+                            </button>
+                            <button onclick="addManualRow()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold flex items-center gap-2 transition-all">
+                                <i class="ph-bold ph-plus"></i> Add Manual
+                            </button>
+                            <button id="downloadBtn" onclick="downloadAllCertificates()" disabled class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="ph-bold ph-download-simple"></i> Download ZIP
+                            </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <div class="lg:col-span-4 space-y-4">
-                            <textarea id="dataInput" rows="12" oninput="parseData()" placeholder="Name, Email, College, Dept, Event" class="w-full p-6 bg-slate-50 rounded-[2rem] border-none outline-none font-medium text-xs focus:ring-2 focus:ring-lbrce-accent transition-all"></textarea>
-                        </div>
-                        <div class="lg:col-span-8 overflow-hidden rounded-[2rem] border border-slate-100 h-[300px] overflow-y-auto bg-white custom-scrollbar">
+
+                    <!-- Editable Table -->
+                    <div class="flex-1 overflow-hidden relative mt-4 border border-slate-200 rounded-2xl">
+                        <div class="absolute inset-0 overflow-auto custom-scrollbar bg-white">
                             <table class="w-full text-left border-collapse">
-                                <tbody id="parsedTable"></tbody>
+                                <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                                    <tr>
+                                        <th class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-wider">#</th>
+                                        <th class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-wider">Participant Name</th>
+                                        <th class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-wider">Dispatch Email (Lead)</th>
+                                        <th class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-wider">Event</th>
+                                        <th class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-wider">Type</th>
+                                        <th class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-wider w-10">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recipientTableBody" class="divide-y divide-slate-100 text-sm">
+                                    <tr>
+                                        <td colspan="6" class="p-10 text-center text-slate-400 text-xs font-medium">No data loaded. Click 'Import DB'.</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center text-[10px] text-slate-400 font-bold shrink-0">
+                        <span id="recordCount">0 Records</span>
+                        <span>Select a row to see live preview</span>
+                    </div>
                 </div>
 
-                <div class="pt-4 pb-20">
-                    <button id="dispatchBtn" onclick="issueCertificates()" class="w-full bg-lbrce-blue text-white py-6 rounded-3xl font-black text-lg uppercase tracking-[0.2em] shadow-2xl hover:bg-lbrce-accent hover:text-lbrce-blue transition-all disabled:opacity-50">
-                        Execute Dispatch Protocol
+                <!-- Final Action -->
+                <div class="pb-20">
+                    <button id="dispatchBtn" onclick="dispatchEmails()" class="w-full bg-lbrce-blue text-white py-6 rounded-3xl font-black text-lg uppercase tracking-[0.2em] shadow-2xl hover:bg-lbrce-accent hover:text-lbrce-blue transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        Dispatch via Email Protocol
                     </button>
-                    <p id="dispatchStatus" class="text-center mt-4 text-[10px] font-black uppercase text-slate-400 tracking-widest hidden">Initializing SES Mail Workers...</p>
+                    <p id="dispatchStatus" class="text-center mt-4 text-[10px] font-black uppercase text-slate-400 tracking-widest hidden">Initializing...</p>
+                    
+                    <!-- Progress Bar for ZIP -->
+                    <div id="zipProgressContainer" class="hidden mt-4 w-full bg-slate-200 rounded-full h-2.5">
+                        <div id="zipProgressBar" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="zipStatusText" class="text-center mt-2 text-[10px] font-bold text-emerald-600 hidden"></p>
                 </div>
             </div>
         </div>
@@ -126,8 +224,13 @@
         const canvas = document.getElementById('certCanvas');
         const ctx = canvas.getContext('2d');
         let templateImg = null;
-        let recipients = [];
         let templateFile = null;
+        let recipients = []; 
+        let selectedIndex = 0;
+
+        document.fonts.ready.then(function () {
+            if(templateImg) updatePreview();
+        });
 
         function loadTemplate(e) {
             templateFile = e.target.files[0];
@@ -139,6 +242,7 @@
                     canvas.width = templateImg.width;
                     canvas.height = templateImg.height;
                     document.getElementById('canvasMsg').classList.add('hidden');
+                    document.getElementById('downloadBtn').disabled = false;
                     updatePreview();
                 }
                 templateImg.src = event.target.result;
@@ -146,73 +250,224 @@
             reader.readAsDataURL(templateFile);
         }
 
-        function updatePreview() {
+        async function updatePreview() {
             if(!templateImg) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(templateImg, 0, 0);
-            const x = (document.getElementById('posX').value / 1000) * canvas.width;
-            const y = (document.getElementById('posY').value / 1000) * canvas.height;
-            const fontSize = document.getElementById('fontSize').value;
-            ctx.font = `bold ${fontSize}px "Plus Jakarta Sans"`;
-            ctx.fillStyle = "#003366";
+
+            const xPct = document.getElementById('posX').value;
+            const yPct = document.getElementById('posY').value;
+            const fs = document.getElementById('fontSize').value;
+            const color = document.getElementById('fontColor').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+
+            document.getElementById('posX-val').innerText = (xPct / 10).toFixed(1) + '%';
+            document.getElementById('posY-val').innerText = (yPct / 10).toFixed(1) + '%';
+            document.getElementById('fs-val').innerText = fs + 'px';
+
+            const x = (xPct / 1000) * canvas.width;
+            const y = (yPct / 1000) * canvas.height;
+            
+            const fontString = `bold ${fs}px ${fontFamily}`;
+            await document.fonts.load(fontString);
+
+            ctx.font = fontString;
+            ctx.fillStyle = color;
             ctx.textAlign = "center";
-            const name = recipients.length > 0 ? recipients[0].name : "PARTICIPANT NAME";
-            ctx.fillText(name.toUpperCase(), x, y);
+            
+            let nameText = "SAMPLE PARTICIPANT";
+            if(recipients.length > 0 && recipients[selectedIndex]) {
+                nameText = recipients[selectedIndex].name;
+            }
+            ctx.fillText(nameText.toUpperCase(), x, y);
         }
 
-        function parseData() {
-            const input = document.getElementById('dataInput').value.trim();
-            if(!input) { recipients = []; renderTable(); return; }
-            const lines = input.split('\n');
-            recipients = lines.map(line => {
-                const parts = line.split(',').map(p => p.trim());
-                return { name: parts[0] || '', email: parts[1] || '', college: parts[2] || '', dept: parts[3] || '', event: parts[4] || '' };
-            }).filter(r => r.name && r.email);
+        async function importFromDB() {
+            const btn = document.querySelector('button[onclick="importFromDB()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Loading...`;
+            try {
+                const res = await fetch('/api/admin/participants/flat');
+                const data = await res.json();
+                if(data.success) {
+                    recipients = data.participants;
+                    renderTable();
+                    if(recipients.length > 0) {
+                        selectedIndex = 0;
+                        updatePreview();
+                    }
+                } else { alert("Failed to fetch data."); }
+            } catch(e) { console.error(e); alert("Network error."); } 
+            finally { btn.innerHTML = originalText; }
+        }
+
+        function addManualRow() {
+            recipients.push({ name: "New Participant", email: "", event: "", college: "", type: "Manual" });
+            selectedIndex = recipients.length - 1;
             renderTable();
             updatePreview();
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('parsedTable');
-            if(recipients.length === 0) {
-                tbody.innerHTML = `<tr><td class="p-10 text-center text-slate-300 text-[10px] font-black uppercase">No valid data parsed</td></tr>`;
-                return;
+        function removeRow(index) {
+            if(confirm('Delete this recipient?')) {
+                recipients.splice(index, 1);
+                if(selectedIndex >= recipients.length) selectedIndex = Math.max(0, recipients.length - 1);
+                renderTable();
+                updatePreview();
             }
-            tbody.innerHTML = recipients.map((r, i) => `<tr class="border-b border-slate-50"><td class="p-4 px-6 text-[10px] font-black uppercase text-lbrce-blue">${r.name}<br><span class="text-[8px] font-bold text-slate-400">${r.email}</span></td><td class="p-4 text-[8px] font-bold text-slate-500">${r.college} | ${r.event}</td></tr>`).join('');
         }
 
-        async function issueCertificates() {
-            if(recipients.length === 0 || !templateFile) return alert("Upload template and provide data.");
-            const btn = document.getElementById('dispatchBtn');
+        function updateRecipient(index, field, value) {
+            recipients[index][field] = value;
+            if(index === selectedIndex && field === 'name') updatePreview();
+        }
+
+        function selectRow(index) {
+            selectedIndex = index;
+            document.querySelectorAll('#recipientTableBody tr').forEach((tr, i) => {
+                if(i === index) tr.classList.add('active-row');
+                else tr.classList.remove('active-row');
+            });
+            updatePreview();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('recipientTableBody');
+            document.getElementById('recordCount').innerText = `${recipients.length} Records`;
+            if(recipients.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 text-xs font-medium">No data. Click 'Import DB' or 'Add Manual'.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = recipients.map((r, i) => `
+                <tr class="cursor-pointer hover:bg-slate-50 border-b border-slate-50 transition-colors ${i === selectedIndex ? 'active-row' : ''}" onclick="selectRow(${i})">
+                    <td class="p-4 font-mono text-xs text-slate-400">${i+1}</td>
+                    <td class="p-2"><input type="text" value="${r.name}" oninput="updateRecipient(${i}, 'name', this.value)" class="editable-cell w-full bg-transparent p-2 rounded text-xs font-bold text-lbrce-blue placeholder-slate-300 focus:bg-white focus:shadow-sm" placeholder="Name"></td>
+                    <td class="p-2"><input type="text" value="${r.email}" oninput="updateRecipient(${i}, 'email', this.value)" class="editable-cell w-full bg-transparent p-2 rounded text-xs text-slate-600 placeholder-slate-300 focus:bg-white focus:shadow-sm" placeholder="Dispatch Email"></td>
+                    <td class="p-2"><input type="text" value="${r.event}" oninput="updateRecipient(${i}, 'event', this.value)" class="editable-cell w-full bg-transparent p-2 rounded text-xs text-slate-500 placeholder-slate-300 focus:bg-white focus:shadow-sm" placeholder="Event"></td>
+                    <td class="p-2 text-xs text-slate-400 font-mono">${r.type || 'Manual'}</td>
+                    <td class="p-2 text-center"><button onclick="event.stopPropagation(); removeRow(${i})" class="text-red-300 hover:text-red-500 p-2 transition-colors"><i class="ph-bold ph-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function downloadAllCertificates() {
+            if(!templateImg) return alert("Please upload a template first.");
+            if(recipients.length === 0) return alert("No recipients to generate.");
+
+            const btn = document.getElementById('downloadBtn');
+            const progressContainer = document.getElementById('zipProgressContainer');
+            const progressBar = document.getElementById('zipProgressBar');
+            const statusText = document.getElementById('zipStatusText');
+            
             btn.disabled = true;
-            btn.innerText = "UPLOADING TEMPLATE...";
-            document.getElementById('dispatchStatus').classList.remove('hidden');
+            progressContainer.classList.remove('hidden');
+            statusText.classList.remove('hidden');
+
+            const zip = new JSZip();
+            const folder = zip.folder("certificates");
+            
+            const xPct = document.getElementById('posX').value;
+            const yPct = document.getElementById('posY').value;
+            const fs = document.getElementById('fontSize').value;
+            const color = document.getElementById('fontColor').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+            
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = canvas.width;
+            offCanvas.height = canvas.height;
+            const offCtx = offCanvas.getContext('2d');
+            
+            const x = (xPct / 1000) * offCanvas.width;
+            const y = (yPct / 1000) * offCanvas.height;
+            const font = `bold ${fs}px ${fontFamily}`;
 
             try {
-                // Upload template ONCE to get a URL
+                await document.fonts.load(font);
+                for(let i=0; i<recipients.length; i++) {
+                    const r = recipients[i];
+                    if(!r.name) continue;
+                    const pct = Math.round(((i+1) / recipients.length) * 100);
+                    progressBar.style.width = `${pct}%`;
+                    statusText.innerText = `Generating ${i+1}/${recipients.length}: ${r.name}`;
+
+                    offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+                    offCtx.drawImage(templateImg, 0, 0);
+                    offCtx.font = font;
+                    offCtx.fillStyle = color;
+                    offCtx.textAlign = "center";
+                    offCtx.fillText(r.name.toUpperCase(), x, y);
+
+                    const blob = await new Promise(resolve => offCanvas.toBlob(resolve, 'image/jpeg', 0.85));
+                    const cleanName = r.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    folder.file(`${cleanName}.jpg`, blob);
+                    if(i % 10 === 0) await new Promise(res => setTimeout(res, 0));
+                }
+                statusText.innerText = "Compressing files...";
+                const content = await zip.generateAsync({type:"blob"});
+                saveAs(content, "lbrce_certificates.zip");
+                statusText.innerText = "Download Started!";
+                setTimeout(() => { progressContainer.classList.add('hidden'); statusText.classList.add('hidden'); }, 3000);
+            } catch (err) { console.error(err); alert("Error generating zip: " + err.message); } 
+            finally { btn.disabled = false; }
+        }
+
+        async function dispatchEmails() {
+            if(recipients.length === 0 || !templateFile) return alert("Upload template and ensure data is present.");
+            
+            if(!confirm(`Send certificates to ${recipients.length} participants? Emails will be routed to Team Leads.`)) return;
+
+            const btn = document.getElementById('dispatchBtn');
+            const status = document.getElementById('dispatchStatus');
+            btn.disabled = true;
+            btn.innerText = "UPLOADING TEMPLATE...";
+            status.classList.remove('hidden');
+
+            try {
+                // 1. Upload Template
                 const formData = new FormData();
                 formData.append('photo', templateFile);
                 const uploadRes = await fetch('/api/upload-photo', { method: 'POST', body: formData });
                 const uploadJson = await uploadRes.json();
-                
-                // Dispatch logic: Send link to the dynamic viewer page
+                if(!uploadJson.url) throw new Error("Template upload failed");
+
+                // 2. SAVE Config to DB (New Step)
+                btn.innerText = "SAVING CONFIG...";
+                const configRes = await fetch('/api/admin/certificates/save-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        template: uploadJson.url,
+                        x: document.getElementById('posX').value,
+                        y: document.getElementById('posY').value,
+                        fs: document.getElementById('fontSize').value,
+                        font: document.getElementById('fontFamily').value,
+                        color: document.getElementById('fontColor').value,
+                        eventName: recipients[0].event || 'Event'
+                    })
+                });
+                const configData = await configRes.json();
+                if(!configData.success) throw new Error("Failed to save configuration.");
+
+                // 3. Dispatch Emails using Config ID
+                btn.innerText = "DISPATCHING EMAILS...";
                 const res = await fetch('/api/admin/certificates/issue', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         recipients: recipients,
-                        templateUrl: uploadJson.url,
-                        config: {
-                            x: document.getElementById('posX').value,
-                            y: document.getElementById('posY').value,
-                            fs: document.getElementById('fontSize').value
-                        },
-                        eventName: recipients[0].event
+                        configId: configData.configId, // Using the ID we just got
+                        eventName: recipients[0].event || 'Event'
                     })
                 });
                 
-                if(res.ok) { alert("Dispatch Protocol executed. Participants will receive short dynamic links."); location.reload(); }
-            } catch (err) { alert("Execution failed."); }
-            finally { btn.disabled = false; btn.innerText = "Execute Dispatch Protocol"; }
+                if(res.ok) { 
+                    alert("Dispatch Protocol executed. Emails sent with DB-backed config."); 
+                    window.location.reload();
+                } else { throw new Error("Server rejected dispatch."); }
+
+            } catch (err) { alert("Execution failed: " + err.message); } 
+            finally { btn.disabled = false; btn.innerText = "Execute Dispatch Protocol"; status.classList.add('hidden'); }
         }
 
         window.onload = async () => {
