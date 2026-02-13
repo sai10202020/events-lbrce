@@ -661,92 +661,130 @@ app.post('/api/admin/mark-attendance', isAdmin, async (req, res) => {
 });
 
 // 1. Certificate Issuance Endpoint
-app.post('/api/admin/certificates/issue', isAdmin, async (req, res) => {
-    // We must receive config (x, y, fs) from the frontend
-    const { recipients, templateUrl, config, eventName } = req.body;
+app.post('/api/admin/certificates/save-config', isAdmin, async (req, res) => {
+    const { template, x, y, fs, font, color, eventName } = req.body;
     
-    // Use your actual production domain here once deployed
+    // Generate a unique Config ID
+    const configId = `CFG-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    const item = {
+        configId: configId,
+        templateUrl: template,
+        x: x || 500,
+        y: y || 500,
+        fs: fs || 60,
+        font: font || "'Plus Jakarta Sans', sans-serif",
+        color: color || '#003366',
+        eventName: eventName || 'Event',
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        await dynamo.put({ TableName: 'LBRCE_Cert_Configs', Item: item }).promise();
+        res.json({ success: true, configId });
+    } catch(err) { 
+        console.error("Config Save Error:", err);
+        res.status(500).json({ error: 'Failed to save configuration to DB' }); 
+    }
+});
+
+app.get('/api/certificate-config/:id', async (req, res) => {
+    try {
+        const result = await dynamo.get({
+            TableName: 'LBRCE_Cert_Configs',
+            Key: { configId: req.params.id }
+        }).promise();
+        
+        if (!result.Item) return res.status(404).json({ error: 'Config not found' });
+        res.json(result.Item);
+    } catch(err) { 
+        console.error("Config Fetch Error:", err);
+        res.status(500).json({ error: 'Fetch failed' }); 
+    }
+});
+
+// UPDATED: Issue Endpoint with FULL EMAIL TEMPLATE
+app.post('/api/admin/certificates/issue', isAdmin, async (req, res) => {
+    const { recipients, configId, eventName } = req.body;
+    
     const baseUrl = `https://events-lbrce.in`; 
     
     for (const student of recipients) {
         try {
-            // Construct the Smart Link with ALL parameters
+            // New clean link with Config ID
             const dynamicLink = `${baseUrl}/certificate.html?` + 
                 `name=${encodeURIComponent(student.name)}&` +
-                `template=${encodeURIComponent(templateUrl)}&` +
-                `x=${config.x || 500}&` +
-                `y=${config.y || 500}&` +
-                `fs=${config.fs || 60}&` +
-                `event=${encodeURIComponent(eventName || 'Event')}`;
+                `cid=${configId}`;
 
             await ses.sendEmail({
                 Destination: { ToAddresses: [student.email] },
                 Message: {
                     Body: { Html: { Data: `
                         <div style="margin: 0; padding: 40px 10px; background-color: #f4f7f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-    <!-- Main Email Card -->
-    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; margin: auto; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-collapse: collapse;">
-        
-        <!-- Header/Logo Area -->
-        <tr>
-            <td align="center" style="padding: 40px 40px 20px 40px;">
-                <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" 
-                     alt="LBRCE Logo" 
-                     width="90" 
-                     style="display: block; outline: none; border: none; text-decoration: none;"
-                     onerror="this.src='https://via.placeholder.com/90?text=LBRCE'">
-            </td>
-        </tr>
+                            <!-- Main Email Card -->
+                            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; margin: auto; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-collapse: collapse;">
+                                
+                                <!-- Header/Logo Area -->
+                                <tr>
+                                    <td align="center" style="padding: 40px 40px 20px 40px;">
+                                        <img src="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png" 
+                                             alt="LBRCE Logo" 
+                                             width="90" 
+                                             style="display: block; outline: none; border: none; text-decoration: none;"
+                                             onerror="this.src='https://via.placeholder.com/90?text=LBRCE'">
+                                    </td>
+                                </tr>
 
-        <!-- Body Content -->
-        <tr>
-            <td align="center" style="padding: 0 40px;">
-                <h2 style="color: #003366; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
-                    Congratulations!
-                </h2>
-                <p style="color: #556677; font-size: 16px; line-height: 24px; margin: 20px 0 30px 0;">
-                    Hi <strong>${student.name}</strong>, your certificate for <strong>${eventName}</strong> is ready and verified.
-                </p>
-                
-                <!-- Action Button -->
-                <div style="margin-bottom: 30px;">
-                    <a href="${dynamicLink}" target="_blank" style="background-color: #FFB800; color: #003366; padding: 18px 30px; border-radius: 12px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 14px; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(255, 184, 0, 0.2);">
-                        VIEW & DOWNLOAD CERTIFICATE
-                    </a>
-                </div>
+                                <!-- Body Content -->
+                                <tr>
+                                    <td align="center" style="padding: 0 40px;">
+                                        <h2 style="color: #003366; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                                            Congratulations!
+                                        </h2>
+                                        <p style="color: #556677; font-size: 16px; line-height: 24px; margin: 20px 0 30px 0;">
+                                            Hi <strong>${student.name}</strong>, your certificate for <strong>${eventName}</strong> is ready and verified.
+                                        </p>
+                                        
+                                        <!-- Action Button -->
+                                        <div style="margin-bottom: 30px;">
+                                            <a href="${dynamicLink}" target="_blank" style="background-color: #FFB800; color: #003366; padding: 18px 30px; border-radius: 12px; text-decoration: none; font-weight: 800; display: inline-block; font-size: 14px; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(255, 184, 0, 0.2);">
+                                                VIEW & DOWNLOAD CERTIFICATE
+                                            </a>
+                                        </div>
 
-                <p style="color: #94a3b8; font-size: 11px; margin: 0 0 40px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
-                    <span style="font-size: 14px; margin-right: 4px; color: #10b981;">✓</span>
-                    Verified by LBRCE Authority
-                </p>
-            </td>
-        </tr>
+                                        <p style="color: #94a3b8; font-size: 11px; margin: 0 0 40px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                                            <span style="font-size: 14px; margin-right: 4px; color: #10b981;">✓</span>
+                                            Verified by LBRCE Authority
+                                        </p>
+                                    </td>
+                                </tr>
 
-        <!-- Footer Area -->
-        <tr>
-            <td align="center" style="padding: 30px 40px; background-color: #f8fafc; border-top: 1px solid #edf2f7;">
-                <p style="color: #64748b; font-size: 12px; line-height: 18px; margin: 0;">
-                    This certificate is an official record of your achievement. You can always access it through your portal dashboard.
-                </p>
-                <p style="color: #003366; font-size: 11px; font-weight: 600; margin-top: 15px; letter-spacing: 0.5px; line-height: 1.5;">
-                    This System was Designed & developed by <br>
-                    <a href="https://xetasolutions.in" target="_blank" style="color: #FFB800; text-decoration: none; border-bottom: 1px solid #FFB800;">Xeta Tech Solutions</a>
-                </p>
-            </td>
-        </tr>
-    </table>
+                                <!-- Footer Area -->
+                                <tr>
+                                    <td align="center" style="padding: 30px 40px; background-color: #f8fafc; border-top: 1px solid #edf2f7;">
+                                        <p style="color: #64748b; font-size: 12px; line-height: 18px; margin: 0;">
+                                            This certificate is an official record of your achievement. You can always access it through your portal dashboard.
+                                        </p>
+                                        <p style="color: #003366; font-size: 11px; font-weight: 600; margin-top: 15px; letter-spacing: 0.5px; line-height: 1.5;">
+                                            This System was Designed & developed by <br>
+                                            <a href="https://xetasolutions.in" target="_blank" style="color: #FFB800; text-decoration: none; border-bottom: 1px solid #FFB800;">Xeta Tech Solutions</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
 
-    <!-- Bottom Spacing -->
-    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; margin: auto;">
-        <tr>
-            <td align="center" style="padding-top: 20px;">
-                <p style="color: #cbd5e1; font-size: 11px; margin: 0;">
-                    &copy; 2024 LBRCE Events Portal. All rights reserved.
-                </p>
-            </td>
-        </tr>
-    </table>
-</div>` } },
+                            <!-- Bottom Spacing -->
+                            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; margin: auto;">
+                                <tr>
+                                    <td align="center" style="padding-top: 20px;">
+                                        <p style="color: #cbd5e1; font-size: 11px; margin: 0;">
+                                            &copy; 2024 LBRCE Events Portal. All rights reserved.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>` 
+                    } },
                     Subject: { Data: `Certificate of Participation: ${eventName}` }
                 },
                 Source: 'events@xetasolutions.in'
@@ -755,7 +793,7 @@ app.post('/api/admin/certificates/issue', isAdmin, async (req, res) => {
     }
     res.json({ success: true, count: recipients.length });
 });
-
+// ... existing code ...
 // --- UPDATED OTP & STATUS ENDPOINTS ---
 
 // 1. Send OTP to Lead Email
@@ -998,6 +1036,7 @@ app.get('/api/config', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
 
