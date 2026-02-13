@@ -1074,9 +1074,38 @@ app.get('/api/admin/participants/flat', isAdmin, async (req, res) => {
     }
 });
 
+app.get('/api/certificates/latest-config', async (req, res) => {
+    const { eventName } = req.query;
+    if(!eventName) return res.status(400).json({ error: 'Event name required' });
+
+    try {
+        // Scan for configs matching the event name
+        const data = await dynamo.scan({
+            TableName: 'LBRCE_Cert_Configs',
+            FilterExpression: "eventName = :e",
+            ExpressionAttributeValues: { ":e": eventName }
+        }).promise();
+
+        if (!data.Items || data.Items.length === 0) {
+            return res.json({ success: false, message: 'No certificate config found' });
+        }
+
+        // Sort by creation date (newest first) to get the latest design
+        const sorted = data.Items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const latest = sorted[0];
+
+        res.json({ success: true, configId: latest.configId });
+    } catch (err) {
+        console.error("Cert Config Lookup Error:", err);
+        res.status(500).json({ error: 'Lookup failed' });
+    }
+});
+
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
 
