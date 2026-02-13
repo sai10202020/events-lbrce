@@ -1032,10 +1032,52 @@ app.get('/api/config', (req, res) => {
     res.json({ razorpay_key_id: process.env.RAZORPAY_KEY_ID });
 });
 
+app.get('/api/admin/participants/flat', isAdmin, async (req, res) => {
+    try {
+        const data = await dynamo.scan({ TableName: 'LBRCE_Registrations' }).promise();
+        const flattened = [];
+
+        data.Items.forEach(reg => {
+            // CRITICAL CHANGE: We ensure 'leadEmail' is used for everyone.
+            // This ensures all certificates go to the Lead's inbox.
+            const dispatchEmail = reg.leadEmail || '';
+
+            // 1. Add Lead
+            flattened.push({
+                name: reg.leadName,
+                email: dispatchEmail, // Send to Lead
+                type: 'Lead',
+                event: reg.eventName || 'Event',
+                college: reg.college || 'N/A'
+            });
+
+            // 2. Add Members (if any)
+            if (reg.members && Array.isArray(reg.members)) {
+                reg.members.forEach(mem => {
+                    flattened.push({
+                        name: mem.name,
+                        email: dispatchEmail, // <--- OVERWRITE: Send Member certs to Lead also
+                        type: 'Member', 
+                        // We store the original email in a hidden field if needed later, but 'email' key drives the dispatch
+                        originalMemberEmail: mem.email, 
+                        event: reg.eventName || 'Event',
+                        college: reg.college || 'N/A'
+                    });
+                });
+            }
+        });
+
+        res.json({ success: true, count: flattened.length, participants: flattened });
+    } catch (err) {
+        console.error("Fetch Error:", err);
+        res.status(500).json({ error: 'Failed to fetch participants' });
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`🚀 LBRCE Server Live on Port ${PORT}`));
+
 
 
 
