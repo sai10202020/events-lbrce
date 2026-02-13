@@ -6,7 +6,7 @@
     <title>Dashboard | LBRCE Prestige</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png">
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/djdwpjm7x/image/upload/v1769925973/events_lbrce_logo_sefvzr.png">
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
@@ -156,6 +156,18 @@
                 <div class="p-10 bg-white/30 grid grid-cols-1 gap-4">
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] text-center mb-2">Participant Toolset</p>
                     
+                    <!-- NEW: Certificates Button -->
+                    <button onclick="openCertModal()" class="w-full p-5 bg-white border border-slate-100 rounded-3xl flex items-center gap-5 group hover:border-lbrce-accent hover:shadow-xl hover:shadow-orange-900/5 transition-all active:scale-[0.98]">
+                        <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-lbrce-accent group-hover:bg-lbrce-accent group-hover:text-white transition-all duration-500">
+                            <i class="ph-bold ph-certificate text-2xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-[11px] font-black text-lbrce-accent uppercase tracking-tight">Certificates</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Download Team Docs</p>
+                        </div>
+                        <i class="ph-bold ph-caret-right ml-auto text-slate-200 group-hover:text-lbrce-accent group-hover:translate-x-1 transition-all"></i>
+                    </button>
+
                     <button onclick="generateAllCards()" class="w-full p-5 bg-white border border-slate-100 rounded-3xl flex items-center gap-5 group hover:border-lbrce-blue hover:shadow-xl hover:shadow-blue-900/5 transition-all active:scale-[0.98]">
                         <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-lbrce-blue group-hover:bg-lbrce-blue group-hover:text-white transition-all duration-500">
                             <i class="ph-bold ph-identification-cards text-2xl"></i>
@@ -181,6 +193,24 @@
             </div>
         </div>
     </main>
+
+    <!-- NEW: CERTIFICATE MODAL -->
+    <div id="cert-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-lbrce-navy/80 backdrop-blur-sm animate-in fade-in duration-300">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-6 sm:p-8 relative shadow-2xl animate-in zoom-in-95 duration-300">
+            <button onclick="document.getElementById('cert-modal').classList.add('hidden')" class="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"><i class="ph-bold ph-x"></i></button>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center text-lbrce-accent mx-auto mb-4">
+                    <i class="ph-fill ph-certificate text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-black text-lbrce-blue uppercase tracking-tight">Team Certificates</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Download official documents</p>
+            </div>
+            <div id="cert-list" class="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar p-1">
+                <!-- Items injected here -->
+                <p class="text-center text-xs text-slate-400 py-10">Loading certificates...</p>
+            </div>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <footer class="w-full max-w-xl no-print pb-12 pt-8 text-center px-6">
@@ -407,6 +437,49 @@
                 ? 'bg-blue-50 text-blue-600 border-blue-100' 
                 : 'bg-green-50 text-green-600 border-green-100'
             }`;
+        }
+
+        // --- NEW: FETCH CERTIFICATE CONFIG & SHOW MODAL ---
+        async function openCertModal() {
+            if(!userData) return;
+            document.getElementById('cert-modal').classList.remove('hidden');
+            const list = document.getElementById('cert-list');
+            list.innerHTML = `<div class="flex flex-col items-center py-10 gap-3"><div class="w-8 h-8 border-4 border-lbrce-blue border-t-lbrce-accent rounded-full animate-spin"></div><p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Searching Archives...</p></div>`;
+
+            try {
+                // 1. Fetch Config for this event
+                const res = await fetch(`/api/certificates/latest-config?eventName=${encodeURIComponent(userData.eventName)}`);
+                const configData = await res.json();
+
+                if(!configData.success) {
+                    list.innerHTML = `<div class="text-center py-8"><p class="text-sm font-bold text-slate-500">No certificates issued yet.</p><p class="text-xs text-slate-400 mt-1">Please wait for admin dispatch.</p></div>`;
+                    return;
+                }
+
+                const cid = configData.configId;
+
+                // 2. Build Team List
+                const members = [
+                    { name: userData.leadName, role: 'Team Lead' },
+                    ...(userData.members || []).map(m => ({ name: m.name, role: 'Member' }))
+                ];
+
+                // 3. Render Links
+                list.innerHTML = members.map(m => `
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-lbrce-accent/50 transition-all">
+                        <div>
+                            <p class="text-xs font-black text-lbrce-blue uppercase">${m.name}</p>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-slate-100 mt-1 inline-block">${m.role}</span>
+                        </div>
+                        <a href="certificate.html?name=${encodeURIComponent(m.name)}&cid=${cid}" target="_blank" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lbrce-blue shadow-sm group-hover:bg-lbrce-accent group-hover:text-white transition-all">
+                            <i class="ph-bold ph-download-simple"></i>
+                        </a>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                list.innerHTML = `<p class="text-center text-red-500 text-xs font-bold">Failed to load certificates.</p>`;
+            }
         }
 
         function generateDirectReceipt() {
